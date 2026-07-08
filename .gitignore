@@ -713,3 +713,4 @@ slurm_logs
 .scitex/*/runtime/*
 !.scitex/*/runtime/.gitkeep
 !.scitex/*/runtime/README.md
+.worktrees/
