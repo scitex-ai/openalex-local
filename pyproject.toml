@@ -29,7 +29,8 @@ dependencies = [
 
 [project.optional-dependencies]
 dev = [
-    "fastapi>=0.100",
+    "fastapi>=0.115,<0.128",
+    "starlette>=0.40,<0.48",
     "fastmcp>=2.0.0",
     "pytest-asyncio>=0.21",
     "pytest-cov>=4.0",
@@ -41,7 +42,13 @@ mcp = [
     "fastmcp>=2.0.0",
 ]
 server = [
-    "fastapi>=0.100",
+    # fastapi pulls starlette; the starlette bound must stay explicit.
+    # An unbounded "fastapi>=0.100" let a shared env resolve to
+    # fastapi 0.128 + starlette 1.2, which crash the relay at import
+    # (Router.__init__() got an unexpected keyword argument 'on_startup').
+    # Pin both to the fastapi-compatible window (starlette < 0.48).
+    "fastapi>=0.115,<0.128",
+    "starlette>=0.40,<0.48",
     "uvicorn>=0.23",
 ]
 docs = [
