@@ -2,7 +2,6 @@
 
 import pytest
 from click.testing import CliRunner
-
 from openalex_local._cli.cli import cli
 
 try:
@@ -183,6 +182,7 @@ class TestCLICommands:
         # Assert
         assert result.exit_code in (0, 1)
 
+
 # ---------------------------------------------------------------------------
 # `update` command
 #
@@ -197,7 +197,7 @@ class TestCLICommands:
 import json as _json
 import os as _os
 
-_FAKE_SCRIPT_TEMPLATE = '''\
+_FAKE_SCRIPT_TEMPLATE = """\
 import json
 import sys
 
@@ -221,7 +221,7 @@ def differential_update(**kwargs):
         "elapsed_seconds": 1.0,
         "last_sync_date": "2026-03-15",
     }}
-'''
+"""
 
 
 @pytest.fixture
@@ -255,10 +255,18 @@ class TestUpdateCommand:
         self.runner = CliRunner()
 
     def test_update_help_lists_dry_run_flag(self):
+        """Help comes from the canonical location, `db update`.
+
+        The top-level `update` is now a deprecation alias, and an alias
+        intercepts `--help` to announce the move rather than reprinting the
+        target's options. The remaining tests in this class still invoke the
+        alias, which is what pins the forwarding contract the systemd unit
+        depends on.
+        """
         # Arrange
         runner = CliRunner()
         # Act
-        result = runner.invoke(cli, ["update", "--help"])
+        result = runner.invoke(cli, ["db", "update", "--help"])
         # Assert
         assert "--dry-run" in result.output
 

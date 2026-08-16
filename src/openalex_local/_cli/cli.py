@@ -272,10 +272,33 @@ from .status import status_cmd
 cli.add_command(status_cmd)
 
 
-# Update command (extracted to separate module for line limit)
-from .update import update_cmd
+# Database group (extracted to separate module for line limit).
+#
+# `update` used to sit at top level, which the CLI audit rejects under §1: a
+# bare transitive verb with no object. It updates the local DATABASE, so the
+# object becomes the group — `openalex-local db update`. Nesting also gives the
+# forthcoming build/verify verbs somewhere coherent to live.
+#
+# The old spelling is a PUBLISHED CONTRACT: `openalex-update.service` on nas-03
+# invokes `openalex-local update --yes --quiet`. So this is a migration, not a
+# rename — the alias forwards and warns, and only disappears at the version
+# named below.
+from .db_group import db_group
 
-cli.add_command(update_cmd)
+cli.add_command(db_group)
+
+try:
+    from scitex_dev.ecosystem import deprecated_alias as _deprecated_alias
+except ImportError:  # pragma: no cover - keystone absent in a bare install
+    pass
+else:
+    _deprecated_alias(
+        cli,
+        "update",
+        target=db_group.commands["update"],
+        remove_in="0.9",
+        target_name="db update",
+    )
 
 
 # Register MCP subcommand group
@@ -322,7 +345,7 @@ def relay(host: str, port: int, force: bool):
       curl "http://localhost:31292/works?q=CRISPR&limit=10"
     """
     try:
-        from .._server import run_server, DEFAULT_HOST, DEFAULT_PORT
+        from .._server import DEFAULT_HOST, DEFAULT_PORT, run_server
     except ImportError:
         click.echo(
             "API server requires fastapi and uvicorn. Install with:\n"
