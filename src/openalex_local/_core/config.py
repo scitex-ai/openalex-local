@@ -6,6 +6,9 @@ import os as _os
 from pathlib import Path as _Path
 from typing import Optional as _Optional
 
+from .dsn import DsnTarget as _DsnTarget
+from .dsn import parse_dsn as _parse_dsn
+
 # Default database locations (checked in order). Anchored on multiple
 # roots so the DB is found regardless of which directory the caller
 # (pytest, CLI, MCP server) is invoked from. Hardcoded user-specific
@@ -26,14 +29,40 @@ DEFAULT_DB_PATHS = [
 ]
 
 
+def get_dsn_target() -> _Optional["_DsnTarget"]:
+    """Resolve ``OPENALEX_LOCAL_DB`` into a typed target, or None if unset.
+
+    Returns None — not a default — when the variable is absent, so the caller
+    decides what "unset" means. Here that is the DEFAULT_DB_PATHS search, which
+    is a sqlite-only notion and does not belong inside a DSN parser.
+    """
+    env_value = _os.environ.get("OPENALEX_LOCAL_DB")
+    if not env_value:
+        return None
+    return _parse_dsn(env_value)
+
+
 def get_db_path() -> _Path:
-    """Get database path from environment or auto-detect."""
-    env_path = _os.environ.get("OPENALEX_LOCAL_DB")
-    if env_path:
-        path = _Path(env_path)
-        if path.exists():
-            return path
-        raise FileNotFoundError(f"OPENALEX_LOCAL_DB path not found: {env_path}")
+    """Get the sqlite database path from the environment, or auto-detect.
+
+    Refuses a postgres DSN rather than coercing it. A URL passed to
+    ``_Path()`` becomes a relative directory name that will never exist, and
+    the resulting "path not found" would send the reader hunting for a missing
+    file instead of telling them this call site is sqlite-only.
+    """
+    target = get_dsn_target()
+    if target is not None:
+        if target.is_postgres:
+            raise NotImplementedError(
+                f"OPENALEX_LOCAL_DB names a postgres server ({target.raw!r}), "
+                "but this call path resolves a sqlite FILE. The postgres "
+                "backend is not wired up yet — set a filesystem path, or "
+                "track the migration on "
+                "bib-local-packages-postgres-backend-20260816."
+            )
+        if target.path.exists():
+            return target.path
+        raise FileNotFoundError(f"OPENALEX_LOCAL_DB path not found: {target.raw}")
 
     for path in DEFAULT_DB_PATHS:
         if path.exists():
