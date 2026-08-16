@@ -57,12 +57,21 @@ def update_cmd(db_path, since, dry_run, yes, quiet):
     from .. import update as _update
 
     if not dry_run and not yes:
+        # REFUSE rather than prompt (ecosystem doctrine §2). This command's
+        # primary caller is a systemd timer, and an interactive prompt in an
+        # unattended context does not ask anybody anything -- it hangs, or it
+        # reads EOF and takes the default. Refusing makes the missing flag
+        # visible in the exit status instead of silently deciding for the
+        # operator. Exit 2 is the conventional usage-error code.
         target = db_path or "the auto-discovered database"
-        if not click.confirm(
-            f"Run incremental update against {target}?", default=True
-        ):
-            click.secho("Aborted.", fg="yellow", err=True)
-            sys.exit(1)
+        click.secho(
+            f"Refusing to update {target} without --yes/-y.\n"
+            "This rewrites the database in place. Re-run with --yes to "
+            "proceed, or --dry-run to see what would change.",
+            fg="red",
+            err=True,
+        )
+        sys.exit(2)
 
     try:
         stats = _update(db_path=db_path, since=since, dry_run=dry_run)
