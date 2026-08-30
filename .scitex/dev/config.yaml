@@ -5,3 +5,139 @@ audit:
     files:
       # Codecov configuration file lives at repo root by convention.
       - codecov.yml
+
+  # PS-231 READS THIS FILE AND ONLY THIS FILE. An entry written under
+  # `[tool.scitex_dev.audit]` in pyproject.toml is ignored SILENTLY while the
+  # rule keeps firing at E — that block belongs to PS-168, which is a
+  # different check with a different reader. `line: 0` is mandatory: the rule
+  # queries its own site key as (path, 0) because a duplicated workflow is a
+  # whole FILE, not a line, and an omitted `line` is rejected outright.
+  #
+  # THE DUPLICATION RULE IS RIGHT, AND THREE OF THE FIVE SITES IT FLAGGED
+  # WERE FIXED RATHER THAN EXEMPTED (2026-08-30): import-smoke, cla and
+  # auto-merge-to-develop are now callers of the org reusables. Only the two
+  # below are exempt, each because the reusable STRUCTURALLY CANNOT express
+  # what the leaf does — a capability gap in the callee, not a preference
+  # held here. Required status contexts were enumerated first, per protected
+  # branch: `gh api repos/scitex-ai/openalex-local/branches/{develop,main}/protection`
+  # returns no `required_status_checks` key on either, so no conversion or
+  # exemption here can strand a required check.
+  exemptions:
+    PS-231:
+      # ---------------------------------------------------------------
+      # A SERVICE CONTAINER CANNOT BE EXPRESSED THROUGH THE REUSABLE.
+      #
+      # Verified against scitex-ai/.github/.github/workflows/pytest-matrix.yml
+      # as read on 2026-08-30 (blob sha 3f2b46c8, confirmed byte-identical to
+      # live): `on.workflow_call.inputs` contains exactly ONE key, `runs_on`.
+      # There is no `services`, no `env`, no `container`, and no passthrough
+      # of any kind — and `rg 'services:'` across the entire org workflow
+      # directory returns zero hits, so this is not an oversight in one file.
+      # GitHub does not let a caller attach `services:` or job-level `env:` to
+      # a called workflow; both are properties of the callee's job.
+      #
+      # This leaf needs both. As of the PostgreSQL migration the corpus lives
+      # in a real database, so the job runs a `postgres:16` service container
+      # with a health check and exports SCITEX_STORE_DSN at job level. It also
+      # runs `scripts/create_test_db.py` BEFORE pytest to build the corpus the
+      # suite queries — a third thing the reusable has no step for.
+      #
+      # Why this is not cosmetic: without the service the corpus tests do not
+      # FAIL, they SKIP, and a skipped test is indistinguishable from a
+      # passing one in a green summary. Measured on this PR — the same suite
+      # reports `206 passed, 10 skipped` with no server and `214 passed,
+      # 2 skipped` with one. Converting would silently retire 8 tests.
+      #
+      # PREFERRED LONG-TERM FIX, and it is not this exemption: scitex-cards
+      # solved the same problem without an exemption by moving the
+      # Postgres-dependent leg into a separately-named workflow
+      # (`postgres-backend-on-ubuntu-latest.yml`) that PS-231 never flags,
+      # keeping the org pytest-matrix caller intact. That is a CI redesign
+      # rather than a storage-engine change, so it is named here instead of
+      # being smuggled into the migration PR.
+      #
+      # CLOSED BY: either the org pytest-matrix reusable accepting a service
+      # container (or any job-level env passthrough), or this package
+      # adopting the scitex-cards split-workflow pattern — whichever lands
+      # first. This entry is deleted in the SAME PR that does it.
+      - path: .github/workflows/pytest-matrix-on-ubuntu-py3-11-3-12-3-13.yml
+        line: 0
+        reason: >-
+          Not a copy of the org reusable but a job it cannot express. The
+          corpus now lives in PostgreSQL, so this workflow runs a postgres:16
+          SERVICE CONTAINER, exports SCITEX_STORE_DSN as job-level env, and
+          builds the test corpus with scripts/create_test_db.py before pytest.
+          The org pytest-matrix.yml exposes exactly one input, runs_on; it has
+          no services, no env and no container passthrough, and no org
+          workflow defines a services block at all, so none of the three is
+          reachable from a caller. This is load-bearing rather than cosmetic:
+          without the server the corpus tests SKIP rather than fail, measured
+          on this branch as 206 passed / 10 skipped without a database versus
+          214 passed / 2 skipped with one, so a bare `uses:` would retire 8
+          tests while staying green. CLOSED BY the org reusable accepting a
+          service container or job-env passthrough, or by this package
+          adopting scitex-cards' separately-named postgres-backend workflow,
+          whichever lands first; this entry is deleted in that same PR.
+
+      # ---------------------------------------------------------------
+      # BUILD-ONLY REUSABLE vs A WORKFLOW WHOSE PURPOSE IS TO PUBLISH.
+      #
+      # This is the rule's own "BLOCKER 2 — a leaf that also publishes", but
+      # THE CONSEQUENCE DIFFERS FROM THE SCITEX-SSH PRECEDENT AND THE
+      # DIFFERENCE IS STATED HERE ON PURPOSE, because borrowing their sentence
+      # would assert something measurably false about this package.
+      #
+      # scitex-ssh #69 exempted this same path on the grounds that hatch
+      # packages `src/<pkg>` wholesale, so the committed bundle SHIPS INSIDE
+      # THE WHEEL and converting would freeze the documentation reaching
+      # users. That second half does NOT hold here. openalex-local builds
+      # with setuptools under an explicit allowlist —
+      # `[tool.setuptools.package-data] openalex_local = ["_skills/**/*.md"]`
+      # — and a wheel built from this branch on 2026-08-30 contains 58
+      # entries, of which `_sphinx_html` accounts for ZERO and `_skills` for
+      # 11. The bundle does not reach the wheel at all.
+      #
+      # WHAT REMAINS TRUE, AND IS THE ACTUAL REASON: the org
+      # rtd-sphinx-build.yml is build-only. Its single step ends at
+      # `sphinx-build -b html`; it has no copy step, no commit-back, and no
+      # `contents: write`. This leaf workflow's whole purpose is the two
+      # steps the org body has no equivalent of — it refreshes
+      # `src/openalex_local/_sphinx_html/` from the fresh build and commits it
+      # on a develop push. A bare `uses:` would delete a publish step, and the
+      # committed bundle would freeze with nothing saying so.
+      #
+      # SEPARATE DEFECT FOUND WHILE CHECKING THIS, recorded so the next reader
+      # does not have to rediscover it: scitex-dev's own PS-121 says
+      # "scitex-cloud serves docs from the in-wheel _sphinx_html/ — without it
+      # the package is invisible at scitex.ai/apps/docs/". Since this wheel
+      # ships none, the bundle this workflow maintains currently reaches that
+      # consumer not at all. Fixing it means adding _sphinx_html to
+      # package-data, which grows the wheel from 100 KB to roughly 11 MB —
+      # a packaging decision with its own trade-off, not a storage-engine
+      # change, and deliberately not made unilaterally here.
+      #
+      # CLOSED BY: the org rtd-sphinx-build reusable growing a way to vendor
+      # and commit its build output, OR a decision that this package should
+      # not vendor docs at all — in which case the commit-back step goes and
+      # this file becomes a plain caller. Either way this entry is deleted in
+      # the same PR.
+      - path: .github/workflows/rtd-sphinx-build-on-ubuntu-latest.yml
+        line: 0
+        reason: >-
+          Not a duplicate but a superset. The org rtd-sphinx-build.yml is
+          build-only — its single step ends at sphinx-build, with no copy
+          step, no commit-back and no contents:write — whereas this
+          workflow's reason to exist is refreshing
+          src/openalex_local/_sphinx_html/ from the fresh build and committing
+          it on a develop push. A bare `uses:` would delete that publish step
+          and freeze the committed bundle with nothing reporting it. NOTE, and
+          this deliberately diverges from the scitex-ssh precedent for the
+          same path: their argument was that hatch ships the bundle inside the
+          wheel, which is NOT true here. A wheel built from this branch holds
+          58 entries with zero under _sphinx_html, because setuptools
+          package-data allowlists only _skills/**/*.md. That is a real
+          packaging defect against PS-121 with its own fix and its own
+          trade-off (the wheel grows from 100 KB to ~11 MB), tracked
+          separately rather than folded into a storage-engine PR. CLOSED BY
+          the org reusable gaining a vendor-and-commit step, or by a decision
+          that this package stops vendoring docs; deleted in that same PR.
