@@ -1,9 +1,25 @@
 name: auto-merge-to-develop
+
 # Merge green PRs that TARGET develop, the moment their checks complete.
 # GitHub reads check_suite-triggered workflows from the DEFAULT branch (main),
 # so this file lives on main but acts ONLY on PRs whose base is develop.
-# codecov + readthedocs checks are ignored (advisory). Fail-safe: if a merge
-# is blocked by branch policy the PR simply stays open.
+#
+# CONVERTED TO A CALLER, 2026-08-30 (PS-231 §1 workflow-duplication). The
+# previous local body was a genuine duplicate, verified against
+# scitex-ai/.github/.github/workflows/auto-merge-to-develop.yml as read on
+# 2026-08-30: same `if:` guard on check_suite success, same base=develop
+# filter, same codecov/readthedocs exclusion from the green test, same
+# `gh pr merge --merge --admin --delete-branch`. The reusable is a superset —
+# it adds a `dry_run` switch and a post-merge gate check that refuses to leave
+# develop's new head un-checked. Nothing in the local copy needed an input the
+# reusable lacks, so this is a conversion and not an exemption.
+#
+# NOT EXERCISED BY THE PR THAT CONVERTED IT, and that is a property of the
+# trigger rather than an oversight: `check_suite` workflows are read from the
+# default branch, so this file only takes effect once it reaches main. Verify
+# after merge with `workflow_dispatch` on main before trusting it to merge
+# anything unattended.
+
 on:
   check_suite:
     types: [completed]
@@ -15,35 +31,6 @@ permissions:
 
 jobs:
   automerge:
-    if: ${{ github.event_name == 'workflow_dispatch' || github.event.check_suite.conclusion == 'success' }}
-    runs-on: ubuntu-latest
-    steps:
-      - name: merge green PRs targeting develop
-        env:
-          GH_TOKEN: ${{ github.token }}
-          REPO: ${{ github.repository }}
-          HEAD_SHA: ${{ github.event.check_suite.head_sha }}
-        run: |
-          set -uo pipefail
-          if [ -n "${HEAD_SHA:-}" ]; then
-            prs=$(gh api "repos/$REPO/commits/$HEAD_SHA/pulls" --jq '.[] | select(.state=="open") | .number' 2>/dev/null || true)
-          else
-            prs=$(gh pr list --repo "$REPO" --base develop --state open --json number --jq '.[].number' 2>/dev/null || true)
-          fi
-          [ -z "${prs:-}" ] && { echo "no open PRs"; exit 0; }
-          for pr in $prs; do
-            base=$(gh pr view "$pr" --repo "$REPO" --json baseRefName --jq .baseRefName 2>/dev/null || echo "")
-            [ "$base" = "develop" ] || { echo "skip #$pr (base=$base, not develop)"; continue; }
-            draft=$(gh pr view "$pr" --repo "$REPO" --json isDraft --jq .isDraft 2>/dev/null || echo true)
-            [ "$draft" = "true" ] && continue
-            pending=$(gh pr view "$pr" --repo "$REPO" --json statusCheckRollup --jq '
-              [ .statusCheckRollup[]
-                | select(((.name // .context // "") | ascii_downcase | test("codecov|readthedocs")) | not)
-                | (.conclusion // .state // "")
-                | select(. != "SUCCESS" and . != "NEUTRAL" and . != "SKIPPED" and . != "") ] | length' 2>/dev/null || echo 1)
-            if [ "$pending" = "0" ]; then
-              gh pr merge "$pr" --repo "$REPO" --merge --admin --delete-branch && echo "MERGED #$pr -> develop" || echo "blocked #$pr"
-            else
-              echo "PR #$pr not green ($pending) — skip"
-            fi
-          done
+    uses: scitex-ai/.github/.github/workflows/auto-merge-to-develop.yml@main
+    with:
+      runs_on: '["ubuntu-latest"]'

@@ -1,22 +1,22 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-"""Differential update for OpenAlex database.
+"""Differential update for the OpenAlex corpus.
 
-Downloads only snapshot directories newer than the last sync date,
-then merges new/updated records into the existing database.
+Downloads only snapshot directories newer than the last sync date, then merges
+new/updated records into the existing corpus.
 
 Usage:
-    python 10_differential_update.py [--db-path PATH] [--snapshot-dir PATH]
+    python 10_differential_update.py [--dsn DSN] [--snapshot-dir PATH]
     python 10_differential_update.py --since 2026-03-01
     python 10_differential_update.py --dry-run
 
 Steps:
-    1. Read last sync date from _metadata table
+    1. Read the last sync date from the build-metadata store
     2. List S3 directories with updated_date > last sync
     3. Download only those directories (aws s3 sync with --include filter)
-    4. Parse and upsert records (INSERT OR REPLACE)
-    5. Update last_sync_date in _metadata
+    4. Parse and upsert records (INSERT ... ON CONFLICT DO UPDATE)
+    5. Record the new last_sync_date
 """
 
 import argparse
@@ -24,7 +24,6 @@ import gzip
 import json
 import logging
 import os
-import sqlite3
 import subprocess
 import sys
 import time
@@ -32,13 +31,18 @@ from datetime import datetime, timedelta
 from pathlib import Path
 from typing import List, Optional
 
-# Reuse parse_work from build script
 sys.path.insert(0, str(Path(__file__).parent))
-from _build_helpers import parse_work  # noqa: E402
+from _build_helpers import connect, parse_work, resolve_dsn  # noqa: E402
+from _schema import (  # noqa: E402
+    FTS_INDEX_DDL,
+    WORKS_COLUMNS,
+    WORKS_DDL,
+    WORKS_INDEXES_DDL,
+    search_vector_expression,
+)
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
 DEFAULT_SNAPSHOT_DIR = PROJECT_ROOT / "data" / "snapshot" / "works"
-DEFAULT_DB_PATH = PROJECT_ROOT / "data" / "openalex.db"
 # OpenAlex restructured the snapshot in 2026: works moved from
 # s3://openalex/data/works/ to s3://openalex/data/jsonl/works/ (updated_date=
 # partitions unchanged). Overridable via OPENALEX_S3_BASE for future moves.
@@ -54,25 +58,28 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
-def get_last_sync_date(conn: sqlite3.Connection) -> Optional[str]:
-    """Get last sync date from metadata."""
+def get_last_sync_date() -> Optional[str]:
+    """Get last sync date from the build-metadata store.
+
+    Returns None when there is no history OR the store cannot be reached. The
+    caller treats both as "no history" and falls back to a 30-day window, which
+    re-downloads rather than skipping: the failure mode of guessing too early is
+    wasted bandwidth, and of guessing too late is missing records silently.
+    """
     try:
-        cursor = conn.execute(
-            "SELECT value FROM _metadata WHERE key = 'last_sync_date'"
-        )
-        row = cursor.fetchone()
-        return row[0] if row else None
-    except sqlite3.OperationalError:
+        from openalex_local._core.state import get_metadata
+
+        return get_metadata("last_sync_date")
+    except Exception as exc:  # noqa: BLE001 - reported, not swallowed
+        logger.warning(f"Could not read last_sync_date: {exc}")
         return None
 
 
-def set_last_sync_date(conn: sqlite3.Connection, date_str: str) -> None:
-    """Set last sync date in metadata."""
-    conn.execute(
-        "INSERT OR REPLACE INTO _metadata (key, value) VALUES (?, ?)",
-        ("last_sync_date", date_str),
-    )
-    conn.commit()
+def set_last_sync_date(date_str: str) -> None:
+    """Record the last sync date in the build-metadata store."""
+    from openalex_local._core.state import set_metadata
+
+    set_metadata("last_sync_date", date_str)
 
 
 def list_s3_updated_dates(since: Optional[str] = None) -> List[str]:
@@ -147,30 +154,49 @@ def download_date_directories(
     return downloaded
 
 
-def upsert_batch(conn: sqlite3.Connection, records: list) -> int:
-    """Upsert a batch of records (INSERT OR REPLACE)."""
+def upsert_batch(conn, records: list) -> int:
+    """Upsert a batch of records."""
     if not records:
         return 0
 
-    columns = list(records[0].keys())
-    placeholders = ", ".join(["?" for _ in columns])
-    column_names = ", ".join(columns)
+    # The search vector is computed in the SAME statement that writes the row.
+    # It cannot reference the row being inserted, so title and abstract are
+    # bound twice -- once for their columns, once for the vector expression.
+    # Recomputing here rather than in a later pass is what stops an updated
+    # title from keeping its old index entry: a stale hit is indistinguishable
+    # from a correct one at the call site.
+    columns = ", ".join(WORKS_COLUMNS)
+    placeholders = ", ".join(["%s"] * len(WORKS_COLUMNS))
+    updates = ", ".join(
+        f"{col} = EXCLUDED.{col}" for col in WORKS_COLUMNS if col != "openalex_id"
+    )
+    vector = search_vector_expression(title="%s", abstract="%s")
+    sql = (
+        f"INSERT INTO works ({columns}, search_vector) "
+        f"VALUES ({placeholders}, {vector}) "
+        f"ON CONFLICT (openalex_id) DO UPDATE SET {updates}, "
+        "search_vector = EXCLUDED.search_vector"
+    )
 
-    sql = f"INSERT OR REPLACE INTO works ({column_names}) VALUES ({placeholders})"
-    values = [tuple(r[col] for col in columns) for r in records]
+    values = [
+        tuple(r[col] for col in WORKS_COLUMNS) + (r["title"], r["abstract"])
+        for r in records
+    ]
 
-    cursor = conn.executemany(sql, values)
+    with conn.cursor() as cursor:
+        cursor.executemany(sql, values)
+        upserted = cursor.rowcount
     conn.commit()
-    return cursor.rowcount
+    return upserted if upserted is not None and upserted >= 0 else len(records)
 
 
 def process_date_directory(
     date_dir: Path,
-    conn: sqlite3.Connection,
+    conn,
     batch_size: int = 10000,
     store_raw: bool = False,
 ) -> int:
-    """Process all .gz files in a date directory and upsert into DB."""
+    """Process all .gz files in a date directory and upsert into the corpus."""
     gz_files = sorted(date_dir.glob("*.gz"))
     if not gz_files:
         return 0
@@ -178,7 +204,6 @@ def process_date_directory(
     total = 0
     for gz_file in gz_files:
         batch = []
-        file_records = 0
 
         with gzip.open(gz_file, "rt", encoding="utf-8") as f:
             for line in f:
@@ -189,42 +214,24 @@ def process_date_directory(
                     data = json.loads(line)
                     record = parse_work(data, store_raw=store_raw)
                     batch.append(record)
-                    file_records += 1
 
                     if len(batch) >= batch_size:
-                        upserted = upsert_batch(conn, batch)
-                        total += upserted
+                        total += upsert_batch(conn, batch)
                         batch = []
-                except (json.JSONDecodeError, Exception) as e:
+                except Exception as e:  # noqa: BLE001 - one bad line, not one bad run
                     logger.warning(f"Error processing record in {gz_file.name}: {e}")
+                    conn.rollback()
+                    batch = []
                     continue
 
         if batch:
-            upserted = upsert_batch(conn, batch)
-            total += upserted
-
-        total += 0  # file_records already counted via upsert
+            total += upsert_batch(conn, batch)
 
     return total
 
 
-def update_fts_for_changes(conn: sqlite3.Connection) -> None:
-    """Rebuild FTS index for recently changed works.
-
-    FTS triggers handle new inserts, but for REPLACE operations
-    we need to ensure FTS stays in sync.
-    """
-    logger.info("Rebuilding FTS index for updated records...")
-    try:
-        conn.execute("INSERT INTO works_fts(works_fts) VALUES('rebuild')")
-        conn.commit()
-        logger.info("FTS rebuild complete.")
-    except sqlite3.OperationalError as e:
-        logger.warning(f"FTS rebuild skipped (table may not exist): {e}")
-
-
 def differential_update(
-    db_path: Path,
+    dsn: str,
     snapshot_dir: Path,
     since: Optional[str] = None,
     batch_size: int = 10000,
@@ -237,33 +244,32 @@ def differential_update(
 
     Parameters
     ----------
-    db_path : Path
-        Path to SQLite database.
+    dsn : str
+        Corpus connection string.
     snapshot_dir : Path
         Path to snapshot works directory.
     since : str, optional
         Override: only update from this date (YYYY-MM-DD).
     batch_size : int
-        Records per database batch.
+        Records per corpus batch.
     store_raw : bool
-        Store raw JSON in database.
+        Store raw JSON in the corpus.
     dry_run : bool
         List what would be downloaded without doing it.
     skip_download : bool
         Skip download, process existing files only.
     rebuild_fts : bool
-        Rebuild FTS index after update.
+        Ensure the full-text index exists after the update. The vectors
+        themselves are written by the upsert, so this is a cheap guard rather
+        than a rebuild.
 
     Returns
     -------
     dict
         Statistics: dates_processed, records_upserted, elapsed_seconds.
     """
-    # Determine start date (may need DB for last sync date)
-    conn = None
-    if since is None and db_path.exists():
-        conn = sqlite3.connect(db_path)
-        since = get_last_sync_date(conn)
+    if since is None:
+        since = get_last_sync_date()
         if since:
             logger.info(f"Last sync date: {since}")
 
@@ -276,8 +282,6 @@ def differential_update(
 
     if not new_dates:
         logger.info("No new updates available.")
-        if conn:
-            conn.close()
         return {
             "dates_processed": 0,
             "records_upserted": 0,
@@ -293,26 +297,19 @@ def differential_update(
         logger.info("DRY RUN — no changes will be made.")
         for d in new_dates:
             logger.info(f"  Would download: updated_date={d}")
-        if conn:
-            conn.close()
-        return {"dates_processed": 0, "records_upserted": 0, "elapsed_seconds": 0, "dry_run": True}
+        return {
+            "dates_processed": 0,
+            "records_upserted": 0,
+            "elapsed_seconds": 0,
+            "dry_run": True,
+        }
 
-    # Open DB connection for actual processing
-    if conn is None:
-        db_path.parent.mkdir(parents=True, exist_ok=True)
-        conn = sqlite3.connect(db_path)
+    conn = connect(dsn)
 
-    conn.execute("PRAGMA journal_mode=WAL")
-    conn.execute("PRAGMA synchronous=NORMAL")
-    conn.execute("PRAGMA cache_size=-2000000")
-
-    # Ensure metadata table exists
-    conn.execute("""
-        CREATE TABLE IF NOT EXISTS _metadata (
-            key TEXT PRIMARY KEY,
-            value TEXT
-        )
-    """)
+    # The corpus may not exist yet on a first run.
+    with conn.cursor() as cursor:
+        cursor.execute(WORKS_DDL)
+        cursor.execute(WORKS_INDEXES_DDL)
     conn.commit()
 
     start_time = time.time()
@@ -345,23 +342,19 @@ def differential_update(
 
     # Update last sync date
     if new_dates:
-        set_last_sync_date(conn, new_dates[-1])
+        set_last_sync_date(new_dates[-1])
         logger.info(f"Updated last_sync_date to {new_dates[-1]}")
 
-    # Rebuild FTS
     if rebuild_fts and total_upserted > 0:
-        update_fts_for_changes(conn)
+        logger.info("Ensuring the full-text index exists...")
+        with conn.cursor() as cursor:
+            cursor.execute(FTS_INDEX_DDL)
+        conn.commit()
 
-    # Update metadata
-    conn.execute(
-        "INSERT OR REPLACE INTO _metadata (key, value) VALUES (?, ?)",
-        ("last_update_completed", time.strftime("%Y-%m-%d %H:%M:%S")),
-    )
-    conn.execute(
-        "INSERT OR REPLACE INTO _metadata (key, value) VALUES (?, ?)",
-        ("last_update_records", str(total_upserted)),
-    )
-    conn.commit()
+    from openalex_local._core.state import set_metadata
+
+    set_metadata("last_update_completed", time.strftime("%Y-%m-%d %H:%M:%S"))
+    set_metadata("last_update_records", str(total_upserted))
 
     elapsed = time.time() - start_time
 
@@ -382,11 +375,11 @@ def differential_update(
 
 def main():
     parser = argparse.ArgumentParser(
-        description="Differential update for OpenAlex database"
+        description="Differential update for the OpenAlex corpus"
     )
     parser.add_argument(
-        "--db-path", type=Path, default=DEFAULT_DB_PATH,
-        help=f"Database path (default: {DEFAULT_DB_PATH})",
+        "--dsn", default=None,
+        help="Corpus DSN (default: the store this host resolves to)",
     )
     parser.add_argument(
         "--snapshot-dir", type=Path, default=DEFAULT_SNAPSHOT_DIR,
@@ -394,7 +387,7 @@ def main():
     )
     parser.add_argument(
         "--since", type=str, default=None,
-        help="Override start date (YYYY-MM-DD). Default: read from DB.",
+        help="Override start date (YYYY-MM-DD). Default: the recorded sync date.",
     )
     parser.add_argument(
         "--batch-size", type=int, default=10000,
@@ -402,7 +395,7 @@ def main():
     )
     parser.add_argument(
         "--store-raw", action="store_true",
-        help="Store raw JSON in database",
+        help="Store raw JSON in the corpus",
     )
     parser.add_argument(
         "--dry-run", action="store_true",
@@ -414,13 +407,13 @@ def main():
     )
     parser.add_argument(
         "--no-fts-rebuild", action="store_true",
-        help="Skip FTS index rebuild after update",
+        help="Skip the full-text index check after the update",
     )
 
     args = parser.parse_args()
 
     stats = differential_update(
-        db_path=args.db_path,
+        dsn=resolve_dsn(args.dsn),
         snapshot_dir=args.snapshot_dir,
         since=args.since,
         batch_size=args.batch_size,

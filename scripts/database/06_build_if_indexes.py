@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Timestamp: 2026-02-04
+# Timestamp: 2026-08-30
 """Build indexes required for fast Impact Factor calculation.
 
 This script creates the indexes needed for efficient IF calculation:
@@ -9,7 +9,7 @@ This script creates the indexes needed for efficient IF calculation:
 Run this AFTER 05_build_citations_table.py completes.
 
 Usage:
-    python 06_build_if_indexes.py [--db-path PATH]
+    python 06_build_if_indexes.py [--dsn DSN]
 
 Example:
     python scripts/database/06_build_if_indexes.py
@@ -17,14 +17,13 @@ Example:
 
 import argparse
 import logging
-import sqlite3
 import sys
 import time
 from pathlib import Path
 
-# Project paths
-PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
-DEFAULT_DB_PATH = PROJECT_ROOT / "data" / "openalex.db"
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+
+from _build_helpers import connect, resolve_dsn  # noqa: E402
 
 # Logging
 logging.basicConfig(
@@ -87,30 +86,33 @@ CITATION_INDEXES = [
 ]
 
 
-def index_exists(conn: sqlite3.Connection, index_name: str) -> bool:
-    """Check if an index exists."""
-    cursor = conn.execute(
-        "SELECT 1 FROM sqlite_master WHERE type='index' AND name=?",
-        (index_name,)
-    )
-    return cursor.fetchone() is not None
+def relation_exists(conn, name: str) -> bool:
+    """Whether ``name`` resolves to a relation this role can see.
+
+    ``to_regclass`` covers indexes as well as tables — both live in the same
+    namespace — so one helper answers both questions here.
+    """
+    with conn.cursor() as cursor:
+        cursor.execute("SELECT to_regclass(%s) IS NOT NULL", (name,))
+        return bool(cursor.fetchone()[0])
 
 
-def create_index(conn: sqlite3.Connection, index_info: dict) -> float:
+def create_index(conn, index_info: dict) -> float:
     """Create an index and return time taken in minutes."""
     name = index_info["name"]
     sql = index_info["sql"]
     purpose = index_info["purpose"]
 
-    if index_exists(conn, name):
-        logger.info(f"  ✓ {name} already exists")
+    if relation_exists(conn, name):
+        logger.info(f"  [ok] {name} already exists")
         return 0.0
 
     logger.info(f"  Creating {name}...")
     logger.info(f"    Purpose: {purpose}")
 
     start = time.time()
-    conn.execute(sql)
+    with conn.cursor() as cursor:
+        cursor.execute(sql)
     conn.commit()
     elapsed = (time.time() - start) / 60
 
@@ -118,26 +120,20 @@ def create_index(conn: sqlite3.Connection, index_info: dict) -> float:
     return elapsed
 
 
-def build_if_indexes(db_path: Path) -> None:
+def build_if_indexes(dsn: str) -> None:
     """Build all indexes needed for IF calculation."""
-    logger.info(f"Building IF indexes in: {db_path}")
+    logger.info(f"Building IF indexes in: {dsn}")
 
-    if not db_path.exists():
-        logger.error(f"Database not found: {db_path}")
+    conn = connect(dsn)
+
+    if not relation_exists(conn, "works"):
+        logger.error("No works table. Run 02_build_database.py first!")
+        conn.close()
         sys.exit(1)
-
-    conn = sqlite3.connect(db_path)
-    conn.execute("PRAGMA journal_mode=WAL")
-    conn.execute("PRAGMA synchronous=NORMAL")
-    conn.execute("PRAGMA cache_size=-2000000")  # 2GB cache
 
     total_time = 0.0
 
-    # Check citations table exists
-    cursor = conn.execute(
-        "SELECT 1 FROM sqlite_master WHERE type='table' AND name='citations'"
-    )
-    has_citations = cursor.fetchone() is not None
+    has_citations = relation_exists(conn, "citations")
 
     if not has_citations:
         logger.warning("Citations table not found!")
@@ -165,19 +161,16 @@ def build_if_indexes(db_path: Path) -> None:
     # Run ANALYZE
     logger.info("")
     logger.info("Running ANALYZE for query optimization...")
-    conn.execute("ANALYZE works")
-    if has_citations:
-        conn.execute("ANALYZE citations")
+    with conn.cursor() as cursor:
+        cursor.execute("ANALYZE works")
+        if has_citations:
+            cursor.execute("ANALYZE citations")
     conn.commit()
-
-    # Update metadata
-    conn.execute(
-        "INSERT OR REPLACE INTO _metadata (key, value) VALUES (?, ?)",
-        ("if_indexes_completed", time.strftime("%Y-%m-%d %H:%M:%S")),
-    )
-    conn.commit()
-
     conn.close()
+
+    from openalex_local._core.state import set_metadata
+
+    set_metadata("if_indexes_completed", time.strftime("%Y-%m-%d %H:%M:%S"))
 
     logger.info("")
     logger.info("=" * 60)
@@ -194,14 +187,13 @@ def main():
         description="Build indexes for Impact Factor calculation"
     )
     parser.add_argument(
-        "--db-path",
-        type=Path,
-        default=DEFAULT_DB_PATH,
-        help=f"Path to database (default: {DEFAULT_DB_PATH})",
+        "--dsn",
+        default=None,
+        help="Corpus DSN (default: the store this host resolves to)",
     )
 
     args = parser.parse_args()
-    build_if_indexes(args.db_path)
+    build_if_indexes(resolve_dsn(args.dsn))
 
 
 if __name__ == "__main__":

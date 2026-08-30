@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
-# Timestamp: 2026-01-29
-"""Build SQLite database from OpenAlex snapshot.
+# Timestamp: 2026-08-30
+"""Build the corpus from an OpenAlex snapshot.
 
-This script reads gzipped JSON Lines files from the OpenAlex snapshot
-and builds a SQLite database with works data.
+Reads gzipped JSON Lines files from the OpenAlex snapshot and loads the works
+data into the PostgreSQL corpus this host resolves to.
 
 Usage:
-    python 02_build_database.py [--snapshot-dir PATH] [--db-path PATH] [--batch-size N]
+    python 02_build_database.py [--snapshot-dir PATH] [--dsn DSN] [--batch-size N]
 
 Example:
     python scripts/database/02_build_database.py
@@ -17,17 +17,19 @@ import argparse
 import gzip
 import json
 import logging
-import os
-import sqlite3
 import sys
 import time
 from pathlib import Path
-from typing import Any, Dict, Generator, Iterator, List, Optional, Tuple
+from typing import Any, Dict, Generator, List, Set
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+
+from _build_helpers import connect, parse_work, resolve_dsn  # noqa: E402
+from _schema import WORKS_COLUMNS, WORKS_DDL, WORKS_INDEXES_DDL  # noqa: E402
 
 # Project paths
 PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
 DEFAULT_SNAPSHOT_DIR = PROJECT_ROOT / "data" / "snapshot" / "works"
-DEFAULT_DB_PATH = PROJECT_ROOT / "data" / "openalex.db"
 
 # Logging
 logging.basicConfig(
@@ -38,165 +40,20 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
-# Schema definition
-SCHEMA_SQL = """
--- Works table: core metadata for each scholarly work
-CREATE TABLE IF NOT EXISTS works (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    openalex_id TEXT UNIQUE NOT NULL,
-    doi TEXT,
-    title TEXT,
-    abstract TEXT,
-    year INTEGER,
-    publication_date TEXT,
-    type TEXT,
-    language TEXT,
-    source TEXT,
-    source_id TEXT,
-    issn TEXT,
-    volume TEXT,
-    issue TEXT,
-    first_page TEXT,
-    last_page TEXT,
-    publisher TEXT,
-    cited_by_count INTEGER DEFAULT 0,
-    is_oa INTEGER DEFAULT 0,
-    oa_status TEXT,
-    oa_url TEXT,
-    authors_json TEXT,
-    concepts_json TEXT,
-    topics_json TEXT,
-    referenced_works_json TEXT,
-    raw_json TEXT,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-
--- Indices for common queries
-CREATE INDEX IF NOT EXISTS idx_works_doi ON works(doi);
-CREATE INDEX IF NOT EXISTS idx_works_year ON works(year);
-CREATE INDEX IF NOT EXISTS idx_works_source ON works(source);
-CREATE INDEX IF NOT EXISTS idx_works_type ON works(type);
-CREATE INDEX IF NOT EXISTS idx_works_language ON works(language);
-CREATE INDEX IF NOT EXISTS idx_works_cited_by_count ON works(cited_by_count);
-CREATE INDEX IF NOT EXISTS idx_works_is_oa ON works(is_oa);
-
--- Progress tracking table
+#: This step's own bookkeeping. It is not part of the corpus schema because
+#: nothing but this script reads it — a resumable loader's cursor, not data.
+PROGRESS_DDL = """
 CREATE TABLE IF NOT EXISTS _build_progress (
     file_path TEXT PRIMARY KEY,
     records_processed INTEGER,
-    completed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-
--- Metadata table
-CREATE TABLE IF NOT EXISTS _metadata (
-    key TEXT PRIMARY KEY,
-    value TEXT
+    completed_at TIMESTAMPTZ DEFAULT NOW()
 );
 """
 
-
-def reconstruct_abstract(inverted_index: Optional[Dict[str, List[int]]]) -> Optional[str]:
-    """Reconstruct abstract from OpenAlex inverted index format."""
-    if not inverted_index:
-        return None
-    try:
-        words = sorted(
-            [(pos, word) for word, positions in inverted_index.items() for pos in positions]
-        )
-        return " ".join(word for _, word in words)
-    except Exception:
-        return None
-
-
-def extract_authors(authorships: List[Dict]) -> List[str]:
-    """Extract author names from authorships list."""
-    authors = []
-    for authorship in authorships or []:
-        author = authorship.get("author", {})
-        name = author.get("display_name")
-        if name:
-            authors.append(name)
-    return authors
-
-
-def extract_concepts(concepts: List[Dict], limit: int = 5) -> List[Dict[str, Any]]:
-    """Extract top concepts with name and score."""
-    return [
-        {"name": c.get("display_name"), "score": c.get("score")}
-        for c in (concepts or [])[:limit]
-    ]
-
-
-def extract_topics(topics: List[Dict], limit: int = 3) -> List[Dict[str, Any]]:
-    """Extract top topics with name and subfield."""
-    return [
-        {
-            "name": t.get("display_name"),
-            "subfield": t.get("subfield", {}).get("display_name") if t.get("subfield") else None,
-            "field": t.get("field", {}).get("display_name") if t.get("field") else None,
-        }
-        for t in (topics or [])[:limit]
-    ]
-
-
-def parse_work(data: Dict[str, Any], store_raw: bool = False) -> Dict[str, Any]:
-    """Parse OpenAlex work JSON into database record."""
-    # Extract OpenAlex ID (remove URL prefix)
-    openalex_id = data.get("id", "").replace("https://openalex.org/", "")
-
-    # Extract DOI (remove URL prefix)
-    doi = data.get("doi", "").replace("https://doi.org/", "") if data.get("doi") else None
-
-    # Extract source info
-    primary_location = data.get("primary_location") or {}
-    source_info = primary_location.get("source") or {}
-    source = source_info.get("display_name")
-    source_id = (source_info.get("id") or "").replace("https://openalex.org/", "") if source_info.get("id") else None
-    issns = source_info.get("issn") or []
-    issn = issns[0] if issns else None
-    publisher = source_info.get("host_organization_name")
-
-    # Extract biblio info
-    biblio = data.get("biblio") or {}
-
-    # Extract OA info
-    oa_info = data.get("open_access") or {}
-
-    # Extract and serialize complex fields
-    authors = extract_authors(data.get("authorships", []))
-    concepts = extract_concepts(data.get("concepts", []))
-    topics = extract_topics(data.get("topics", []))
-    referenced_works = [
-        r.replace("https://openalex.org/", "") for r in (data.get("referenced_works") or [])
-    ]
-
-    return {
-        "openalex_id": openalex_id,
-        "doi": doi,
-        "title": data.get("title") or data.get("display_name"),
-        "abstract": reconstruct_abstract(data.get("abstract_inverted_index")),
-        "year": data.get("publication_year"),
-        "publication_date": data.get("publication_date"),
-        "type": data.get("type"),
-        "language": data.get("language"),
-        "source": source,
-        "source_id": source_id,
-        "issn": issn,
-        "volume": biblio.get("volume"),
-        "issue": biblio.get("issue"),
-        "first_page": biblio.get("first_page"),
-        "last_page": biblio.get("last_page"),
-        "publisher": publisher,
-        "cited_by_count": data.get("cited_by_count", 0),
-        "is_oa": 1 if oa_info.get("is_oa") else 0,
-        "oa_status": oa_info.get("oa_status"),
-        "oa_url": oa_info.get("oa_url"),
-        "authors_json": json.dumps(authors) if authors else None,
-        "concepts_json": json.dumps(concepts) if concepts else None,
-        "topics_json": json.dumps(topics) if topics else None,
-        "referenced_works_json": json.dumps(referenced_works) if referenced_works else None,
-        "raw_json": json.dumps(data) if store_raw else None,
-    }
+#: The columns this loader writes. Taken from the schema module rather than
+#: repeated here, so a column added there is written rather than silently
+#: left NULL by a loader nobody remembered to update.
+INSERT_COLUMNS = WORKS_COLUMNS
 
 
 def iter_jsonl_gz(file_path: Path) -> Generator[Dict[str, Any], None, None]:
@@ -222,62 +79,76 @@ def get_all_gz_files(snapshot_dir: Path) -> List[Path]:
     return files
 
 
-def get_processed_files(conn: sqlite3.Connection) -> set:
+def get_processed_files(conn) -> Set[str]:
     """Get set of already processed file paths."""
-    cursor = conn.execute("SELECT file_path FROM _build_progress")
-    return {row[0] for row in cursor.fetchall()}
+    with conn.cursor() as cursor:
+        cursor.execute("SELECT file_path FROM _build_progress")
+        return {row[0] for row in cursor.fetchall()}
 
 
-def mark_file_processed(conn: sqlite3.Connection, file_path: str, records: int) -> None:
+def mark_file_processed(conn, file_path: str, records: int) -> None:
     """Mark a file as processed."""
-    conn.execute(
-        "INSERT OR REPLACE INTO _build_progress (file_path, records_processed) VALUES (?, ?)",
-        (file_path, records),
-    )
+    with conn.cursor() as cursor:
+        cursor.execute(
+            "INSERT INTO _build_progress (file_path, records_processed) "
+            "VALUES (%s, %s) "
+            "ON CONFLICT (file_path) DO UPDATE SET "
+            "records_processed = EXCLUDED.records_processed, "
+            "completed_at = NOW()",
+            (file_path, records),
+        )
     conn.commit()
 
 
-def insert_batch(conn: sqlite3.Connection, records: List[Dict[str, Any]]) -> int:
-    """Insert a batch of records into the database."""
+def insert_batch(conn, records: List[Dict[str, Any]]) -> int:
+    """Insert a batch of records into the corpus.
+
+    ``ON CONFLICT DO NOTHING`` on ``openalex_id`` keeps the loader restartable:
+    a file half-written before a crash is replayed whole, and the rows that
+    landed the first time are skipped rather than duplicated.
+    """
     if not records:
         return 0
 
-    columns = list(records[0].keys())
-    placeholders = ", ".join(["?" for _ in columns])
-    column_names = ", ".join(columns)
+    column_names = ", ".join(INSERT_COLUMNS)
+    placeholders = ", ".join(["%s"] * len(INSERT_COLUMNS))
+    sql = (
+        f"INSERT INTO works ({column_names}) VALUES ({placeholders}) "
+        "ON CONFLICT (openalex_id) DO NOTHING"
+    )
 
-    sql = f"INSERT OR IGNORE INTO works ({column_names}) VALUES ({placeholders})"
+    values = [tuple(r[col] for col in INSERT_COLUMNS) for r in records]
 
-    values = [tuple(r[col] for col in columns) for r in records]
-
-    cursor = conn.executemany(sql, values)
+    with conn.cursor() as cursor:
+        cursor.executemany(sql, values)
+        inserted = cursor.rowcount
     conn.commit()
-    return cursor.rowcount
+    # psycopg reports -1 when a driver cannot attribute a row count to a
+    # multi-statement execute. Reporting -1 as "rows inserted" would make the
+    # final total meaningless, so fall back to the batch size.
+    return inserted if inserted is not None and inserted >= 0 else len(records)
 
 
 def build_database(
     snapshot_dir: Path,
-    db_path: Path,
+    dsn: str,
     batch_size: int = 10000,
     store_raw: bool = False,
 ) -> None:
-    """Build SQLite database from OpenAlex snapshot."""
-    logger.info(f"Building database: {db_path}")
+    """Build the corpus from an OpenAlex snapshot."""
+    logger.info(f"Building corpus: {dsn}")
     logger.info(f"Snapshot directory: {snapshot_dir}")
     logger.info(f"Batch size: {batch_size}")
 
-    # Ensure output directory exists
-    db_path.parent.mkdir(parents=True, exist_ok=True)
+    conn = connect(dsn)
 
-    # Connect to database
-    conn = sqlite3.connect(db_path)
-    conn.execute("PRAGMA journal_mode=WAL")
-    conn.execute("PRAGMA synchronous=NORMAL")
-    conn.execute("PRAGMA cache_size=-2000000")  # 2GB cache
-    conn.execute("PRAGMA temp_store=MEMORY")
-
-    # Create schema
-    conn.executescript(SCHEMA_SQL)
+    # Create schema. Indices come with it here rather than after the load: the
+    # loader is restartable and may be run against a corpus that already has
+    # rows, so "create the indices at the end" has no single end to be at.
+    with conn.cursor() as cursor:
+        cursor.execute(WORKS_DDL)
+        cursor.execute(WORKS_INDEXES_DDL)
+        cursor.execute(PROGRESS_DDL)
     conn.commit()
 
     # Get files to process
@@ -329,6 +200,8 @@ def build_database(
 
             except Exception as e:
                 logger.warning(f"Error processing record: {e}")
+                conn.rollback()
+                batch = []
                 continue
 
         # Insert remaining batch
@@ -348,35 +221,36 @@ def build_database(
     # Final stats
     elapsed = time.time() - start_time
     logger.info("=" * 60)
-    logger.info(f"Build completed!")
+    logger.info("Build completed!")
     logger.info(f"Total records: {total_records:,}")
     logger.info(f"Total time: {elapsed / 3600:.1f} hours")
     logger.info(f"Average rate: {total_records / elapsed:.0f} records/s")
 
-    # Update metadata
-    conn.execute(
-        "INSERT OR REPLACE INTO _metadata (key, value) VALUES (?, ?)",
-        ("build_completed", time.strftime("%Y-%m-%d %H:%M:%S")),
-    )
-    conn.execute(
-        "INSERT OR REPLACE INTO _metadata (key, value) VALUES (?, ?)",
-        ("total_works", str(total_records)),
-    )
-    conn.commit()
+    # Record the build counters. They live in the fleet store, not in a table
+    # inside the corpus, so a status call can read them without opening a
+    # 200 GB database.
+    from openalex_local._core.state import set_metadata
 
-    # Analyze for query optimization
+    set_metadata("build_completed", time.strftime("%Y-%m-%d %H:%M:%S"))
+    set_metadata("total_works", str(total_records))
+
+    # Refresh the planner's statistics for the rows just loaded.
     logger.info("Running ANALYZE for query optimization...")
-    conn.execute("ANALYZE")
+    with conn.cursor() as cursor:
+        cursor.execute("ANALYZE works")
     conn.commit()
 
+    with conn.cursor() as cursor:
+        cursor.execute("SELECT pg_size_pretty(pg_total_relation_size('works'))")
+        size = cursor.fetchone()[0]
     conn.close()
-    logger.info(f"Database saved: {db_path}")
-    logger.info(f"Database size: {db_path.stat().st_size / (1024**3):.2f} GB")
+    logger.info(f"Corpus written: {dsn}")
+    logger.info(f"works table size: {size}")
 
 
 def main():
     parser = argparse.ArgumentParser(
-        description="Build SQLite database from OpenAlex snapshot"
+        description="Build the OpenAlex corpus from a snapshot"
     )
     parser.add_argument(
         "--snapshot-dir",
@@ -385,21 +259,20 @@ def main():
         help=f"Path to snapshot works directory (default: {DEFAULT_SNAPSHOT_DIR})",
     )
     parser.add_argument(
-        "--db-path",
-        type=Path,
-        default=DEFAULT_DB_PATH,
-        help=f"Path to output database (default: {DEFAULT_DB_PATH})",
+        "--dsn",
+        default=None,
+        help="Corpus DSN (default: the store this host resolves to)",
     )
     parser.add_argument(
         "--batch-size",
         type=int,
         default=10000,
-        help="Batch size for database inserts (default: 10000)",
+        help="Batch size for corpus inserts (default: 10000)",
     )
     parser.add_argument(
         "--store-raw",
         action="store_true",
-        help="Store raw JSON in database (increases size significantly)",
+        help="Store raw JSON in the corpus (increases size significantly)",
     )
 
     args = parser.parse_args()
@@ -410,7 +283,7 @@ def main():
 
     build_database(
         snapshot_dir=args.snapshot_dir,
-        db_path=args.db_path,
+        dsn=resolve_dsn(args.dsn),
         batch_size=args.batch_size,
         store_raw=args.store_raw,
     )

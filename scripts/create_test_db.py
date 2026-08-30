@@ -1,9 +1,22 @@
 #!/usr/bin/env python3
 """
-Create test database from OpenAlex API samples.
+Create a small test corpus from OpenAlex API samples.
 
-Downloads sample works from OpenAlex API and builds a small test database
-with FTS5 index for reproducible testing.
+Downloads sample works from the OpenAlex API and loads them into the corpus
+this host resolves to, with the full-text index populated, so the suite runs
+against a real PostgreSQL holding the real schema.
+
+ONE SCHEMA, NOT TWO. This script used to declare its own table — different
+column names from the real corpus (``authors`` where the corpus has
+``authors_json``, ``referenced_works`` where it has ``referenced_works_json``)
+— so every test that touched the database was measuring a fixture no build
+step produces. It now imports ``scripts/database/_schema.py`` and parses rows
+with the same ``parse_work`` the loader uses.
+
+IT DOES NOT DELETE ANYTHING IRREVERSIBLE. The previous version began by
+unlinking the database file. Against a shared server that is not available and
+would not be acceptable if it were, so this truncates only the tables it
+populates, and only when asked to reset.
 
 Usage:
     python scripts/create_test_db.py
@@ -12,21 +25,31 @@ Usage:
 
 import argparse
 import json
-import sqlite3
+import sys
 import time
 from pathlib import Path
 from urllib.request import urlopen, Request
 from urllib.error import HTTPError
 from urllib.parse import quote
 
-# Paths
-# Output lives under tests/results/ — a gitignored, audit-recognized test
-# subdir (PS-302). The generated DB and sample payload are run artifacts,
-# not committed fixtures, so they belong in results/, not a bespoke
-# fixtures/ dir (which trips PS-302 tests-unknown-subdir).
 SCRIPT_DIR = Path(__file__).parent
 PROJECT_ROOT = SCRIPT_DIR.parent
-TEST_DB_PATH = PROJECT_ROOT / "tests" / "results" / "test_openalex.db"
+sys.path.insert(0, str(SCRIPT_DIR / "database"))
+
+from _build_helpers import connect, parse_work, resolve_dsn  # noqa: E402
+from _schema import (  # noqa: E402
+    FTS_CONFIG,
+    FTS_INDEX_DDL,
+    WORKS_COLUMNS,
+    WORKS_DDL,
+    WORKS_INDEXES_DDL,
+    search_vector_expression,
+)
+
+# The downloaded payload lives under tests/results/ — a gitignored,
+# audit-recognized test subdir (PS-302). It is a run artifact, not a committed
+# fixture, so it belongs in results/ rather than a bespoke fixtures/ dir (which
+# trips PS-302 tests-unknown-subdir).
 SAMPLE_JSON_PATH = PROJECT_ROOT / "tests" / "results" / "sample_works.json"
 
 # OpenAlex API
@@ -98,222 +121,93 @@ def load_sample_json(path: Path) -> list:
         return json.load(f)
 
 
-def reconstruct_abstract(inv_index: dict) -> str:
-    """Reconstruct abstract from OpenAlex inverted index."""
-    if not inv_index:
-        return ""
-    words = sorted(
-        [(pos, word) for word, positions in inv_index.items() for pos in positions]
-    )
-    return " ".join(word for _, word in words)
-
-
-def create_database(works: list, db_path: Path):
+def create_database(works: list, dsn: str, reset: bool = True):
     """
-    Create SQLite database with same schema as main openalex.db.
+    Load the sample works into the corpus, schema and index included.
 
     Args:
         works: List of work metadata dictionaries
-        db_path: Path to output database
+        dsn: Corpus connection string
+        reset: Empty the works table first, so a re-run is reproducible
+            rather than cumulative.
     """
-    db_path.parent.mkdir(parents=True, exist_ok=True)
+    conn = connect(dsn)
 
-    # Remove existing
-    if db_path.exists():
-        db_path.unlink()
-
-    conn = sqlite3.connect(db_path)
-    cursor = conn.cursor()
-
-    # Create works table
-    cursor.execute(
-        """
-        CREATE TABLE works (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            openalex_id VARCHAR(255) UNIQUE,
-            doi VARCHAR(255),
-            title TEXT,
-            abstract TEXT,
-            authors TEXT,
-            year INTEGER,
-            source VARCHAR(255),
-            issn VARCHAR(255),
-            volume VARCHAR(255),
-            issue VARCHAR(255),
-            pages VARCHAR(255),
-            publisher TEXT,
-            type VARCHAR(255),
-            concepts TEXT,
-            topics TEXT,
-            cited_by_count INTEGER,
-            referenced_works TEXT,
-            is_oa BOOLEAN,
-            oa_url TEXT
-        )
-    """
-    )
-
-    # Create indices
-    cursor.execute("CREATE INDEX idx_openalex_id ON works(openalex_id)")
-    cursor.execute("CREATE INDEX idx_doi ON works(doi)")
-    cursor.execute("CREATE INDEX idx_year ON works(year)")
-
-    # Insert works
-    print(f"Inserting {len(works)} works...")
-    for work in works:
-        openalex_id = work.get("id", "").replace("https://openalex.org/", "")
-        doi = (
-            work.get("doi", "").replace("https://doi.org/", "")
-            if work.get("doi")
-            else None
-        )
-
-        # Extract authors
-        authors = []
-        for authorship in work.get("authorships", []):
-            author = authorship.get("author", {})
-            name = author.get("display_name")
-            if name:
-                authors.append(name)
-
-        # Reconstruct abstract
-        abstract = reconstruct_abstract(work.get("abstract_inverted_index"))
-
-        # Extract source info
-        primary_location = work.get("primary_location") or {}
-        source_info = primary_location.get("source") or {}
-        source = source_info.get("display_name")
-        issns = source_info.get("issn") or []
-        issn = issns[0] if issns else None
-
-        # Extract biblio
-        biblio = work.get("biblio") or {}
-
-        # Extract concepts (top 5)
-        concepts = [
-            {"name": c.get("display_name"), "score": c.get("score")}
-            for c in (work.get("concepts") or [])[:5]
-        ]
-
-        # Extract topics (top 3)
-        topics = [
-            {
-                "name": t.get("display_name"),
-                "subfield": t.get("subfield", {}).get("display_name"),
-            }
-            for t in (work.get("topics") or [])[:3]
-        ]
-
-        # Extract OA info
-        oa_info = work.get("open_access") or {}
-
-        # Referenced works
-        referenced = [
-            r.replace("https://openalex.org/", "")
-            for r in (work.get("referenced_works") or [])
-        ]
-
-        cursor.execute(
-            """
-            INSERT OR IGNORE INTO works (
-                openalex_id, doi, title, abstract, authors, year, source,
-                issn, volume, issue, pages, publisher, type, concepts, topics,
-                cited_by_count, referenced_works, is_oa, oa_url
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-        """,
-            (
-                openalex_id,
-                doi,
-                work.get("title") or work.get("display_name"),
-                abstract,
-                json.dumps(authors),
-                work.get("publication_year"),
-                source,
-                issn,
-                biblio.get("volume"),
-                biblio.get("issue"),
-                biblio.get("first_page"),
-                source_info.get("host_organization_name"),
-                work.get("type"),
-                json.dumps(concepts),
-                json.dumps(topics),
-                work.get("cited_by_count"),
-                json.dumps(referenced),
-                oa_info.get("is_oa", False),
-                oa_info.get("oa_url"),
-            ),
-        )
-
+    with conn.cursor() as cursor:
+        cursor.execute(WORKS_DDL)
+        cursor.execute(WORKS_INDEXES_DDL)
+        cursor.execute(FTS_INDEX_DDL)
     conn.commit()
-    print(f"Inserted {len(works)} works")
 
-    # Create FTS5 index
-    print("Building FTS5 index...")
-    cursor.execute(
-        """
-        CREATE VIRTUAL TABLE works_fts USING fts5(
-            openalex_id,
-            title,
-            abstract,
-            authors,
-            content='',
-            tokenize='porter unicode61'
+    if reset:
+        with conn.cursor() as cursor:
+            cursor.execute("TRUNCATE works RESTART IDENTITY")
+        conn.commit()
+
+    columns = ", ".join(WORKS_COLUMNS)
+    placeholders = ", ".join(["%s"] * len(WORKS_COLUMNS))
+    vector = search_vector_expression(title="%s", abstract="%s")
+    insert_sql = (
+        f"INSERT INTO works ({columns}, search_vector) "
+        f"VALUES ({placeholders}, {vector}) "
+        "ON CONFLICT (openalex_id) DO NOTHING"
+    )
+
+    print(f"Inserting {len(works)} works...")
+    rows = []
+    for work in works:
+        record = parse_work(work)
+        if not record["openalex_id"]:
+            continue
+        rows.append(
+            tuple(record[col] for col in WORKS_COLUMNS)
+            + (record["title"], record["abstract"])
         )
-    """
-    )
 
-    # Populate FTS index
-    cursor.execute(
-        """
-        INSERT INTO works_fts (rowid, openalex_id, title, abstract, authors)
-        SELECT id, openalex_id, title, abstract, authors FROM works
-    """
-    )
+    with conn.cursor() as cursor:
+        cursor.executemany(insert_sql, rows)
+    conn.commit()
 
+    with conn.cursor() as cursor:
+        cursor.execute("ANALYZE works")
     conn.commit()
     conn.close()
+    print(f"Inserted {len(rows)} works")
 
-    print(f"Created database: {db_path} ({db_path.stat().st_size / 1024:.1f} KB)")
 
+def verify_database(dsn: str) -> bool:
+    """Verify the test corpus answers the queries the suite will ask."""
+    conn = connect(dsn, autocommit=True)
 
-def verify_database(db_path: Path):
-    """Verify the database works correctly."""
-    conn = sqlite3.connect(db_path)
-    cursor = conn.cursor()
+    with conn.cursor() as cursor:
+        cursor.execute("SELECT COUNT(*) FROM works")
+        works_count = cursor.fetchone()[0]
+        cursor.execute("SELECT COUNT(*) FROM works WHERE search_vector IS NOT NULL")
+        fts_count = cursor.fetchone()[0]
+        cursor.execute(
+            "SELECT COUNT(*) FROM works "
+            f"WHERE search_vector @@ websearch_to_tsquery('{FTS_CONFIG}', %s)",
+            ("neuroscience",),
+        )
+        search_count = cursor.fetchone()[0]
 
-    # Check counts
-    cursor.execute("SELECT COUNT(*) FROM works")
-    works_count = cursor.fetchone()[0]
+    conn.close()
 
-    cursor.execute("SELECT COUNT(*) FROM works_fts")
-    fts_count = cursor.fetchone()[0]
-
-    print(f"\nVerification:")
+    print("\nVerification:")
     print(f"  Works: {works_count}")
-    print(f"  FTS indexed: {fts_count}")
-
-    # Test search
-    cursor.execute(
-        """
-        SELECT COUNT(*) FROM works_fts WHERE works_fts MATCH 'neuroscience'
-    """
-    )
-    search_count = cursor.fetchone()[0]
+    print(f"  Full-text indexed: {fts_count}")
     print(f"  Search 'neuroscience': {search_count} matches")
 
-    conn.close()
-
     if works_count > 0 and fts_count > 0:
-        print("\nTest database ready!")
+        print("\nTest corpus ready!")
         return True
-    else:
-        print("\nError: Database verification failed")
-        return False
+    print("\nError: corpus verification failed")
+    return False
 
 
 def main():
     parser = argparse.ArgumentParser(
-        description="Create test database from OpenAlex API"
+        description="Create a test corpus from the OpenAlex API"
     )
     parser.add_argument(
         "--rows", type=int, default=500, help="Number of records to download"
@@ -321,10 +215,22 @@ def main():
     parser.add_argument(
         "--use-cached", action="store_true", help="Use cached JSON if available"
     )
+    parser.add_argument(
+        "--dsn",
+        default=None,
+        help="Corpus DSN (default: the store this host resolves to)",
+    )
+    parser.add_argument(
+        "--keep-existing",
+        action="store_true",
+        help="Add to the existing works rather than replacing them",
+    )
     args = parser.parse_args()
 
+    dsn = resolve_dsn(args.dsn)
+
     print("=" * 60)
-    print("Creating OpenAlex Test Database")
+    print("Creating OpenAlex Test Corpus")
     print("=" * 60)
     print()
 
@@ -338,17 +244,18 @@ def main():
 
     print()
 
-    # Create database
-    create_database(works, TEST_DB_PATH)
+    create_database(works, dsn, reset=not args.keep_existing)
 
-    # Verify
-    verify_database(TEST_DB_PATH)
+    ok = verify_database(dsn)
 
     print()
     print("=" * 60)
-    print(f"Test database: {TEST_DB_PATH}")
+    print(f"Test corpus: {dsn}")
     print("Run tests with: make test")
     print("=" * 60)
+
+    if not ok:
+        sys.exit(1)
 
 
 if __name__ == "__main__":

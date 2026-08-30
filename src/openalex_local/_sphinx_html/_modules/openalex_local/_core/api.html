@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>openalex_local._core.api &mdash; OpenAlex Local v0.7.6</title>
+  <title>openalex_local._core.api &mdash; OpenAlex Local v0.4.0</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
@@ -13,7 +13,7 @@
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=918ced64"></script>
+      <script src="../../../_static/documentation_options.js?v=6c02275b"></script>
       <script src="../../../_static/doctools.js?v=9a2dae69"></script>
       <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -97,7 +97,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../../../http_api.html#batch-lookup">Batch Lookup</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="../../../http_api.html#fts5-query-syntax">FTS5 Query Syntax</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../http_api.html#query-syntax">Query Syntax</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../http_api.html#python-client">Python Client</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../http_api.html#environment-variables">Environment Variables</a></li>
 </ul>
@@ -106,51 +106,62 @@
 <p class="caption" role="heading"><span class="caption-text">API Reference</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../api/openalex_local.html">openalex_local API</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../../api/openalex_local.html#core-functions">Core Functions</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../../../api/openalex_local.html#search">search</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../../../api/openalex_local.html#openalex_local.search"><code class="docutils literal notranslate"><span class="pre">search()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api/openalex_local.html#openalex_local.search"><code class="docutils literal notranslate"><span class="pre">search()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api/openalex_local.html#openalex_local.count"><code class="docutils literal notranslate"><span class="pre">count()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api/openalex_local.html#openalex_local.get"><code class="docutils literal notranslate"><span class="pre">get()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api/openalex_local.html#openalex_local.get_many"><code class="docutils literal notranslate"><span class="pre">get_many()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api/openalex_local.html#openalex_local.exists"><code class="docutils literal notranslate"><span class="pre">exists()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api/openalex_local.html#openalex_local.info"><code class="docutils literal notranslate"><span class="pre">info()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api/openalex_local.html#openalex_local.update"><code class="docutils literal notranslate"><span class="pre">update()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api/openalex_local.html#openalex_local.enrich"><code class="docutils literal notranslate"><span class="pre">enrich()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api/openalex_local.html#openalex_local.enrich_ids"><code class="docutils literal notranslate"><span class="pre">enrich_ids()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api/openalex_local.html#openalex_local.configure"><code class="docutils literal notranslate"><span class="pre">configure()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api/openalex_local.html#openalex_local.get_mode"><code class="docutils literal notranslate"><span class="pre">get_mode()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api/openalex_local.html#openalex_local.Work"><code class="docutils literal notranslate"><span class="pre">Work</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/openalex_local.html#openalex_local.Work.openalex_id"><code class="docutils literal notranslate"><span class="pre">Work.openalex_id</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/openalex_local.html#openalex_local.Work.doi"><code class="docutils literal notranslate"><span class="pre">Work.doi</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/openalex_local.html#openalex_local.Work.title"><code class="docutils literal notranslate"><span class="pre">Work.title</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/openalex_local.html#openalex_local.Work.abstract"><code class="docutils literal notranslate"><span class="pre">Work.abstract</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/openalex_local.html#openalex_local.Work.authors"><code class="docutils literal notranslate"><span class="pre">Work.authors</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/openalex_local.html#openalex_local.Work.year"><code class="docutils literal notranslate"><span class="pre">Work.year</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/openalex_local.html#openalex_local.Work.source"><code class="docutils literal notranslate"><span class="pre">Work.source</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/openalex_local.html#openalex_local.Work.issn"><code class="docutils literal notranslate"><span class="pre">Work.issn</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/openalex_local.html#openalex_local.Work.volume"><code class="docutils literal notranslate"><span class="pre">Work.volume</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/openalex_local.html#openalex_local.Work.issue"><code class="docutils literal notranslate"><span class="pre">Work.issue</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/openalex_local.html#openalex_local.Work.pages"><code class="docutils literal notranslate"><span class="pre">Work.pages</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/openalex_local.html#openalex_local.Work.publisher"><code class="docutils literal notranslate"><span class="pre">Work.publisher</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/openalex_local.html#openalex_local.Work.type"><code class="docutils literal notranslate"><span class="pre">Work.type</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/openalex_local.html#openalex_local.Work.concepts"><code class="docutils literal notranslate"><span class="pre">Work.concepts</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/openalex_local.html#openalex_local.Work.topics"><code class="docutils literal notranslate"><span class="pre">Work.topics</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/openalex_local.html#openalex_local.Work.cited_by_count"><code class="docutils literal notranslate"><span class="pre">Work.cited_by_count</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/openalex_local.html#openalex_local.Work.referenced_works"><code class="docutils literal notranslate"><span class="pre">Work.referenced_works</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/openalex_local.html#openalex_local.Work.is_oa"><code class="docutils literal notranslate"><span class="pre">Work.is_oa</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/openalex_local.html#openalex_local.Work.oa_url"><code class="docutils literal notranslate"><span class="pre">Work.oa_url</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/openalex_local.html#openalex_local.Work.scitex_if"><code class="docutils literal notranslate"><span class="pre">Work.scitex_if</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/openalex_local.html#openalex_local.Work.source_h_index"><code class="docutils literal notranslate"><span class="pre">Work.source_h_index</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/openalex_local.html#openalex_local.Work.source_cited_by_count"><code class="docutils literal notranslate"><span class="pre">Work.source_cited_by_count</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/openalex_local.html#openalex_local.Work.from_openalex"><code class="docutils literal notranslate"><span class="pre">Work.from_openalex()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/openalex_local.html#openalex_local.Work.from_db_row"><code class="docutils literal notranslate"><span class="pre">Work.from_db_row()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/openalex_local.html#openalex_local.Work.to_dict"><code class="docutils literal notranslate"><span class="pre">Work.to_dict()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/openalex_local.html#openalex_local.Work.citation"><code class="docutils literal notranslate"><span class="pre">Work.citation()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/openalex_local.html#openalex_local.Work._citation_apa"><code class="docutils literal notranslate"><span class="pre">Work._citation_apa()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/openalex_local.html#openalex_local.Work._format_author_apa"><code class="docutils literal notranslate"><span class="pre">Work._format_author_apa()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/openalex_local.html#openalex_local.Work._citation_bibtex"><code class="docutils literal notranslate"><span class="pre">Work._citation_bibtex()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/openalex_local.html#openalex_local.Work.to_text"><code class="docutils literal notranslate"><span class="pre">Work.to_text()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/openalex_local.html#openalex_local.Work.save"><code class="docutils literal notranslate"><span class="pre">Work.save()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/openalex_local.html#openalex_local.Work.__init__"><code class="docutils literal notranslate"><span class="pre">Work.__init__()</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="../../../api/openalex_local.html#get">get</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../../../api/openalex_local.html#openalex_local.get"><code class="docutils literal notranslate"><span class="pre">get()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api/openalex_local.html#openalex_local.SearchResult"><code class="docutils literal notranslate"><span class="pre">SearchResult</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/openalex_local.html#openalex_local.SearchResult.works"><code class="docutils literal notranslate"><span class="pre">SearchResult.works</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/openalex_local.html#openalex_local.SearchResult.total"><code class="docutils literal notranslate"><span class="pre">SearchResult.total</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/openalex_local.html#openalex_local.SearchResult.query"><code class="docutils literal notranslate"><span class="pre">SearchResult.query</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/openalex_local.html#openalex_local.SearchResult.elapsed_ms"><code class="docutils literal notranslate"><span class="pre">SearchResult.elapsed_ms</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/openalex_local.html#openalex_local.SearchResult.save"><code class="docutils literal notranslate"><span class="pre">SearchResult.save()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/openalex_local.html#openalex_local.SearchResult.__init__"><code class="docutils literal notranslate"><span class="pre">SearchResult.__init__()</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="../../../api/openalex_local.html#count">count</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../../../api/openalex_local.html#openalex_local.count"><code class="docutils literal notranslate"><span class="pre">count()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="../../../api/openalex_local.html#info">info</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../../../api/openalex_local.html#openalex_local.info"><code class="docutils literal notranslate"><span class="pre">info()</span></code></a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="../../../api/openalex_local.html#configuration">Configuration</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../../../api/openalex_local.html#configure">configure</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../../../api/openalex_local.html#openalex_local.configure"><code class="docutils literal notranslate"><span class="pre">configure()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="../../../api/openalex_local.html#get-mode">get_mode</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../../../api/openalex_local.html#openalex_local.get_mode"><code class="docutils literal notranslate"><span class="pre">get_mode()</span></code></a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="../../../api/openalex_local.html#data-classes">Data Classes</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../../../api/openalex_local.html#work">Work</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../../../api/openalex_local.html#openalex_local.Work"><code class="docutils literal notranslate"><span class="pre">Work</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="../../../api/openalex_local.html#searchresult">SearchResult</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../../../api/openalex_local.html#openalex_local.SearchResult"><code class="docutils literal notranslate"><span class="pre">SearchResult</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="../../../api/openalex_local.html#config">Config</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../../../api/openalex_local.html#openalex_local._core.config.Config"><code class="docutils literal notranslate"><span class="pre">Config</span></code></a></li>
-</ul>
-</li>
-</ul>
-</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api/openalex_local.html#openalex_local.save"><code class="docutils literal notranslate"><span class="pre">save()</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -180,17 +191,20 @@
            <div itemprop="articleBody">
              
   <h1>Source code for openalex_local._core.api</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;Main API for openalex_local.</span>
+<span></span><span class="sd">"""Main API for openalex_local.</span>
 
 <span class="sd">Supports two modes:</span>
-<span class="sd">- db: Direct database access (requires database file)</span>
+<span class="sd">- db: Direct corpus access (requires a reachable, populated corpus)</span>
 <span class="sd">- http: HTTP API access (requires API server)</span>
 
 <span class="sd">Mode is auto-detected or can be set explicitly via:</span>
-<span class="sd">- OPENALEX_LOCAL_MODE environment variable (&quot;db&quot; or &quot;http&quot;)</span>
+<span class="sd">- OPENALEX_LOCAL_MODE environment variable ("db" or "http")</span>
 <span class="sd">- OPENALEX_LOCAL_API_URL environment variable (API URL)</span>
 <span class="sd">- configure() or configure_http() functions</span>
-<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">Where the corpus lives is resolved by ``scitex_dev.store.host_store`` and is</span>
+<span class="sd">moved with ``SCITEX_STORE_DSN``; this package holds no second answer.</span>
+<span class="sd">"""</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span>
 
@@ -201,26 +215,26 @@
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
     <span class="c1"># Core functions</span>
-    <span class="s2">&quot;search&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;count&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;get&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;get_many&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;exists&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;info&quot;</span><span class="p">,</span>
+    <span class="s2">"search"</span><span class="p">,</span>
+    <span class="s2">"count"</span><span class="p">,</span>
+    <span class="s2">"get"</span><span class="p">,</span>
+    <span class="s2">"get_many"</span><span class="p">,</span>
+    <span class="s2">"exists"</span><span class="p">,</span>
+    <span class="s2">"info"</span><span class="p">,</span>
     <span class="c1"># Enrich functions</span>
-    <span class="s2">&quot;enrich&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;enrich_ids&quot;</span><span class="p">,</span>
+    <span class="s2">"enrich"</span><span class="p">,</span>
+    <span class="s2">"enrich_ids"</span><span class="p">,</span>
     <span class="c1"># Configuration</span>
-    <span class="s2">&quot;configure&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;get_mode&quot;</span><span class="p">,</span>
+    <span class="s2">"configure"</span><span class="p">,</span>
+    <span class="s2">"get_mode"</span><span class="p">,</span>
     <span class="c1"># Models (public)</span>
-    <span class="s2">&quot;Work&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;SearchResult&quot;</span><span class="p">,</span>
+    <span class="s2">"Work"</span><span class="p">,</span>
+    <span class="s2">"SearchResult"</span><span class="p">,</span>
 <span class="p">]</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_get_http_client</span><span class="p">():</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Get HTTP client (lazy import to avoid circular dependency).&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Get HTTP client (lazy import to avoid circular dependency)."""</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">.._remote</span><span class="w"> </span><span class="kn">import</span> <span class="n">RemoteClient</span>
 
     <span class="k">return</span> <span class="n">RemoteClient</span><span class="p">(</span><span class="n">Config</span><span class="o">.</span><span class="n">get_api_url</span><span class="p">())</span>
@@ -233,13 +247,14 @@
     <span class="n">limit</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">20</span><span class="p">,</span>
     <span class="n">offset</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SearchResult</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Full-text search across works.</span>
 
-<span class="sd">    Uses FTS5 index for fast searching across titles and abstracts.</span>
+<span class="sd">    Uses the corpus full-text index over titles and abstracts.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        query: Search query (supports FTS5 syntax)</span>
+<span class="sd">        query: Search query (web-search syntax: bare words, "quoted</span>
+<span class="sd">            phrases", ``or``, leading ``-`` to exclude)</span>
 <span class="sd">        limit: Maximum results to return</span>
 <span class="sd">        offset: Skip first N results (for pagination)</span>
 
@@ -248,10 +263,10 @@
 
 <span class="sd">    Example:</span>
 <span class="sd">        &gt;&gt;&gt; from openalex_local import search</span>
-<span class="sd">        &gt;&gt;&gt; results = search(&quot;machine learning&quot;)</span>
-<span class="sd">        &gt;&gt;&gt; print(f&quot;Found {results.total} matches&quot;)</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="n">Config</span><span class="o">.</span><span class="n">get_mode</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;http&quot;</span><span class="p">:</span>
+<span class="sd">        &gt;&gt;&gt; results = search("machine learning")</span>
+<span class="sd">        &gt;&gt;&gt; print(f"Found {results.total} matches")</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="n">Config</span><span class="o">.</span><span class="n">get_mode</span><span class="p">()</span> <span class="o">==</span> <span class="s2">"http"</span><span class="p">:</span>
         <span class="n">client</span> <span class="o">=</span> <span class="n">_get_http_client</span><span class="p">()</span>
         <span class="k">return</span> <span class="n">client</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">query</span><span class="o">=</span><span class="n">query</span><span class="p">,</span> <span class="n">limit</span><span class="o">=</span><span class="n">limit</span><span class="p">,</span> <span class="n">offset</span><span class="o">=</span><span class="n">offset</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">fts</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="n">limit</span><span class="p">,</span> <span class="n">offset</span><span class="p">)</span></div>
@@ -261,16 +276,16 @@
 <div class="viewcode-block" id="count">
 <a class="viewcode-back" href="../../../api/openalex_local.html#openalex_local.count">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">count</span><span class="p">(</span><span class="n">query</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Count matching works without fetching results.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        query: FTS5 search query</span>
+<span class="sd">        query: Full-text search query</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        Number of matching works</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="n">Config</span><span class="o">.</span><span class="n">get_mode</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;http&quot;</span><span class="p">:</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="n">Config</span><span class="o">.</span><span class="n">get_mode</span><span class="p">()</span> <span class="o">==</span> <span class="s2">"http"</span><span class="p">:</span>
         <span class="n">client</span> <span class="o">=</span> <span class="n">_get_http_client</span><span class="p">()</span>
         <span class="n">result</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">query</span><span class="o">=</span><span class="n">query</span><span class="p">,</span> <span class="n">limit</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">result</span><span class="o">.</span><span class="n">total</span>
@@ -281,7 +296,7 @@
 <div class="viewcode-block" id="get">
 <a class="viewcode-back" href="../../../api/openalex_local.html#openalex_local.get">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">get</span><span class="p">(</span><span class="n">id_or_doi</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Work</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Get a work by OpenAlex ID or DOI.</span>
 
 <span class="sd">    Args:</span>
@@ -292,18 +307,18 @@
 
 <span class="sd">    Example:</span>
 <span class="sd">        &gt;&gt;&gt; from openalex_local import get</span>
-<span class="sd">        &gt;&gt;&gt; work = get(&quot;W2741809807&quot;)</span>
-<span class="sd">        &gt;&gt;&gt; work = get(&quot;10.1038/nature12373&quot;)</span>
+<span class="sd">        &gt;&gt;&gt; work = get("W2741809807")</span>
+<span class="sd">        &gt;&gt;&gt; work = get("10.1038/nature12373")</span>
 <span class="sd">        &gt;&gt;&gt; print(work.title)</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="n">Config</span><span class="o">.</span><span class="n">get_mode</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;http&quot;</span><span class="p">:</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="n">Config</span><span class="o">.</span><span class="n">get_mode</span><span class="p">()</span> <span class="o">==</span> <span class="s2">"http"</span><span class="p">:</span>
         <span class="n">client</span> <span class="o">=</span> <span class="n">_get_http_client</span><span class="p">()</span>
         <span class="k">return</span> <span class="n">client</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">id_or_doi</span><span class="p">)</span>
 
     <span class="n">db</span> <span class="o">=</span> <span class="n">get_db</span><span class="p">()</span>
 
     <span class="c1"># Try as OpenAlex ID first</span>
-    <span class="k">if</span> <span class="n">id_or_doi</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;W&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">id_or_doi</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;w&quot;</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">id_or_doi</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">"W"</span><span class="p">)</span> <span class="ow">or</span> <span class="n">id_or_doi</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">"w"</span><span class="p">):</span>
         <span class="n">data</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">get_work</span><span class="p">(</span><span class="n">id_or_doi</span><span class="o">.</span><span class="n">upper</span><span class="p">())</span>
         <span class="k">if</span> <span class="n">data</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">Work</span><span class="o">.</span><span class="n">from_db_row</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
@@ -317,8 +332,10 @@
 
 
 
+<div class="viewcode-block" id="get_many">
+<a class="viewcode-back" href="../../../api/openalex_local.html#openalex_local.get_many">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">get_many</span><span class="p">(</span><span class="n">ids</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Work</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Get multiple works by OpenAlex ID or DOI.</span>
 
 <span class="sd">    Args:</span>
@@ -326,8 +343,8 @@
 
 <span class="sd">    Returns:</span>
 <span class="sd">        List of Work objects (missing IDs are skipped)</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="n">Config</span><span class="o">.</span><span class="n">get_mode</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;http&quot;</span><span class="p">:</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="n">Config</span><span class="o">.</span><span class="n">get_mode</span><span class="p">()</span> <span class="o">==</span> <span class="s2">"http"</span><span class="p">:</span>
         <span class="n">client</span> <span class="o">=</span> <span class="n">_get_http_client</span><span class="p">()</span>
         <span class="k">return</span> <span class="n">client</span><span class="o">.</span><span class="n">get_many</span><span class="p">(</span><span class="n">ids</span><span class="p">)</span>
 
@@ -336,11 +353,14 @@
         <span class="n">work</span> <span class="o">=</span> <span class="n">get</span><span class="p">(</span><span class="n">id_or_doi</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">work</span><span class="p">:</span>
             <span class="n">works</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">work</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">works</span>
+    <span class="k">return</span> <span class="n">works</span></div>
 
 
+
+<div class="viewcode-block" id="exists">
+<a class="viewcode-back" href="../../../api/openalex_local.html#openalex_local.exists">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">exists</span><span class="p">(</span><span class="n">id_or_doi</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Check if a work exists in the database.</span>
 
 <span class="sd">    Args:</span>
@@ -348,46 +368,51 @@
 
 <span class="sd">    Returns:</span>
 <span class="sd">        True if work exists</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="n">Config</span><span class="o">.</span><span class="n">get_mode</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;http&quot;</span><span class="p">:</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="n">Config</span><span class="o">.</span><span class="n">get_mode</span><span class="p">()</span> <span class="o">==</span> <span class="s2">"http"</span><span class="p">:</span>
         <span class="n">client</span> <span class="o">=</span> <span class="n">_get_http_client</span><span class="p">()</span>
         <span class="k">return</span> <span class="n">client</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">id_or_doi</span><span class="p">)</span>
 
     <span class="n">db</span> <span class="o">=</span> <span class="n">get_db</span><span class="p">()</span>
 
     <span class="c1"># Try as OpenAlex ID first</span>
-    <span class="k">if</span> <span class="n">id_or_doi</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;W&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">id_or_doi</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;w&quot;</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">id_or_doi</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">"W"</span><span class="p">)</span> <span class="ow">or</span> <span class="n">id_or_doi</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">"w"</span><span class="p">):</span>
         <span class="n">row</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">fetchone</span><span class="p">(</span>
-            <span class="s2">&quot;SELECT 1 FROM works WHERE openalex_id = ?&quot;</span><span class="p">,</span> <span class="p">(</span><span class="n">id_or_doi</span><span class="o">.</span><span class="n">upper</span><span class="p">(),)</span>
+            <span class="s2">"SELECT 1 FROM works WHERE openalex_id = </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span> <span class="p">(</span><span class="n">id_or_doi</span><span class="o">.</span><span class="n">upper</span><span class="p">(),)</span>
         <span class="p">)</span>
         <span class="k">if</span> <span class="n">row</span><span class="p">:</span>
             <span class="k">return</span> <span class="kc">True</span>
 
     <span class="c1"># Try as DOI</span>
-    <span class="n">row</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">fetchone</span><span class="p">(</span><span class="s2">&quot;SELECT 1 FROM works WHERE doi = ?&quot;</span><span class="p">,</span> <span class="p">(</span><span class="n">id_or_doi</span><span class="p">,))</span>
-    <span class="k">return</span> <span class="n">row</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+    <span class="n">row</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">fetchone</span><span class="p">(</span><span class="s2">"SELECT 1 FROM works WHERE doi = </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span> <span class="p">(</span><span class="n">id_or_doi</span><span class="p">,))</span>
+    <span class="k">return</span> <span class="n">row</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span></div>
+
 
 
 <div class="viewcode-block" id="configure">
 <a class="viewcode-back" href="../../../api/openalex_local.html#openalex_local.configure">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">configure</span><span class="p">(</span><span class="n">db_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Configure for local database access.</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">configure</span><span class="p">(</span><span class="n">dsn</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Configure for direct corpus access at an explicit address.</span>
+
+<span class="sd">    Only needed to reach a corpus OTHER than the one this host resolves to.</span>
+<span class="sd">    Leave it alone and ``scitex_dev.store.host_store`` decides, which is what</span>
+<span class="sd">    ``SCITEX_STORE_DSN`` is for.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        db_path: Path to OpenAlex SQLite database</span>
+<span class="sd">        dsn: PostgreSQL connection string for the corpus</span>
 
 <span class="sd">    Example:</span>
 <span class="sd">        &gt;&gt;&gt; from openalex_local import configure</span>
-<span class="sd">        &gt;&gt;&gt; configure(&quot;/path/to/openalex.db&quot;)</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">Config</span><span class="o">.</span><span class="n">set_db_path</span><span class="p">(</span><span class="n">db_path</span><span class="p">)</span>
+<span class="sd">        &gt;&gt;&gt; configure("postgresql://reader@scitex-primary:55432/scitex")</span>
+<span class="sd">    """</span>
+    <span class="n">Config</span><span class="o">.</span><span class="n">set_dsn</span><span class="p">(</span><span class="n">dsn</span><span class="p">)</span>
     <span class="n">close_db</span><span class="p">()</span></div>
 
 
 
-<span class="k">def</span><span class="w"> </span><span class="nf">configure_http</span><span class="p">(</span><span class="n">api_url</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;http://localhost:31292&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">configure_http</span><span class="p">(</span><span class="n">api_url</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"http://localhost:31292"</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Configure for HTTP API access.</span>
 
 <span class="sd">    Args:</span>
@@ -395,20 +420,20 @@
 
 <span class="sd">    Example:</span>
 <span class="sd">        &gt;&gt;&gt; from openalex_local import configure_http</span>
-<span class="sd">        &gt;&gt;&gt; configure_http(&quot;http://localhost:31292&quot;)</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">        &gt;&gt;&gt; configure_http("http://localhost:31292")</span>
+<span class="sd">    """</span>
     <span class="n">Config</span><span class="o">.</span><span class="n">set_api_url</span><span class="p">(</span><span class="n">api_url</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="get_mode">
 <a class="viewcode-back" href="../../../api/openalex_local.html#openalex_local.get_mode">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">get_mode</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Get current mode.</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">        &quot;db&quot; or &quot;http&quot;</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">        "db" or "http"</span>
+<span class="sd">    """</span>
     <span class="k">return</span> <span class="n">Config</span><span class="o">.</span><span class="n">get_mode</span><span class="p">()</span></div>
 
 
@@ -416,7 +441,7 @@
 <div class="viewcode-block" id="info">
 <a class="viewcode-back" href="../../../api/openalex_local.html#openalex_local.info">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">info</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Get database/API information.</span>
 
 <span class="sd">    Returns:</span>
@@ -424,47 +449,36 @@
 
 <span class="sd">    Raises:</span>
 <span class="sd">        FileNotFoundError: If no database configured and HTTP mode unavailable</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">mode</span> <span class="o">=</span> <span class="n">Config</span><span class="o">.</span><span class="n">get_mode</span><span class="p">()</span>
 
-    <span class="k">if</span> <span class="n">mode</span> <span class="o">==</span> <span class="s2">&quot;http&quot;</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">mode</span> <span class="o">==</span> <span class="s2">"http"</span><span class="p">:</span>
         <span class="n">client</span> <span class="o">=</span> <span class="n">_get_http_client</span><span class="p">()</span>
         <span class="n">http_info</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">info</span><span class="p">()</span>
-        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;mode&quot;</span><span class="p">:</span> <span class="s2">&quot;http&quot;</span><span class="p">,</span> <span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;ok&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">http_info</span><span class="p">}</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s2">"mode"</span><span class="p">:</span> <span class="s2">"http"</span><span class="p">,</span> <span class="s2">"status"</span><span class="p">:</span> <span class="s2">"ok"</span><span class="p">,</span> <span class="o">**</span><span class="n">http_info</span><span class="p">}</span>
 
-    <span class="c1"># DB mode - will raise FileNotFoundError if no database</span>
+    <span class="c1"># DB mode - raises if the corpus cannot be opened</span>
     <span class="n">db</span> <span class="o">=</span> <span class="n">get_db</span><span class="p">()</span>
 
-    <span class="c1"># Get work count from metadata (fast) or fallback to MAX(rowid) approximation</span>
-    <span class="n">work_count</span> <span class="o">=</span> <span class="mi">0</span>
-    <span class="c1"># Graceful degradation: _metadata table may not exist in older databases</span>
-    <span class="k">try</span><span class="p">:</span>
-        <span class="n">row</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">fetchone</span><span class="p">(</span><span class="s2">&quot;SELECT value FROM _metadata WHERE key = &#39;total_works&#39;&quot;</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">row</span><span class="p">:</span>
-            <span class="n">work_count</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s2">&quot;value&quot;</span><span class="p">])</span>
-    <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
-        <span class="k">pass</span>  <span class="c1"># _metadata table may not exist; fall through to MAX(rowid)</span>
-
+    <span class="c1"># The recorded counters first. They come from the build steps and cost one</span>
+    <span class="c1"># lookup; COUNT(*) over 284M rows is a table scan and would make `info()`</span>
+    <span class="c1"># unusable on a full corpus. Falling back to MAX(id) is an approximation</span>
+    <span class="c1"># and is labelled as one below.</span>
+    <span class="n">work_count</span> <span class="o">=</span> <span class="n">_recorded_int</span><span class="p">(</span><span class="s2">"total_works"</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">work_count</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
         <span class="k">try</span><span class="p">:</span>
-            <span class="n">row</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">fetchone</span><span class="p">(</span><span class="s2">&quot;SELECT MAX(rowid) as count FROM works&quot;</span><span class="p">)</span>
-            <span class="n">work_count</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="s2">&quot;count&quot;</span><span class="p">]</span> <span class="k">if</span> <span class="n">row</span> <span class="k">else</span> <span class="mi">0</span>
+            <span class="n">row</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">fetchone</span><span class="p">(</span><span class="s2">"SELECT MAX(id) as count FROM works"</span><span class="p">)</span>
+            <span class="n">work_count</span> <span class="o">=</span> <span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s2">"count"</span><span class="p">]</span> <span class="ow">or</span> <span class="mi">0</span><span class="p">)</span> <span class="k">if</span> <span class="n">row</span> <span class="k">else</span> <span class="mi">0</span>
         <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
             <span class="n">work_count</span> <span class="o">=</span> <span class="mi">0</span>
 
-    <span class="c1"># Graceful degradation: _metadata table may not exist in older databases</span>
-    <span class="n">fts_count</span> <span class="o">=</span> <span class="mi">0</span>
-    <span class="k">try</span><span class="p">:</span>
-        <span class="n">row</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">fetchone</span><span class="p">(</span><span class="s2">&quot;SELECT value FROM _metadata WHERE key = &#39;fts_total_indexed&#39;&quot;</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">row</span><span class="p">:</span>
-            <span class="n">fts_count</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s2">&quot;value&quot;</span><span class="p">])</span>
-    <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
-        <span class="k">pass</span>  <span class="c1"># _metadata table may not exist; fall through to MAX(rowid)</span>
-
+    <span class="n">fts_count</span> <span class="o">=</span> <span class="n">_recorded_int</span><span class="p">(</span><span class="s2">"fts_total_indexed"</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">fts_count</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
         <span class="k">try</span><span class="p">:</span>
-            <span class="n">row</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">fetchone</span><span class="p">(</span><span class="s2">&quot;SELECT MAX(rowid) as count FROM works_fts&quot;</span><span class="p">)</span>
-            <span class="n">fts_count</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="s2">&quot;count&quot;</span><span class="p">]</span> <span class="k">if</span> <span class="n">row</span> <span class="k">else</span> <span class="mi">0</span>
+            <span class="n">row</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">fetchone</span><span class="p">(</span>
+                <span class="s2">"SELECT COUNT(*) as count FROM works WHERE search_vector IS NOT NULL"</span>
+            <span class="p">)</span>
+            <span class="n">fts_count</span> <span class="o">=</span> <span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s2">"count"</span><span class="p">]</span> <span class="ow">or</span> <span class="mi">0</span><span class="p">)</span> <span class="k">if</span> <span class="n">row</span> <span class="k">else</span> <span class="mi">0</span>
         <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
             <span class="n">fts_count</span> <span class="o">=</span> <span class="mi">0</span>
 
@@ -474,29 +488,51 @@
     <span class="k">try</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">db</span><span class="o">.</span><span class="n">has_sources_table</span><span class="p">():</span>
             <span class="n">has_sources</span> <span class="o">=</span> <span class="kc">True</span>
-            <span class="n">row</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">fetchone</span><span class="p">(</span><span class="s2">&quot;SELECT COUNT(*) as count FROM sources&quot;</span><span class="p">)</span>
-            <span class="n">sources_count</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="s2">&quot;count&quot;</span><span class="p">]</span> <span class="k">if</span> <span class="n">row</span> <span class="k">else</span> <span class="mi">0</span>
+            <span class="n">row</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">fetchone</span><span class="p">(</span><span class="s2">"SELECT COUNT(*) as count FROM sources"</span><span class="p">)</span>
+            <span class="n">sources_count</span> <span class="o">=</span> <span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s2">"count"</span><span class="p">]</span> <span class="ow">or</span> <span class="mi">0</span><span class="p">)</span> <span class="k">if</span> <span class="n">row</span> <span class="k">else</span> <span class="mi">0</span>
     <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
         <span class="k">pass</span>  <span class="c1"># sources table not built yet</span>
 
     <span class="k">return</span> <span class="p">{</span>
-        <span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;ok&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;mode&quot;</span><span class="p">:</span> <span class="s2">&quot;db&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;db_path&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">Config</span><span class="o">.</span><span class="n">get_db_path</span><span class="p">()),</span>
-        <span class="s2">&quot;work_count&quot;</span><span class="p">:</span> <span class="n">work_count</span><span class="p">,</span>
-        <span class="s2">&quot;fts_indexed&quot;</span><span class="p">:</span> <span class="n">fts_count</span><span class="p">,</span>
-        <span class="s2">&quot;has_sources&quot;</span><span class="p">:</span> <span class="n">has_sources</span><span class="p">,</span>
-        <span class="s2">&quot;sources_count&quot;</span><span class="p">:</span> <span class="n">sources_count</span><span class="p">,</span>
+        <span class="s2">"status"</span><span class="p">:</span> <span class="s2">"ok"</span><span class="p">,</span>
+        <span class="s2">"mode"</span><span class="p">:</span> <span class="s2">"db"</span><span class="p">,</span>
+        <span class="s2">"dsn"</span><span class="p">:</span> <span class="n">db</span><span class="o">.</span><span class="n">dsn</span><span class="p">,</span>
+        <span class="s2">"work_count"</span><span class="p">:</span> <span class="n">work_count</span><span class="p">,</span>
+        <span class="s2">"fts_indexed"</span><span class="p">:</span> <span class="n">fts_count</span><span class="p">,</span>
+        <span class="s2">"has_sources"</span><span class="p">:</span> <span class="n">has_sources</span><span class="p">,</span>
+        <span class="s2">"sources_count"</span><span class="p">:</span> <span class="n">sources_count</span><span class="p">,</span>
     <span class="p">}</span></div>
 
 
 
+<span class="k">def</span><span class="w"> </span><span class="nf">_recorded_int</span><span class="p">(</span><span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""A counter the build steps recorded, or 0 when none was.</span>
+
+<span class="sd">    Zero rather than None so the caller's "fall back to a live query" branch</span>
+<span class="sd">    is one comparison. A store that is unreachable is also 0 here — the live</span>
+<span class="sd">    query then answers, and if that fails too the caller reports 0 rather</span>
+<span class="sd">    than raising in a status call.</span>
+<span class="sd">    """</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">.state</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_metadata</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">recorded</span> <span class="o">=</span> <span class="n">get_metadata</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+        <span class="k">return</span> <span class="mi">0</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">recorded</span><span class="p">)</span> <span class="k">if</span> <span class="n">recorded</span> <span class="k">else</span> <span class="mi">0</span>
+    <span class="k">except</span> <span class="p">(</span><span class="ne">TypeError</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">):</span>
+        <span class="k">return</span> <span class="mi">0</span>
+
+
+<div class="viewcode-block" id="enrich">
+<a class="viewcode-back" href="../../../api/openalex_local.html#openalex_local.enrich">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">enrich</span><span class="p">(</span>
     <span class="n">results</span><span class="p">:</span> <span class="n">SearchResult</span><span class="p">,</span>
     <span class="n">include_abstract</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
     <span class="n">include_concepts</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SearchResult</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Enrich search results with full metadata.</span>
 
 <span class="sd">    This function re-fetches works from the database to ensure all fields</span>
@@ -512,11 +548,11 @@
 <span class="sd">        SearchResult with enriched Work objects</span>
 
 <span class="sd">    Example:</span>
-<span class="sd">        &gt;&gt;&gt; results = search(&quot;machine learning&quot;, limit=10)</span>
+<span class="sd">        &gt;&gt;&gt; results = search("machine learning", limit=10)</span>
 <span class="sd">        &gt;&gt;&gt; enriched = enrich(results)</span>
 <span class="sd">        &gt;&gt;&gt; for work in enriched:</span>
 <span class="sd">        ...     print(work.abstract)  # Full abstract available</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">results</span><span class="o">.</span><span class="n">works</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">results</span>
 
@@ -538,15 +574,18 @@
         <span class="n">total</span><span class="o">=</span><span class="n">results</span><span class="o">.</span><span class="n">total</span><span class="p">,</span>
         <span class="n">query</span><span class="o">=</span><span class="n">results</span><span class="o">.</span><span class="n">query</span><span class="p">,</span>
         <span class="n">elapsed_ms</span><span class="o">=</span><span class="n">results</span><span class="o">.</span><span class="n">elapsed_ms</span><span class="p">,</span>
-    <span class="p">)</span>
+    <span class="p">)</span></div>
 
 
+
+<div class="viewcode-block" id="enrich_ids">
+<a class="viewcode-back" href="../../../api/openalex_local.html#openalex_local.enrich_ids">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">enrich_ids</span><span class="p">(</span>
     <span class="n">ids</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
     <span class="n">include_abstract</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
     <span class="n">include_concepts</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Work</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Enrich a list of OpenAlex IDs or DOIs with full metadata.</span>
 
 <span class="sd">    Args:</span>
@@ -558,11 +597,11 @@
 <span class="sd">        List of Work objects with full metadata</span>
 
 <span class="sd">    Example:</span>
-<span class="sd">        &gt;&gt;&gt; ids = [&quot;W2741809807&quot;, &quot;10.1038/nature12373&quot;]</span>
+<span class="sd">        &gt;&gt;&gt; ids = ["W2741809807", "10.1038/nature12373"]</span>
 <span class="sd">        &gt;&gt;&gt; works = enrich_ids(ids)</span>
 <span class="sd">        &gt;&gt;&gt; for work in works:</span>
-<span class="sd">        ...     print(f&quot;{work.title}: {work.cited_by_count} citations&quot;)</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">        ...     print(f"{work.title}: {work.cited_by_count} citations")</span>
+<span class="sd">    """</span>
     <span class="n">works</span> <span class="o">=</span> <span class="n">get_many</span><span class="p">(</span><span class="n">ids</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="ow">not</span> <span class="n">include_abstract</span><span class="p">:</span>
@@ -573,7 +612,8 @@
             <span class="n">work</span><span class="o">.</span><span class="n">concepts</span> <span class="o">=</span> <span class="p">[]</span>
             <span class="n">work</span><span class="o">.</span><span class="n">topics</span> <span class="o">=</span> <span class="p">[]</span>
 
-    <span class="k">return</span> <span class="n">works</span>
+    <span class="k">return</span> <span class="n">works</span></div>
+
 </pre></div>
 
            </div>

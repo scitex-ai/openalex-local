@@ -71,7 +71,7 @@ Full-text search across titles, abstracts, and authors.
 
 **Parameters:**
 
-- ``q`` (required): Search query (FTS5 syntax supported)
+- ``q`` (required): Search query (web-search syntax)
 - ``limit`` (optional): Maximum results (default: 10)
 - ``offset`` (optional): Skip first N results (default: 0)
 
@@ -155,10 +155,12 @@ Retrieve multiple works by their IDs or DOIs.
      "not_found": []
    }
 
-FTS5 Query Syntax
------------------
+Query Syntax
+------------
 
-The search endpoint supports SQLite FTS5 query syntax:
+The search endpoint parses queries with PostgreSQL's
+``websearch_to_tsquery``, so the syntax is the one web search
+engines use:
 
 .. list-table::
    :header-rows: 1
@@ -170,14 +172,10 @@ The search endpoint supports SQLite FTS5 query syntax:
      - Match both terms (implicit AND)
    * - ``"machine learning"``
      - Match exact phrase
-   * - ``machine OR deep``
+   * - ``machine or deep``
      - Match either term
-   * - ``machine NOT supervised``
+   * - ``machine -supervised``
      - Exclude term
-   * - ``neural*``
-     - Prefix matching
-   * - ``NEAR(machine learning, 5)``
-     - Terms within 5 words
 
 Python Client
 -------------

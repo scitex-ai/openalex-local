@@ -83,15 +83,15 @@ def _work_to_response(work: Work) -> WorkResponse:
 
 @router.get("/works", response_model=SearchResponse)
 def search_works(
-    q: str = Query(..., description="Search query (FTS5 syntax supported)"),
+    q: str = Query(..., description="Search query (web-search syntax)"),
     limit: int = Query(20, ge=1, description="Max results"),
     offset: int = Query(0, ge=0, description="Skip first N results"),
 ):
     """
     Full-text search across works.
 
-    Uses FTS5 index for fast searching across titles and abstracts.
-    Supports FTS5 query syntax like AND, OR, NOT, "exact phrases".
+    Uses the corpus full-text index over titles and abstracts.
+    Web-search syntax: bare words, "exact phrases", `or`, leading `-`.
 
     Examples:
         /works?q=machine learning

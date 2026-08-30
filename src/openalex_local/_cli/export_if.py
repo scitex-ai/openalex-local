@@ -54,37 +54,46 @@ def export_if(output, fmt, limit, dry_run, yes):
 
     from .._core.db import get_db
 
-    db = get_db()
-    if not db.db_path:
-        click.secho("Error: Database not configured", fg="red")
+    try:
+        db = get_db()
+    except Exception as exc:
+        click.secho(f"Error: corpus unavailable: {exc}", fg="red")
         sys.exit(1)
 
-    cursor = db.conn.cursor()
-
-    # Check if table exists
-    cursor.execute(
-        "SELECT name FROM sqlite_master WHERE type='table' AND name='journal_impact_factors'"
-    )
-    if not cursor.fetchone():
+    if not db.has_table("journal_impact_factors"):
         click.secho("Error: journal_impact_factors table not found", fg="red")
         click.echo("Run: make build-if-table")
         sys.exit(1)
 
-    # Get data
-    query = "SELECT issn, journal_name, year, impact_factor FROM journal_impact_factors WHERE impact_factor IS NOT NULL ORDER BY impact_factor DESC"
+    # Get data. LIMIT is bound rather than interpolated -- `limit` reaches here
+    # from the command line, and a bound parameter cannot become SQL.
+    query = (
+        "SELECT issn, journal_name, year, impact_factor "
+        "FROM journal_impact_factors "
+        "WHERE impact_factor IS NOT NULL "
+        "ORDER BY impact_factor DESC"
+    )
+    params: tuple = ()
     if limit > 0:
-        query += f" LIMIT {limit}"
+        query += " LIMIT %s"
+        params = (limit,)
 
-    cursor.execute(query)
-    rows = cursor.fetchall()
+    rows = db.fetchall(query, params)
 
     # Determine format
     if fmt is None:
         fmt = "json" if output.endswith(".json") else "csv"
 
+    columns = ("issn", "journal_name", "year", "impact_factor")
+
     if fmt == "json":
         data = [
-            {"issn": r[0], "journal": r[1], "year": r[2], "scitex_if": r[3]}
+            {
+                "issn": r["issn"],
+                "journal": r["journal_name"],
+                "year": r["year"],
+                "scitex_if": r["impact_factor"],
+            }
             for r in rows
         ]
         with open(output, "w") as f:
@@ -95,7 +104,7 @@ def export_if(output, fmt, limit, dry_run, yes):
         with open(output, "w", newline="") as f:
             writer = csv.writer(f)
             writer.writerow(["issn", "journal", "year", "scitex_if"])
-            writer.writerows(rows)
+            writer.writerows([tuple(r[c] for c in columns) for r in rows])
 
     click.secho(f"Exported {len(rows):,} SciTeX IF values to {output}", fg="green")
 

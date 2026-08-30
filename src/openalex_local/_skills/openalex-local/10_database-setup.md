@@ -8,15 +8,22 @@ tags: [openalex-local-database-setup, openalex-local]
 
 # Database Setup and Architecture
 
+The corpus lives in PostgreSQL — the fleet store, resolved by
+`scitex_dev.store.host_store(pkg="openalex_local", name="corpus")`. There is no
+file to find and no second engine to choose.
+
 ## Database Contents
 
 | Table | Contents | Size |
 |-------|----------|------|
 | `works` | 284M+ scholarly works with metadata | ~200 GB |
-| `works_fts` | FTS5 index on title + abstract | ~100 GB |
+| `works.search_vector` | `tsvector` over title + abstract, GIN-indexed | ~100 GB |
 | `sources` | Journal metadata + SciTeX IF | Optional |
 | `journal_impact_factors` | Precomputed impact factors | Optional |
-| `_metadata` | Pre-computed counts | Auto |
+
+Build counters (`total_works`, `fts_total_indexed`, `last_sync_date`) are not a
+table. They live in a `scitex_dev.store.Store`; read them with
+`openalex_local._core.state.get_metadata(key)`.
 
 ## Build Pipeline
 
@@ -24,10 +31,10 @@ tags: [openalex-local-database-setup, openalex-local]
 # 1. Download OpenAlex snapshot (~300 GB compressed)
 python scripts/database/01_download_snapshot.py
 
-# 2. Build SQLite database
+# 2. Build the corpus
 python scripts/database/02_build_database.py
 
-# 3. Build FTS5 search index
+# 3. Build the full-text index
 python scripts/database/03_build_fts_index.py
 
 # 4. (Optional) Build sources/journal table
@@ -42,17 +49,21 @@ python scripts/database/06_build_if_indexes.py
 
 ## Access Modes
 
-### Direct Database (db mode)
+### Direct corpus access (db mode)
 
 ```bash
-export OPENALEX_LOCAL_DB=/path/to/openalex.db
+# Nothing to set on a host whose store is configured:
+openalex-local search "CRISPR"
+
+# To reach a corpus elsewhere:
+export SCITEX_STORE_DSN=postgresql://user@host:55432/scitex
 openalex-local search "CRISPR"
 ```
 
 ### HTTP Relay (http mode)
 
 ```bash
-# On the server with the database
+# On the server with the corpus
 openalex-local relay --host 0.0.0.0 --port 31292
 
 # On the client
@@ -64,21 +75,22 @@ openalex-local search "CRISPR"
 ssh -L 31292:127.0.0.1:31292 your-server
 ```
 
-## Database Discovery
+## Corpus Discovery
 
-openalex-local auto-discovers databases at these paths (in order):
+There is exactly one resolution path, and it is not this package's:
 
-1. `$OPENALEX_LOCAL_DB` (environment variable)
-2. `./data/openalex.db` (project directory; CWD-relative)
-3. `<repo-root>/data/openalex.db` (repo-anchored; works regardless of CWD)
-4. `~/.scitex/openalex-local/runtime/openalex.db` (canonical scitex runtime)
-5. `~/.openalex_local/openalex.db` (legacy, will be removed)
+1. `$SCITEX_STORE_DSN` when set — an explicit override wins outright.
+2. Otherwise this host's PostgreSQL, over its UNIX socket.
+
+The old four-entry search of candidate `.db` locations is gone. It answered
+differently depending on the working directory the command was run from, and
+nothing in the output said which database had replied.
 
 ## Environment Variables
 
 | Variable | Purpose | Example |
 |----------|---------|---------|
-| `OPENALEX_LOCAL_DB` | Database path | `/data/openalex.db` |
+| `SCITEX_STORE_DSN` | Corpus DSN override | `postgresql://user@host:55432/scitex` |
 | `OPENALEX_LOCAL_API_URL` | HTTP API URL | `http://localhost:31292` |
 | `OPENALEX_LOCAL_MODE` | Force mode | `db`, `http`, or `auto` |
 | `OPENALEX_LOCAL_HOST` | Relay bind host | `0.0.0.0` |

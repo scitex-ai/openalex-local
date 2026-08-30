@@ -19,7 +19,6 @@ import asyncio
 import threading
 from typing import Dict, List, Optional
 
-from ._core.config import Config
 from ._core.db import Database
 from ._core.fts import _search_with_db, _count_with_db
 from ._core.models import SearchResult, Work
@@ -42,7 +41,7 @@ _thread_local = threading.local()
 def _get_thread_db() -> Database:
     """Get or create thread-local database connection."""
     if not hasattr(_thread_local, "db"):
-        _thread_local.db = Database(Config.get_db_path())
+        _thread_local.db = Database()
     return _thread_local.db
 
 
@@ -93,13 +92,13 @@ def _exists_sync(id_or_doi: str) -> bool:
     # Try as OpenAlex ID first
     if id_or_doi.startswith("W") or id_or_doi.startswith("w"):
         row = db.fetchone(
-            "SELECT 1 FROM works WHERE openalex_id = ?", (id_or_doi.upper(),)
+            "SELECT 1 FROM works WHERE openalex_id = %s", (id_or_doi.upper(),)
         )
         if row:
             return True
 
     # Try as DOI
-    row = db.fetchone("SELECT 1 FROM works WHERE doi = ?", (id_or_doi,))
+    row = db.fetchone("SELECT 1 FROM works WHERE doi = %s", (id_or_doi,))
     return row is not None
 
 
@@ -111,7 +110,9 @@ def _info_sync() -> dict:
     work_count = row["count"] if row else 0
 
     try:
-        row = db.fetchone("SELECT COUNT(*) as count FROM works_fts")
+        row = db.fetchone(
+            "SELECT COUNT(*) as count FROM works WHERE search_vector IS NOT NULL"
+        )
         fts_count = row["count"] if row else 0
     except Exception:
         fts_count = 0
@@ -119,7 +120,7 @@ def _info_sync() -> dict:
     return {
         "status": "ok",
         "mode": "db",
-        "db_path": str(Config.get_db_path()),
+        "dsn": db.dsn,
         "work_count": work_count,
         "fts_indexed": fts_count,
     }
@@ -134,7 +135,7 @@ async def search(
     Async full-text search across works.
 
     Args:
-        query: Search query (supports FTS5 syntax)
+        query: Search query (web-search syntax)
         limit: Maximum results to return
         offset: Skip first N results (for pagination)
 
@@ -153,7 +154,7 @@ async def count(query: str) -> int:
     Async count of matching works.
 
     Args:
-        query: FTS5 search query
+        query: Full-text search query
 
     Returns:
         Number of matching works

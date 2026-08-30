@@ -15,7 +15,7 @@ import openalex_local as oal
 
 | Symbol | Purpose |
 |---|---|
-| `search(query, limit=...)` | FTS5 full-text search → `SearchResult` |
+| `search(query, limit=...)` | Full-text search → `SearchResult` |
 | `count(query)` | Count matches without retrieving them |
 | `exists(work_id_or_doi)` | Boolean presence check |
 
@@ -71,4 +71,4 @@ import openalex_local as oal
 ## See also
 
 - [04_cli-reference.md](04_cli-reference.md) — CLI mirror of this surface
-- [14_search-syntax.md](14_search-syntax.md) — FTS5 syntax cheatsheet
+- [14_search-syntax.md](14_search-syntax.md) — search syntax cheatsheet

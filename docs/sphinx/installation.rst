@@ -5,8 +5,8 @@ Requirements
 ------------
 
 - Python 3.10+
-- SQLite with FTS5 support (included in most Python installations)
-- ~300 GB disk space for full database
+- PostgreSQL 13+ (the per-host instance ``scitex_dev.store`` resolves)
+- ~300 GB disk space for the full corpus
 
 Install from PyPI
 -----------------
@@ -45,16 +45,18 @@ The database can be set up in several ways:
 
 .. code-block:: bash
 
-   export OPENALEX_LOCAL_DB=/path/to/openalex.db
+   export SCITEX_STORE_DSN=postgresql://user@host:55432/scitex
 
 **Option 2: Default Locations**
 
 The package searches these locations automatically:
 
-1. ``./data/openalex.db`` (current project directory)
-2. ``<repo-root>/data/openalex.db`` (repo-anchored)
-3. ``~/.scitex/openalex-local/runtime/openalex.db`` (canonical scitex runtime)
-4. ``~/.openalex_local/openalex.db`` (legacy)
+1. ``$SCITEX_STORE_DSN`` when set — an explicit override wins outright
+2. otherwise this host's PostgreSQL, over its UNIX socket
+
+There is deliberately no third step. A fallback would let a host
+whose server is down start writing somewhere private, accept every
+write and report success.
 
 **Option 3: Build from Scratch**
 
@@ -68,10 +70,10 @@ Building the full database requires ~300 GB disk space:
    # 1. Download OpenAlex Works snapshot (~300GB)
    make download-screen  # runs in background
 
-   # 2. Build SQLite database
+   # 2. Build the corpus
    make build-db
 
-   # 3. Build FTS5 index
+   # 3. Build the full-text index
    make build-fts
 
 HTTP Mode (No Local Database)
@@ -119,9 +121,10 @@ Environment Variables
    * - Variable
      - Description
      - Default
-   * - ``OPENALEX_LOCAL_DB``
-     - Path to SQLite database
-     - Auto-detect
+   * - ``SCITEX_STORE_DSN``
+     - Corpus DSN override, read by
+       ``scitex_dev.store.host_store``
+     - This host's PostgreSQL
    * - ``OPENALEX_LOCAL_MODE``
      - Force mode: ``db`` or ``http``
      - Auto
