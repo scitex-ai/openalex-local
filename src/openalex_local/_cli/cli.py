@@ -331,7 +331,7 @@ def relay(host: str, port: int, force: bool):
 
     \b
     This runs a FastAPI server that provides proper full-text search
-    using FTS5 index across all 284M+ papers.
+    using the full-text index across all 284M+ papers.
 
     \b
     Example:

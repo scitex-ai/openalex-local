@@ -8,7 +8,9 @@ tags: [openalex-local-search-syntax, openalex-local]
 
 # Search Syntax
 
-Uses SQLite FTS5 for full-text search across 284M+ works.
+Uses PostgreSQL full-text search across 284M+ works.
+Queries are parsed with `websearch_to_tsquery`, so the syntax is
+the one web search engines use.
 
 ```python
 # Simple terms
@@ -18,12 +20,9 @@ search("neural network")
 search('"deep learning"')
 
 # Boolean operators
-search("EEG AND epilepsy")
-search("fMRI OR PET")
-search("CRISPR NOT bacteria")
-
-# Prefix search
-search("neuro*")
+search("EEG epilepsy")        # both terms
+search("fMRI or PET")
+search("CRISPR -bacteria")    # leading - excludes
 ```
 
 ## Async API

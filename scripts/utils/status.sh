@@ -17,7 +17,24 @@ PROJECT_ROOT="$(dirname "$(dirname "$SCRIPT_DIR")")"
 DATA_DIR="${PROJECT_ROOT}/data"
 SNAPSHOT_DIR="${DATA_DIR}/snapshot"
 LOG_DIR="${PROJECT_ROOT}/logs"
-DB_PATH="${DATA_DIR}/openalex.db"
+# The corpus address is resolved by the fleet's store primitive, never built
+# here. An empty CORPUS_DSN means the resolver could not answer, which is a
+# different thing from "the corpus is empty" and is reported as such below.
+CORPUS_DSN="$(python3 -c 'from scitex_dev.store import host_store; print(host_store(pkg="openalex_local", name="corpus").dsn)' 2>/dev/null || true)"
+
+# One helper, so every probe below asks the same way. -tAX gives bare,
+# unaligned, single-column output: anything else and the value carries
+# padding that breaks the numeric comparisons.
+corpus_q() {
+    [[ -n "$CORPUS_DSN" ]] || return 1
+    command -v psql &>/dev/null || return 1
+    psql "$CORPUS_DSN" -tAX -c "$1" 2>/dev/null
+}
+
+# Whether a relation exists, answered without raising.
+corpus_has() {
+    [[ "$(corpus_q "SELECT to_regclass('$1') IS NOT NULL;")" == "t" ]]
+}
 
 # Colors
 RED='\033[0;31m'
@@ -235,19 +252,23 @@ fi
 # ============================================================
 header "DATABASE"
 
-if [[ -f "$DB_PATH" ]]; then
-    DB_SIZE=$(du -h "$DB_PATH" | cut -f1)
-    echo -e "${GREEN}${CHECK}${NC} Database: ${BOLD}$DB_SIZE${NC}"
+if [[ -z "$CORPUS_DSN" ]]; then
+    echo -e "${YELLOW}${WARN}${NC} Corpus address unresolved"
+    echo -e "    ${DIM}scitex_dev.store.host_store could not answer; is scitex-dev installed?${NC}"
+elif ! command -v psql &>/dev/null; then
+    echo -e "${YELLOW}${WARN}${NC} psql not installed — cannot query the corpus"
+    echo -e "    ${DIM}Address: $CORPUS_DSN${NC}"
+elif corpus_has works; then
+    DB_SIZE=$(corpus_q "SELECT pg_size_pretty(pg_total_relation_size('works'));")
+    echo -e "${GREEN}${CHECK}${NC} Corpus works table: ${BOLD}${DB_SIZE:-?}${NC}"
 
-    if command -v sqlite3 &>/dev/null; then
-        WORKS_COUNT=$(sqlite3 "$DB_PATH" "SELECT COUNT(*) FROM works;" 2>/dev/null || echo "?")
-        echo -e "${INFO} Works: $WORKS_COUNT rows"
+    WORKS_COUNT=$(corpus_q "SELECT COUNT(*) FROM works;")
+    echo -e "${INFO} Works: ${WORKS_COUNT:-?} rows"
 
-        if sqlite3 "$DB_PATH" "SELECT 1 FROM sqlite_master WHERE name='works_fts';" 2>/dev/null | grep -q 1; then
-            echo -e "${GREEN}${CHECK}${NC} FTS index: built"
-        else
-            echo -e "${YELLOW}${WARN}${NC} FTS index: not built (run: make build-fts)"
-        fi
+    if corpus_has idx_works_search_vector; then
+        echo -e "${GREEN}${CHECK}${NC} Full-text index: built"
+    else
+        echo -e "${YELLOW}${WARN}${NC} Full-text index: not built (run: make build-fts)"
     fi
 else
     echo -e "${INFO} Not built yet"
@@ -259,46 +280,43 @@ fi
 # ============================================================
 header "IMPACT FACTOR DATA"
 
-if [[ -f "$DB_PATH" ]] && command -v sqlite3 &>/dev/null; then
+if corpus_has works; then
     # Sources table
-    if sqlite3 "$DB_PATH" "SELECT 1 FROM sqlite_master WHERE name='sources';" 2>/dev/null | grep -q 1; then
-        SOURCES_COUNT=$(sqlite3 "$DB_PATH" "SELECT COUNT(*) FROM sources;" 2>/dev/null || echo "?")
-        echo -e "${GREEN}${CHECK}${NC} Sources table: ${SOURCES_COUNT} journals"
+    if corpus_has sources; then
+        SOURCES_COUNT=$(corpus_q "SELECT COUNT(*) FROM sources;")
+        echo -e "${GREEN}${CHECK}${NC} Sources table: ${SOURCES_COUNT:-?} journals"
     else
         echo -e "${INFO} Sources table: not built"
         echo -e "    ${DIM}Run: make build-sources (fast, ~30 sec)${NC}"
     fi
 
     # Citations table
-    if sqlite3 "$DB_PATH" "SELECT 1 FROM sqlite_master WHERE name='citations';" 2>/dev/null | grep -q 1; then
-        CITATIONS_COUNT=$(sqlite3 "$DB_PATH" "SELECT COUNT(*) FROM citations;" 2>/dev/null || echo "?")
-        echo -e "${GREEN}${CHECK}${NC} Citations table: ${CITATIONS_COUNT} rows"
-    else
-        # Check if build is in progress
-        if sqlite3 "$DB_PATH" "SELECT 1 FROM sqlite_master WHERE name='_citations_build_progress';" 2>/dev/null | grep -q 1; then
-            PROGRESS=$(sqlite3 "$DB_PATH" "SELECT last_rowid, records_processed, citations_inserted FROM _citations_build_progress ORDER BY last_rowid DESC LIMIT 1;" 2>/dev/null)
-            if [[ -n "$PROGRESS" ]]; then
-                LAST_ROWID=$(echo "$PROGRESS" | cut -d'|' -f1)
-                RECORDS=$(echo "$PROGRESS" | cut -d'|' -f2)
-                CITS=$(echo "$PROGRESS" | cut -d'|' -f3)
-                MAX_ROWID=$(sqlite3 "$DB_PATH" "SELECT MAX(rowid) FROM works;" 2>/dev/null || echo "?")
-                if [[ "$MAX_ROWID" != "?" ]] && [[ "$MAX_ROWID" -gt 0 ]]; then
-                    PCT=$((LAST_ROWID * 100 / MAX_ROWID))
-                    echo -e "${YELLOW}${RUN}${NC} Citations table: building... ${PCT}% (${CITS} citations)"
-                else
-                    echo -e "${YELLOW}${RUN}${NC} Citations table: building... (${CITS} citations)"
-                fi
+    if corpus_has citations; then
+        CITATIONS_COUNT=$(corpus_q "SELECT COUNT(*) FROM citations;")
+        echo -e "${GREEN}${CHECK}${NC} Citations table: ${CITATIONS_COUNT:-?} rows"
+    elif corpus_has _citations_build_progress; then
+        PROGRESS=$(corpus_q "SELECT last_work_id || '|' || records_processed || '|' || citations_inserted FROM _citations_build_progress ORDER BY last_work_id DESC LIMIT 1;")
+        if [[ -n "$PROGRESS" ]]; then
+            LAST_WORK_ID=$(echo "$PROGRESS" | cut -d'|' -f1)
+            CITS=$(echo "$PROGRESS" | cut -d'|' -f3)
+            MAX_WORK_ID=$(corpus_q "SELECT COALESCE(MAX(id), 0) FROM works;")
+            if [[ -n "$MAX_WORK_ID" ]] && [[ "$MAX_WORK_ID" -gt 0 ]]; then
+                PCT=$((LAST_WORK_ID * 100 / MAX_WORK_ID))
+                echo -e "${YELLOW}${RUN}${NC} Citations table: building... ${PCT}% (${CITS} citations)"
+            else
+                echo -e "${YELLOW}${RUN}${NC} Citations table: building... (${CITS} citations)"
             fi
-        else
-            echo -e "${INFO} Citations table: not built"
-            echo -e "    ${DIM}Run: make build-citations (slow, ~50-70h)${NC}"
         fi
+    else
+        echo -e "${INFO} Citations table: not built"
+        echo -e "    ${DIM}Run: make build-citations (slow, ~50-70h)${NC}"
     fi
 
     # Citations indexes
-    CITATIONS_INDEXES=$(sqlite3 "$DB_PATH" ".indices citations" 2>/dev/null | wc -l || echo "0")
+    CITATIONS_INDEXES=$(corpus_q "SELECT COUNT(*) FROM pg_indexes WHERE tablename = 'citations';")
+    CITATIONS_INDEXES=${CITATIONS_INDEXES:-0}
     if [[ "$CITATIONS_INDEXES" -gt 0 ]]; then
-        INDEXES_LIST=$(sqlite3 "$DB_PATH" ".indices citations" 2>/dev/null | tr '\n' ', ' | sed 's/,$//')
+        INDEXES_LIST=$(corpus_q "SELECT string_agg(indexname, ', ') FROM pg_indexes WHERE tablename = 'citations';")
         if [[ "$CITATIONS_INDEXES" -ge 3 ]]; then
             echo -e "${GREEN}${CHECK}${NC} Citations indexes: ${CITATIONS_INDEXES}/3 complete"
         else
@@ -307,15 +325,11 @@ if [[ -f "$DB_PATH" ]] && command -v sqlite3 &>/dev/null; then
     fi
 
     # Works IF indexes (issn, issn_year)
-    WORKS_ISSN_IDX=$(sqlite3 "$DB_PATH" "SELECT 1 FROM sqlite_master WHERE name='idx_works_issn_year';" 2>/dev/null || echo "")
-    if [[ -n "$WORKS_ISSN_IDX" ]]; then
+    if corpus_has idx_works_issn_year; then
         echo -e "${GREEN}${CHECK}${NC} Works IF indexes: built"
-    else
-        # Check if we have citations but not works indexes
-        if sqlite3 "$DB_PATH" "SELECT 1 FROM sqlite_master WHERE name='citations';" 2>/dev/null | grep -q 1; then
-            echo -e "${YELLOW}${WARN}${NC} Works IF indexes: not built"
-            echo -e "    ${DIM}Run: make build-if-indexes${NC}"
-        fi
+    elif corpus_has citations; then
+        echo -e "${YELLOW}${WARN}${NC} Works IF indexes: not built"
+        echo -e "    ${DIM}Run: make build-if-indexes${NC}"
     fi
 
     # Show active build sessions
@@ -331,7 +345,7 @@ if [[ -f "$DB_PATH" ]] && command -v sqlite3 &>/dev/null; then
         echo -e "    ${DIM}         tail -f logs/build_if_indexes.log${NC}"
     fi
 else
-    echo -e "${INFO} Database not built yet"
+    echo -e "${INFO} Corpus not built yet (or unreachable)"
 fi
 
 # ============================================================
@@ -350,7 +364,7 @@ echo -e "  ${DIM}screen -r <session>${NC}    Attach to download session"
 echo -e "  ${DIM}tail -f logs/*.log${NC}     Watch download logs"
 echo ""
 echo -e "${CYAN}Build Commands:${NC}"
-echo -e "  ${DIM}make build-db${NC}          Build SQLite database"
+echo -e "  ${DIM}make build-db${NC}          Build the corpus"
 echo -e "  ${DIM}make build-fts${NC}         Build full-text search index"
 echo ""
 echo -e "${CYAN}Impact Factor (Optional):${NC}"

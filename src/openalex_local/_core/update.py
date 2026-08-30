@@ -1,15 +1,21 @@
 #!/usr/bin/env python3
-"""Incremental database update for openalex_local.
+"""Incremental corpus update for openalex_local.
 
 Thin wrapper around the project's differential-update logic
-(``scripts/database/10_differential_update.py``). Delta-syncs the
-OpenAlex S3 snapshot directories newer than the recorded
-``_metadata.last_sync_date`` and upserts (INSERT OR REPLACE) into the
-local SQLite database with WAL safety.
+(``scripts/database/10_differential_update.py``). Delta-syncs the OpenAlex S3
+snapshot directories newer than the recorded ``last_sync_date`` and upserts
+them into the corpus.
 
-The heavy lifting is NOT reimplemented here — this module only resolves
-paths and forwards to ``differential_update`` so the CLI (``openalex-local
-update``) and Python API (``openalex_local.update``) share one code path.
+The heavy lifting is NOT reimplemented here — this module only resolves the
+target and forwards to ``differential_update`` so the CLI (``openalex-local db
+update``) and the Python API (``openalex_local.update``) share one code path.
+
+WHERE IT WRITES is resolved by ``scitex_dev.store.host_store``. There is no
+first-run fallback to a repo-local file any more: that fallback existed to
+create a database where none was found, and it is exactly the behaviour that
+let an update quietly build a second, private corpus in whatever directory the
+timer happened to start in. If the store is unreachable this now fails and
+says so.
 """
 
 import importlib.util as _importlib_util
@@ -17,7 +23,7 @@ import os as _os
 from pathlib import Path as _Path
 from typing import Optional as _Optional
 
-from .config import get_db_path as _get_db_path
+from .config import get_dsn as _get_dsn
 
 __all__ = ["update"]
 
@@ -58,38 +64,32 @@ def _load_differential_update():
     return module.differential_update
 
 
-def _resolve_db_path(db_path: _Optional[str]) -> _Path:
-    """Resolve the database path (explicit override or auto-discovery)."""
-    if db_path:
-        return _Path(db_path)
-    try:
-        return _get_db_path()
-    except FileNotFoundError:
-        # No DB yet — fall back to the repo-default location so a first
-        # run can create it (mirrors the Makefile ``update`` target).
-        return _REPO_ROOT / "data" / "openalex.db"
+def _resolve_dsn(dsn: _Optional[str]) -> str:
+    """The corpus to update: the caller's explicit choice, or this host's."""
+    return dsn if dsn else _get_dsn()
 
 
 def update(
-    db_path: _Optional[str] = None,
+    dsn: _Optional[str] = None,
     since: _Optional[str] = None,
     dry_run: bool = False,
     snapshot_dir: _Optional[str] = None,
 ) -> dict:
-    """Incrementally update the local OpenAlex database.
+    """Incrementally update the local OpenAlex corpus.
 
     Downloads only the S3 snapshot directories newer than the recorded
     ``last_sync_date`` (or ``since`` when given) and upserts them into
-    the database.
+    the corpus.
 
     Parameters
     ----------
-    db_path : str, optional
-        Database path override. Defaults to the package's normal
-        discovery (``OPENALEX_LOCAL_DB`` env var, then default paths).
+    dsn : str, optional
+        PostgreSQL connection string override. Defaults to the corpus
+        ``scitex_dev.store.host_store`` resolves for this host, which
+        ``SCITEX_STORE_DSN`` moves.
     since : str, optional
-        Override start date (``YYYY-MM-DD``). Defaults to the DB's
-        recorded ``_metadata.last_sync_date``.
+        Override start date (``YYYY-MM-DD``). Defaults to the recorded
+        ``last_sync_date``.
     dry_run : bool
         Preview only — list what would be downloaded without writing.
     snapshot_dir : str, optional
@@ -103,7 +103,7 @@ def update(
         ``records_upserted``, ``elapsed_seconds`` (and ``dry_run`` when
         applicable).
     """
-    resolved_db = _resolve_db_path(db_path)
+    resolved_dsn = _resolve_dsn(dsn)
     resolved_snapshot = (
         _Path(snapshot_dir)
         if snapshot_dir
@@ -112,7 +112,7 @@ def update(
 
     differential_update = _load_differential_update()
     return differential_update(
-        db_path=resolved_db,
+        dsn=resolved_dsn,
         snapshot_dir=resolved_snapshot,
         since=since,
         dry_run=dry_run,

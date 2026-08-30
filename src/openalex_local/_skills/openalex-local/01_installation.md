@@ -14,7 +14,8 @@ pip install openalex-local
 ```
 
 Pulls `click>=8.0` and `awscli>=1.0` (for downloading the OpenAlex
-snapshot from S3). The 284M-row SQLite database is fetched separately.
+snapshot from S3). The 284M-row corpus is built separately, into the
+PostgreSQL store this host resolves to.
 
 ## Optional extras
 
@@ -50,7 +51,7 @@ pip install -e '.[dev]'
 
 Two modes share the same Python + CLI surface:
 
-- **DB mode** (default, if a local DB is found) — direct SQLite queries
+- **DB mode** (default, when the corpus is reachable) — direct SQL queries
 - **HTTP mode** (`--http`) — talks to an `openalex-local relay` server
 
 See [10_database-setup.md](10_database-setup.md) for snapshot setup.

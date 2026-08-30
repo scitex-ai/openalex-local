@@ -1,4 +1,4 @@
-"""FastAPI server for OpenAlex Local with FTS5 search.
+"""FastAPI server for OpenAlex Local with full-text search.
 
 Provides HTTP relay server for remote database access.
 
@@ -64,7 +64,7 @@ def health():
         return {
             "status": "healthy",
             "database_connected": db is not None,
-            "database_path": str(db.db_path) if db else None,
+            "database_dsn": db.dsn if db else None,
         }
     except Exception as e:
         return {
@@ -89,21 +89,20 @@ def info():
             "mode": "local",
             "total_works": 0,
             "fts_indexed": 0,
-            "database_path": None,
+            "database_dsn": None,
         }
 
-    # Use _metadata table for pre-computed counts (COUNT(*) on 459M rows is too slow)
+    # Recorded counters, not COUNT(*): a scan of 459M rows is too slow to serve
+    # from an HTTP endpoint. They live in the build-metadata store now.
     work_count = 0
     fts_count = 0
     try:
-        row = db.fetchone("SELECT value FROM _metadata WHERE key = 'total_works'")
-        if row:
-            work_count = int(row["value"])
-        row = db.fetchone("SELECT value FROM _metadata WHERE key = 'fts_total_indexed'")
-        if row:
-            fts_count = int(row["value"])
+        from .._core.state import get_metadata
+
+        work_count = int(get_metadata("total_works") or 0)
+        fts_count = int(get_metadata("fts_total_indexed") or 0)
     except Exception:
-        pass  # _metadata table may not exist in older databases
+        pass  # never built, or the store is unreachable from here
 
     return {
         "name": "OpenAlex Local API",
@@ -112,7 +111,7 @@ def info():
         "mode": "local",
         "total_works": work_count,
         "fts_indexed": fts_count,
-        "database_path": str(db.db_path),
+        "database_dsn": db.dsn,
     }
 
 

@@ -45,7 +45,7 @@ This package does not ship as a submodule of the `scitex` umbrella.
 - [11_cli-reference.md](11_cli-reference.md) — historical CLI notes
 - [12_mcp-tools.md](12_mcp-tools.md) — MCP tools for AI agents
 - [13_quick-start.md](13_quick-start.md) — historical quick-start
-- [14_search-syntax.md](14_search-syntax.md) — FTS5 query syntax
+- [14_search-syntax.md](14_search-syntax.md) — full-text query syntax
 
 ## CLI
 

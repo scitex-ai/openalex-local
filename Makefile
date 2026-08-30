@@ -6,13 +6,19 @@
 #   make status   - Show system status (START HERE)
 #   make check    - Verify prerequisites
 #   make download - Download OpenAlex snapshot (~760GB)
-#   make build    - Build database + FTS index
+#   make build    - Build the corpus + full-text index
 
 SHELL := /bin/bash
 PROJECT_ROOT := $(shell pwd)
 SCRIPTS := $(PROJECT_ROOT)/scripts
 PYTHON := python3
-DB_PATH := $(PROJECT_ROOT)/data/openalex.db
+# The corpus address is resolved by the fleet store primitive at recipe
+# time, never assembled here. `=` and not `:=` on purpose: a recipe that
+# never touches the database should not pay for a Python start-up, and a
+# machine without scitex-dev installed should still be able to run
+# `make help`.
+CORPUS_DSN = $(shell $(PYTHON) -c 'from scitex_dev.store import host_store; print(host_store(pkg="openalex_local", name="corpus").dsn)' 2>/dev/null)
+PSQL = psql "$(CORPUS_DSN)" -tAX
 SNAPSHOT_DIR := $(PROJECT_ROOT)/data/snapshot/works
 
 .PHONY: help status check install dev test \
@@ -62,16 +68,16 @@ update: ## Run differential update (download + merge changes since last sync)
 	@echo "Starting differential update..."
 	@mkdir -p $(PROJECT_ROOT)/logs
 	$(PYTHON) $(SCRIPTS)/database/10_differential_update.py \
-		--db-path $(DB_PATH) --snapshot-dir $(SNAPSHOT_DIR) \
+		--snapshot-dir $(SNAPSHOT_DIR) \
 		2>&1 | tee $(PROJECT_ROOT)/logs/differential_update.log
 
 update-dry-run: ## Show what would be updated (no changes)
 	$(PYTHON) $(SCRIPTS)/database/10_differential_update.py \
-		--db-path $(DB_PATH) --snapshot-dir $(SNAPSHOT_DIR) --dry-run
+		--snapshot-dir $(SNAPSHOT_DIR) --dry-run
 
 update-since: ## Update from specific date (use: make update-since SINCE=2026-03-01)
 	$(PYTHON) $(SCRIPTS)/database/10_differential_update.py \
-		--db-path $(DB_PATH) --snapshot-dir $(SNAPSHOT_DIR) --since $(SINCE)
+		--snapshot-dir $(SNAPSHOT_DIR) --since $(SINCE)
 
 # ============================================================
 # DATABASE DOWNLOAD
@@ -120,9 +126,9 @@ download-stop: ## Stop all active downloads
 # Build order: download -> build-db -> build-fts
 # Total build time: ~1-3 days depending on hardware
 
-build: build-db build-fts ## Build database and FTS index (run after download)
+build: build-db build-fts ## Build the corpus and full-text index (run after download)
 
-build-db: ## Build SQLite database from snapshot (background)
+build-db: ## Build the corpus from the snapshot (background)
 	@echo "Starting database build..."
 	@echo "This will take 12-48 hours depending on your hardware."
 	@echo ""
@@ -135,10 +141,10 @@ build-db: ## Build SQLite database from snapshot (background)
 	@echo "  tail -f logs/build_db.log    (watch log)"
 	@echo "  make db-info                 (check progress)"
 
-build-db-fg: ## Build SQLite database (foreground, for debugging)
+build-db-fg: ## Build the corpus (foreground, for debugging)
 	$(PYTHON) $(SCRIPTS)/database/02_build_database.py
 
-build-fts: ## Build FTS5 full-text search index (background)
+build-fts: ## Build the full-text search index (background)
 	@echo "Starting FTS index build..."
 	@echo "This will take 1-4 hours depending on database size."
 	@echo ""
@@ -244,10 +250,10 @@ build-info: ## Show build instructions and estimated times
 	@echo "Build Steps:"
 	@echo "┌─────────────────────────────────────────────────────────┐"
 	@echo "│  Step 1: make build-db    (12-48 hours)                 │"
-	@echo "│          Parse JSON → SQLite, create indices            │"
+	@echo "│          Parse JSON into PostgreSQL, create indices     │"
 	@echo "├─────────────────────────────────────────────────────────┤"
 	@echo "│  Step 2: make build-fts   (1-4 hours)                   │"
-	@echo "│          Build FTS5 full-text search index              │"
+	@echo "│          Build the full-text search index               │"
 	@echo "└─────────────────────────────────────────────────────────┘"
 	@echo ""
 	@echo "Or run both: make build"
@@ -279,53 +285,59 @@ clean: ## Clean build artifacts
 # DATABASE INFO
 # ============================================================
 
-db-info: ## Show database schema and stats
-	@if [ -f $(DB_PATH) ]; then \
-		echo "Database: $(DB_PATH)"; \
-		echo "Size: $$(du -h $(DB_PATH) | cut -f1)"; \
+db-info: ## Show corpus schema and stats
+	@if [ -z "$(CORPUS_DSN)" ]; then \
+		echo "Corpus address unresolved (is scitex-dev installed?)"; \
+	elif [ "$$($(PSQL) -c "SELECT to_regclass('works') IS NOT NULL;")" != "t" ]; then \
+		echo "No works table at $(CORPUS_DSN)"; \
+		echo "Run: make build-db"; \
+	else \
+		echo "Corpus: $(CORPUS_DSN)"; \
+		echo "Size: $$($(PSQL) -c "SELECT pg_size_pretty(pg_total_relation_size('works'));")"; \
 		echo ""; \
 		echo "Tables:"; \
-		sqlite3 $(DB_PATH) ".tables"; \
+		$(PSQL) -c "SELECT tablename FROM pg_tables WHERE schemaname = ANY(current_schemas(false)) ORDER BY tablename;"; \
 		echo ""; \
 		echo "Works count:"; \
-		sqlite3 $(DB_PATH) "SELECT COUNT(*) FROM works;" 2>/dev/null || echo "  (table not ready)"; \
+		$(PSQL) -c "SELECT COUNT(*) FROM works;"; \
 		echo ""; \
-		echo "FTS count:"; \
-		sqlite3 $(DB_PATH) "SELECT COUNT(*) FROM works_fts;" 2>/dev/null || echo "  (not built yet)"; \
+		echo "Full-text indexed:"; \
+		$(PSQL) -c "SELECT COUNT(*) FROM works WHERE search_vector IS NOT NULL;"; \
 		echo ""; \
 		echo "Build progress:"; \
-		sqlite3 $(DB_PATH) "SELECT COUNT(*) as files_processed FROM _build_progress;" 2>/dev/null || echo "  (not started)"; \
-	else \
-		echo "Database not found: $(DB_PATH)"; \
-		echo "Run: make build-db"; \
+		$(PSQL) -c "SELECT COUNT(*) FROM _build_progress;" 2>/dev/null || echo "  (not started)"; \
 	fi
 
-db-stats: ## Show detailed database statistics
-	@if [ -f $(DB_PATH) ]; then \
+db-stats: ## Show detailed corpus statistics
+	@if [ -z "$(CORPUS_DSN)" ]; then \
+		echo "Corpus address unresolved (is scitex-dev installed?)"; \
+	elif [ "$$($(PSQL) -c "SELECT to_regclass('works') IS NOT NULL;")" != "t" ]; then \
+		echo "No works table. Run: make build-db"; \
+	else \
 		echo "╔══════════════════════════════════════════════════════════╗"; \
-		echo "║            DATABASE STATISTICS                           ║"; \
+		echo "║            CORPUS STATISTICS                             ║"; \
 		echo "╚══════════════════════════════════════════════════════════╝"; \
 		echo ""; \
-		echo "File: $(DB_PATH)"; \
-		echo "Size: $$(du -h $(DB_PATH) | cut -f1)"; \
+		echo "Corpus: $(CORPUS_DSN)"; \
+		echo "Size: $$($(PSQL) -c "SELECT pg_size_pretty(pg_total_relation_size('works'));")"; \
 		echo ""; \
 		echo "Row Counts:"; \
 		echo "─────────────────────────────────────────"; \
-		sqlite3 $(DB_PATH) "SELECT 'works' as tbl, COUNT(*) as cnt FROM works UNION ALL SELECT 'works_fts', COUNT(*) FROM works_fts UNION ALL SELECT '_build_progress', COUNT(*) FROM _build_progress;" 2>/dev/null || echo "  (tables not ready)"; \
+		$(PSQL) -c "SELECT 'works', COUNT(*) FROM works UNION ALL SELECT 'indexed', COUNT(*) FROM works WHERE search_vector IS NOT NULL;"; \
 		echo ""; \
-		echo "Metadata:"; \
+		echo "Build counters:"; \
 		echo "─────────────────────────────────────────"; \
-		sqlite3 $(DB_PATH) "SELECT key, value FROM _metadata;" 2>/dev/null || echo "  (no metadata)"; \
+		$(PYTHON) -c "from openalex_local._core.state import metadata_store; \
+			[print(r.values['key'], '=', r.values['value']) for r in metadata_store().rows()]" \
+			2>/dev/null || echo "  (no counters recorded)"; \
 		echo ""; \
 		echo "Sample search test:"; \
-		sqlite3 $(DB_PATH) "SELECT COUNT(*) as matches FROM works_fts WHERE works_fts MATCH 'machine learning';" 2>/dev/null || echo "  (FTS not ready)"; \
-	else \
-		echo "Database not found. Run: make build-db"; \
+		$(PSQL) -c "SELECT COUNT(*) FROM works WHERE search_vector @@ websearch_to_tsquery('english', 'machine learning');"; \
 	fi
 
 db-search: ## Test search (usage: make db-search Q="your query")
-	@if [ -f $(DB_PATH) ]; then \
-		sqlite3 $(DB_PATH) "SELECT w.openalex_id, w.year, substr(w.title, 1, 60) FROM works_fts f JOIN works w ON f.rowid = w.id WHERE works_fts MATCH '$(Q)' LIMIT 10;"; \
+	@if [ -z "$(CORPUS_DSN)" ]; then \
+		echo "Corpus address unresolved (is scitex-dev installed?)"; \
 	else \
-		echo "Database not found. Run: make build-db"; \
+		$(PSQL) -c "SELECT openalex_id, year, substr(title, 1, 60) FROM works WHERE search_vector @@ websearch_to_tsquery('english', '$(Q)') ORDER BY id LIMIT 10;"; \
 	fi

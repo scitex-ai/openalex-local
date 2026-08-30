@@ -40,8 +40,8 @@ def search(
 ) -> str:
     """Search for academic works by title, abstract, or authors.
 
-    Uses FTS5 full-text search index for fast searching across 284M+ papers.
-    Supports FTS5 query syntax: AND, OR, NOT, "exact phrases".
+    Uses the corpus full-text index for fast searching across 284M+ papers.
+    Web-search syntax: bare words, "exact phrases", `or`, leading `-`.
 
     Args:
         query: Search query (e.g., "machine learning", "CRISPR", "neural network AND hippocampus")
@@ -157,7 +157,7 @@ def search_by_id(
 
 @mcp.tool()
 def status() -> str:
-    """Report local OpenAlex database status — path, work count (should be ~284M), FTS5 index size, and access mode (local / remote). Use when the user asks "is the OpenAlex db ready?", "how many papers do I have?", "check openalex-local status", "is the FTS index built?", or before running a search to verify the db is usable.
+    """Report local OpenAlex corpus status — address, work count (should be ~284M), full-text index size, and access mode (local / remote). Use when the user asks "is the OpenAlex db ready?", "how many papers do I have?", "check openalex-local status", "is the FTS index built?", or before running a search to verify the db is usable.
 
     Returns:
         JSON string with database path, work count, FTS index count.

@@ -59,4 +59,4 @@ openalex-local --http --api-url http://A:31292 search "graph neural network"
 - [03_python-api.md](03_python-api.md) — full surface
 - [04_cli-reference.md](04_cli-reference.md) — all CLI commands
 - [10_database-setup.md](10_database-setup.md) — snapshot build pipeline
-- [14_search-syntax.md](14_search-syntax.md) — FTS5 query syntax
+- [14_search-syntax.md](14_search-syntax.md) — full-text query syntax

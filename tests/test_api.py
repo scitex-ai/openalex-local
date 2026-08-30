@@ -84,27 +84,30 @@ class TestGetMode:
         # Assert
         assert mode in ("db", "http")
 
-    def test_get_mode_is_db_when_db_file_exists(self, reset_config):
-        """Test get_mode resolves to db when a database file exists."""
+    def test_get_mode_is_db_when_the_mode_is_forced(self, reset_config):
+        """Test get_mode honours an explicit db mode.
+
+        This replaces a test that created an empty temporary FILE and asserted
+        the package found it. There is no file to find now, and the auto-detect
+        branch reaches the network — so what is pinned here is the part that is
+        decidable without one: an explicit choice wins.
+        """
         # Arrange
         import os
-        import tempfile
 
         old_url = os.environ.pop("OPENALEX_LOCAL_API_URL", None)
-        old_mode = os.environ.pop("OPENALEX_LOCAL_MODE", None)
-        with tempfile.NamedTemporaryFile(suffix=".db", delete=False) as f:
-            temp_path = f.name
-        os.environ["OPENALEX_LOCAL_DB"] = temp_path
+        old_mode = os.environ.get("OPENALEX_LOCAL_MODE")
+        os.environ["OPENALEX_LOCAL_MODE"] = "db"
         Config.reset()
         # Act
         try:
             mode = get_mode()
         finally:
-            os.unlink(temp_path)
-            os.environ.pop("OPENALEX_LOCAL_DB", None)
             if old_url:
                 os.environ["OPENALEX_LOCAL_API_URL"] = old_url
-            if old_mode:
+            if old_mode is None:
+                os.environ.pop("OPENALEX_LOCAL_MODE", None)
+            else:
                 os.environ["OPENALEX_LOCAL_MODE"] = old_mode
         # Assert
         assert mode == "db"

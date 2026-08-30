@@ -294,13 +294,19 @@ class TestUpdateCommand:
         # Assert
         assert _json.loads(fake_update_script.read_text())["since"] == "2026-03-01"
 
-    def test_update_yes_forwards_db_path_value(self, fake_update_script):
+    def test_update_yes_forwards_dsn_value(self, fake_update_script):
+        """The `--dsn` override reaches the update entry point verbatim.
+
+        The flag used to be `--db` and carried a filesystem path. It carries a
+        connection string now; a path is not accepted anywhere any more.
+        """
         # Arrange
         runner = CliRunner()
+        elsewhere = "postgresql://reader@example.invalid:55432/scitex"
         # Act
-        runner.invoke(cli, ["update", "--yes", "--db", "/tmp/x.db"])
+        runner.invoke(cli, ["update", "--yes", "--dsn", elsewhere])
         # Assert
-        assert _json.loads(fake_update_script.read_text())["db_path"] == "/tmp/x.db"
+        assert _json.loads(fake_update_script.read_text())["dsn"] == elsewhere
 
     def test_update_yes_unattended_exits_zero(self, fake_update_script):
         # Arrange

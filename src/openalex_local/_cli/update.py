@@ -14,11 +14,10 @@ import click
 
 @click.command("update")
 @click.option(
-    "--db",
-    "db_path",
-    type=click.Path(),
+    "--dsn",
+    "dsn",
     default=None,
-    help="Database path override (else use auto-discovery).",
+    help="Corpus DSN override (else the store this host resolves to).",
 )
 @click.option(
     "--since",
@@ -41,11 +40,11 @@ import click
     is_flag=True,
     help="Minimal stdout (for cron).",
 )
-def update_cmd(db_path, since, dry_run, yes, quiet):
-    """Incrementally update the local database from OpenAlex snapshots.
+def update_cmd(dsn, since, dry_run, yes, quiet):
+    """Incrementally update the local corpus from OpenAlex snapshots.
 
     Delta-syncs the S3 snapshot directories newer than the recorded
-    last sync date and upserts them into the database.
+    last sync date and upserts them into the corpus.
 
     \b
     Example:
@@ -63,7 +62,7 @@ def update_cmd(db_path, since, dry_run, yes, quiet):
         # reads EOF and takes the default. Refusing makes the missing flag
         # visible in the exit status instead of silently deciding for the
         # operator. Exit 2 is the conventional usage-error code.
-        target = db_path or "the auto-discovered database"
+        target = dsn or "this host's corpus"
         click.secho(
             f"Refusing to update {target} without --yes/-y.\n"
             "This rewrites the database in place. Re-run with --yes to "
@@ -74,7 +73,7 @@ def update_cmd(db_path, since, dry_run, yes, quiet):
         sys.exit(2)
 
     try:
-        stats = _update(db_path=db_path, since=since, dry_run=dry_run)
+        stats = _update(dsn=dsn, since=since, dry_run=dry_run)
     except Exception as e:
         click.secho(f"Error: {e}", fg="red", err=True)
         sys.exit(1)

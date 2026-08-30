@@ -1,6 +1,28 @@
-"""Full-text search using FTS5."""
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+# File: src/openalex_local/_core/fts.py
+"""Full-text search over the corpus, using PostgreSQL's own index.
 
-import re as _re
+``works.search_vector`` is a ``tsvector`` built from the title and abstract
+and covered by a GIN index (see ``scripts/database/03_build_fts_index.py``);
+matching is ``@@`` against a parsed query. There is no separate index table
+to join against any more, which removes a whole class of failure: the old
+external index was keyed on a row identifier the corpus table did not
+declare, so a rebuild that renumbered the corpus silently returned the WRONG
+work for every hit.
+
+WHY ``websearch_to_tsquery`` AND NOT A SANITISER
+------------------------------------------------
+The previous implementation quoted the user's words itself whenever it spotted
+a hyphen or punctuation, because an unbalanced operator was a hard error in the
+old engine's query syntax. ``websearch_to_tsquery`` takes the syntax users
+already know — bare words, ``"quoted phrases"``, ``or``, leading ``-`` to
+exclude — and, crucially, never raises on malformed input. So the guessing
+heuristic is deleted rather than ported: it existed to prevent an exception
+that can no longer occur, and it changed the meaning of any query containing a
+hyphen while doing so.
+"""
+
 import time as _time
 from typing import List, Optional
 
@@ -13,25 +35,12 @@ __all__ = [
     "search_ids",
 ]
 
+#: The text-search configuration the index was built with. Matching MUST use
+#: the same one: a query parsed under a different configuration stems words
+#: differently and silently misses rows the index does contain.
+TEXT_SEARCH_CONFIG = "english"
 
-def _sanitize_query(query: str) -> str:
-    """
-    Sanitize query for FTS5.
-
-    Handles special characters that FTS5 interprets as operators.
-    """
-    if query.startswith('"') and query.endswith('"'):
-        return query
-
-    has_hyphenated_word = _re.search(r"\w+-\w+", query)
-    has_special = _re.search(r"[/\\@#$%^&]", query)
-
-    if has_hyphenated_word or has_special:
-        words = query.split()
-        quoted = " ".join(f'"{w}"' for w in words)
-        return quoted
-
-    return query
+_MATCH = "search_vector @@ websearch_to_tsquery(%s, %s)"
 
 
 def search(
@@ -43,10 +52,9 @@ def search(
     """
     Full-text search across works.
 
-    Uses FTS5 index for fast searching across titles and abstracts.
-
     Args:
-        query: Search query (supports FTS5 syntax like AND, OR, NOT, "phrases")
+        query: Search query. Web-search syntax: bare words, "quoted
+            phrases", ``or``, and a leading ``-`` to exclude.
         limit: Maximum results to return
         offset: Skip first N results (for pagination)
         db: Database connection (uses singleton if not provided)
@@ -62,25 +70,26 @@ def search(
         db = get_db()
 
     start = _time.perf_counter()
-    safe_query = _sanitize_query(query)
 
     # Get total count
     count_row = db.fetchone(
-        "SELECT COUNT(*) as total FROM works_fts WHERE works_fts MATCH ?",
-        (safe_query,),
+        f"SELECT COUNT(*) as total FROM works WHERE {_MATCH}",
+        (TEXT_SEARCH_CONFIG, query),
     )
     total = count_row["total"] if count_row else 0
 
-    # Get matching works
+    # Get matching works. ORDER BY is not decoration: LIMIT/OFFSET without one
+    # is free to return a row on two consecutive pages and omit another
+    # entirely, so paginating an unordered query loses results silently.
     rows = db.fetchall(
-        """
-        SELECT w.*
-        FROM works_fts f
-        JOIN works w ON f.rowid = w.rowid
-        WHERE works_fts MATCH ?
-        LIMIT ? OFFSET ?
+        f"""
+        SELECT *
+        FROM works
+        WHERE {_MATCH}
+        ORDER BY id
+        LIMIT %s OFFSET %s
         """,
-        (safe_query, limit, offset),
+        (TEXT_SEARCH_CONFIG, query, limit, offset),
     )
 
     elapsed_ms = (_time.perf_counter() - start) * 1000
@@ -104,7 +113,7 @@ def count(query: str, db: Optional[Database] = None) -> int:
     Count matching works without fetching results.
 
     Args:
-        query: FTS5 search query
+        query: Search query
         db: Database connection
 
     Returns:
@@ -113,10 +122,9 @@ def count(query: str, db: Optional[Database] = None) -> int:
     if db is None:
         db = get_db()
 
-    safe_query = _sanitize_query(query)
     row = db.fetchone(
-        "SELECT COUNT(*) as total FROM works_fts WHERE works_fts MATCH ?",
-        (safe_query,),
+        f"SELECT COUNT(*) as total FROM works WHERE {_MATCH}",
+        (TEXT_SEARCH_CONFIG, query),
     )
     return row["total"] if row else 0
 
@@ -130,7 +138,7 @@ def search_ids(
     Search and return only OpenAlex IDs (faster than full search).
 
     Args:
-        query: FTS5 search query
+        query: Search query
         limit: Maximum IDs to return
         db: Database connection
 
@@ -140,16 +148,15 @@ def search_ids(
     if db is None:
         db = get_db()
 
-    safe_query = _sanitize_query(query)
     rows = db.fetchall(
-        """
-        SELECT w.openalex_id
-        FROM works_fts f
-        JOIN works w ON f.rowid = w.rowid
-        WHERE works_fts MATCH ?
-        LIMIT ?
+        f"""
+        SELECT openalex_id
+        FROM works
+        WHERE {_MATCH}
+        ORDER BY id
+        LIMIT %s
         """,
-        (safe_query, limit),
+        (TEXT_SEARCH_CONFIG, query, limit),
     )
 
     return [row["openalex_id"] for row in rows]
@@ -163,3 +170,5 @@ def _search_with_db(db: Database, query: str, limit: int, offset: int) -> Search
 def _count_with_db(db: Database, query: str) -> int:
     """Count with explicit database connection (for thread-safe async)."""
     return count(query, db=db)
+
+# EOF
