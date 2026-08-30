@@ -34,7 +34,7 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Fetch main ref for --new-only baseline
+      - name: Fetch main ref for baseline
         run: git fetch origin main:main
 
       - name: Install package + audit tooling
@@ -44,4 +44,4 @@ jobs:
           pip install "scitex-dev[cli-audit]>=0.17.14"
 
       - name: Run scitex-dev ecosystem audit-all
-        run: scitex-dev ecosystem audit-all openalex-local --new-only --no-version-check
+        run: scitex-dev ecosystem audit-all openalex-local --no-version-check
