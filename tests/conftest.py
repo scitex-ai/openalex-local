@@ -77,13 +77,16 @@ def sample_doi():
 
 @pytest.fixture
 def db_available():
-    """Check if database is available for integration tests."""
-    try:
-        Config.reset()
-        Config.get_db_path()
-        return True
-    except FileNotFoundError:
-        return False
+    """Whether the corpus is reachable AND holds a works table.
+
+    Both halves, deliberately. The previous version asked only whether a FILE
+    existed, so an empty or half-built database counted as available and every
+    test guarded by it then failed one layer down on a missing table.
+    """
+    from openalex_local._core.db import corpus_available
+
+    Config.reset()
+    return corpus_available()
 
 
 @pytest.fixture

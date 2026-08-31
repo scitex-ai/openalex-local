@@ -51,8 +51,8 @@ JCR 2024 (r = 0.96, n = 17,042 journals).
                │ snapshot import
                ▼
        ┌─────────────────────┐
-       │ openalex.db         │
-       │ (SQLite + FTS5)     │
+       │ corpus (PostgreSQL) │
+       │ + full-text index   │
        │ + semantic embeds   │
        └────────┬────────────┘
                 │
@@ -64,8 +64,9 @@ JCR 2024 (r = 0.96, n = 17,042 journals).
    └──────────────────────────────────────┘
 ```
 
-The DB lives entirely on disk; openalex-local is a thin facade over
-SQLite + FTS5 + an embedding index. No network calls during queries.
+The corpus lives in the host's PostgreSQL; openalex-local is a thin
+facade over it plus an embedding index. No calls to openalex.org
+during queries.
 
 <details>
 <summary><strong>Why OpenAlex Local?</strong></summary>
@@ -105,10 +106,10 @@ make status
 # 1. Download OpenAlex Works snapshot (~300GB)
 make download-screen  # runs in background
 
-# 2. Build SQLite database
+# 2. Build the corpus
 make build-db
 
-# 3. Build FTS5 index
+# 3. Build the full-text index
 make build-fts
 ```
 
@@ -218,7 +219,7 @@ Local MCP client configuration:
       "command": "openalex-local",
       "args": ["mcp", "start"],
       "env": {
-        "OPENALEX_LOCAL_DB": "/path/to/openalex.db"
+        "SCITEX_STORE_DSN": "postgresql://user@host:55432/scitex"
       }
     }
   }
@@ -405,7 +406,7 @@ Agent skill pages live under `src/openalex_local/_skills/openalex-local/`.
 
 | # | Problem | Solution |
 |---|---------|----------|
-| 1 | **OpenAlex API is the largest open bibliographic database but large-scale use needs caching** -- rate limits trip at hundreds of requests/second | **Local SQLite + FTS5 (284M works)** -- offline queries including abstracts, author affiliations, citation counts |
+| 1 | **OpenAlex API is the largest open bibliographic database but large-scale use needs caching** -- rate limits trip at hundreds of requests/second | **Local PostgreSQL corpus with full-text search (284M works)** -- offline queries including abstracts, author affiliations, citation counts |
 
 ## Part of SciTeX
 

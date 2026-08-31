@@ -29,6 +29,7 @@ from ._core import (
     info,
     save,
     search,
+    update,
 )
 
 # Jobs module (public functions only)
@@ -49,6 +50,8 @@ __all__ = [
     "get_many",
     "exists",
     "info",
+    # Maintenance
+    "update",
     # Enrich functions
     "enrich",
     "enrich_ids",

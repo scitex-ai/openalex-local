@@ -1,5 +1,30 @@
 name: CLA Assistant
 
+# CONVERTED TO A CALLER, 2026-08-30 (PS-231 §1 workflow-duplication). The
+# previous local body was a genuine duplicate, verified against
+# scitex-ai/.github/.github/workflows/cla.yml as read on 2026-08-30: same
+# action, same `path-to-signatures: signatures/cla.json`, same
+# `branch: cla-signatures`, same allowlist default. The reusable is a strict
+# superset and fixes two real defects in the copy it replaces:
+#
+#   * the local `path-to-document` was hardcoded to
+#     github.com/ywatanabe1989/openalex-local, which is NOT this repository
+#     (scitex-ai/openalex-local). The reusable derives it from
+#     ${{ github.repository }}, so the link a contributor is asked to read
+#     stops pointing at the wrong repo.
+#   * the local copy pinned `contributor-assistant/github-action@v2.6.1`, a
+#     MUTABLE tag on a third-party action. The reusable pins a reviewed
+#     commit of the org's own fork.
+#
+# WHAT THIS CONVERSION DOES NOT FIX, so nobody reads a green tick into it:
+# the check currently fails with "Branch cla-signatures not found", and that
+# branch genuinely does not exist in this repository (confirmed 404 against
+# the branches API, 2026-08-30). The reusable stores signatures on the SAME
+# branch name, so converting changes nothing about that. Creating the branch
+# is a repository-owner action, not a code change, and it is deliberately not
+# done here: a CLA gate is a legal control, and making it pass from inside a
+# contribution is not this PR's business.
+
 on:
   issue_comment:
     types: [created]
@@ -14,20 +39,14 @@ permissions:
 
 jobs:
   CLAssistant:
-    runs-on: ubuntu-latest
-    steps:
-      - name: CLA Assistant
-        uses: contributor-assistant/github-action@v2.6.1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          PERSONAL_ACCESS_TOKEN: ${{ secrets.OPENALEX_LOCAL_PERSONAL_ACCESS_TOKEN }}
-        with:
-          path-to-signatures: "signatures/cla.json"
-          path-to-document: "https://github.com/ywatanabe1989/openalex-local/blob/main/CLA.md"
-          branch: "cla-signatures"
-          allowlist: bot*,ywatanabe1989
-          custom-allsigned-prcomment: |
-            Thank you for signing the SciTeX CLA. Your contribution can now be reviewed.
-          custom-notsigned-prcomment: |
-            Please sign the [SciTeX CLA](https://github.com/ywatanabe1989/openalex-local/blob/main/CLA.md) before your contribution can be merged.
-            Comment `I have read and agree to the SciTeX CLA.` to sign.
+    uses: scitex-ai/.github/.github/workflows/cla.yml@main
+    with:
+      runs_on: '["ubuntu-latest"]'
+      default_branch: main
+      owner_allowlist: "bot*,ywatanabe1989"
+      owner_login: ywatanabe1989
+    secrets:
+      # The reusable names this input GH_PERSONAL_ACCESS_TOKEN; this
+      # repository stores it under the PS-168 per-package prefix. The mapping
+      # is the whole reason the secret keeps its local name.
+      GH_PERSONAL_ACCESS_TOKEN: ${{ secrets.OPENALEX_LOCAL_PERSONAL_ACCESS_TOKEN }}

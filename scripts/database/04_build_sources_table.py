@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
-# Timestamp: 2026-02-03
-"""Build sources table from OpenAlex snapshot for journal metrics (impact factor, h-index, etc).
+# Timestamp: 2026-08-30
+"""Build the sources table from an OpenAlex snapshot (journal metrics).
 
-This script reads the sources entity from the OpenAlex snapshot and builds
-a sources table with journal-level metrics including impact factor (2yr_mean_citedness),
+Reads the sources entity from the OpenAlex snapshot and builds a sources table
+with journal-level metrics including impact factor (2yr_mean_citedness),
 h-index, citation counts, and other bibliometrics.
 
 Usage:
-    python 04_build_sources_table.py [--snapshot-dir PATH] [--db-path PATH]
+    python 04_build_sources_table.py [--snapshot-dir PATH] [--dsn DSN]
 
 Example:
     python scripts/database/04_build_sources_table.py
@@ -17,16 +17,19 @@ import argparse
 import gzip
 import json
 import logging
-import sqlite3
 import sys
 import time
 from pathlib import Path
-from typing import Any, Dict, Generator, List, Optional
+from typing import Any, Dict, Generator, List, Set
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+
+from _build_helpers import connect, resolve_dsn  # noqa: E402
+from _schema import SOURCES_DDL  # noqa: E402
 
 # Project paths
 PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
 DEFAULT_SNAPSHOT_DIR = PROJECT_ROOT / "data" / "snapshot" / "sources"
-DEFAULT_DB_PATH = PROJECT_ROOT / "data" / "openalex.db"
 
 # Logging
 logging.basicConfig(
@@ -37,84 +40,52 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
-# Schema definition for sources
-SOURCES_SCHEMA_SQL = """
--- Sources table: journal/venue metadata with impact metrics
-CREATE TABLE IF NOT EXISTS sources (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    openalex_id TEXT UNIQUE NOT NULL,
-    issn_l TEXT,
-    issns TEXT,  -- JSON array of all ISSNs
-    display_name TEXT,
-    display_name_lower TEXT,  -- For case-insensitive search
-    type TEXT,  -- journal, repository, conference, etc.
-    host_organization TEXT,
-    country_code TEXT,
-    homepage_url TEXT,
-
-    -- Bibliometrics
-    works_count INTEGER DEFAULT 0,
-    oa_works_count INTEGER DEFAULT 0,
-    cited_by_count INTEGER DEFAULT 0,
-
-    -- Impact metrics (from summary_stats)
-    two_year_mean_citedness REAL,  -- Impact Factor equivalent
-    h_index INTEGER,
-    i10_index INTEGER,
-
-    -- OA status
-    is_oa INTEGER DEFAULT 0,
-    is_in_doaj INTEGER DEFAULT 0,
-    is_core INTEGER DEFAULT 0,
-
-    -- Temporal info
-    first_publication_year INTEGER,
-    last_publication_year INTEGER,
-
-    -- APC
-    apc_usd INTEGER,
-
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-
--- ISSN lookup table for fast journal lookup by ISSN
-CREATE TABLE IF NOT EXISTS issn_lookup (
-    issn TEXT PRIMARY KEY,
-    source_id INTEGER NOT NULL,
-    FOREIGN KEY (source_id) REFERENCES sources(id)
-);
-
--- Indices for common queries
-CREATE INDEX IF NOT EXISTS idx_sources_issn_l ON sources(issn_l);
-CREATE INDEX IF NOT EXISTS idx_sources_display_name_lower ON sources(display_name_lower);
-CREATE INDEX IF NOT EXISTS idx_sources_type ON sources(type);
-CREATE INDEX IF NOT EXISTS idx_sources_two_year_mean_citedness ON sources(two_year_mean_citedness);
-CREATE INDEX IF NOT EXISTS idx_sources_h_index ON sources(h_index);
-CREATE INDEX IF NOT EXISTS idx_sources_cited_by_count ON sources(cited_by_count);
-CREATE INDEX IF NOT EXISTS idx_sources_works_count ON sources(works_count);
-
--- Progress tracking for sources build
+#: This step's resumable-loader cursor. Not corpus data, so it stays local to
+#: the script that owns it.
+PROGRESS_DDL = """
 CREATE TABLE IF NOT EXISTS _sources_build_progress (
     file_path TEXT PRIMARY KEY,
     records_processed INTEGER,
-    completed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    completed_at TIMESTAMPTZ DEFAULT NOW()
 );
 """
 
+#: Column order for the upsert. One tuple, so the statement and the values
+#: cannot disagree.
+COLUMNS = (
+    "openalex_id",
+    "issn_l",
+    "issns",
+    "display_name",
+    "display_name_lower",
+    "type",
+    "host_organization",
+    "country_code",
+    "homepage_url",
+    "works_count",
+    "oa_works_count",
+    "cited_by_count",
+    "two_year_mean_citedness",
+    "h_index",
+    "i10_index",
+    "is_oa",
+    "is_in_doaj",
+    "is_core",
+    "first_publication_year",
+    "last_publication_year",
+    "apc_usd",
+)
+
 
 def parse_source(data: Dict[str, Any]) -> Dict[str, Any]:
-    """Parse OpenAlex source JSON into database record."""
-    # Extract OpenAlex ID (remove URL prefix)
+    """Parse OpenAlex source JSON into a sources record."""
     openalex_id = data.get("id", "").replace("https://openalex.org/", "")
 
-    # Extract ISSNs
     issns = data.get("issn") or []
     issn_l = data.get("issn_l")
 
-    # Extract summary stats
     summary_stats = data.get("summary_stats") or {}
 
-    # Display name
     display_name = data.get("display_name")
 
     return {
@@ -138,10 +109,10 @@ def parse_source(data: Dict[str, Any]) -> Dict[str, Any]:
         "h_index": summary_stats.get("h_index"),
         "i10_index": summary_stats.get("i10_index"),
 
-        # OA status
-        "is_oa": 1 if data.get("is_oa") else 0,
-        "is_in_doaj": 1 if data.get("is_in_doaj") else 0,
-        "is_core": 1 if data.get("is_core") else 0,
+        # OA status — real booleans, matching the column types.
+        "is_oa": bool(data.get("is_oa")),
+        "is_in_doaj": bool(data.get("is_in_doaj")),
+        "is_core": bool(data.get("is_core")),
 
         # Temporal
         "first_publication_year": data.get("first_publication_year"),
@@ -175,80 +146,76 @@ def get_all_gz_files(snapshot_dir: Path) -> List[Path]:
     return files
 
 
-def get_processed_files(conn: sqlite3.Connection) -> set:
+def get_processed_files(conn) -> Set[str]:
     """Get set of already processed file paths."""
-    try:
-        cursor = conn.execute("SELECT file_path FROM _sources_build_progress")
+    with conn.cursor() as cursor:
+        cursor.execute("SELECT to_regclass('_sources_build_progress') IS NOT NULL")
+        if not cursor.fetchone()[0]:
+            return set()
+        cursor.execute("SELECT file_path FROM _sources_build_progress")
         return {row[0] for row in cursor.fetchall()}
-    except sqlite3.OperationalError:
-        return set()
 
 
-def mark_file_processed(conn: sqlite3.Connection, file_path: str, records: int) -> None:
+def mark_file_processed(conn, file_path: str, records: int) -> None:
     """Mark a file as processed."""
-    conn.execute(
-        "INSERT OR REPLACE INTO _sources_build_progress (file_path, records_processed) VALUES (?, ?)",
-        (file_path, records),
-    )
+    with conn.cursor() as cursor:
+        cursor.execute(
+            "INSERT INTO _sources_build_progress (file_path, records_processed) "
+            "VALUES (%s, %s) "
+            "ON CONFLICT (file_path) DO UPDATE SET "
+            "records_processed = EXCLUDED.records_processed, "
+            "completed_at = NOW()",
+            (file_path, records),
+        )
     conn.commit()
 
 
-def build_issn_lookup(conn: sqlite3.Connection) -> int:
-    """Build ISSN lookup table from sources."""
+def build_issn_lookup(conn) -> int:
+    """Build ISSN lookup table from sources.
+
+    Every ISSN a source declares maps to that source. The whole table is
+    rebuilt in one statement rather than row by row: the previous loop issued
+    one INSERT per ISSN and counted its ATTEMPTS, so the number it reported
+    was larger than the number of rows the table actually held whenever a
+    duplicate was skipped.
+    """
     logger.info("Building ISSN lookup table...")
 
-    # Clear existing lookup
-    conn.execute("DELETE FROM issn_lookup")
-
-    # Get all sources with ISSNs
-    cursor = conn.execute("SELECT id, issn_l, issns FROM sources WHERE issns IS NOT NULL OR issn_l IS NOT NULL")
-
-    lookup_count = 0
-    for row in cursor:
-        source_id = row[0]
-        issn_l = row[1]
-        issns_json = row[2]
-
-        issns_to_add = set()
-
-        # Add linking ISSN
-        if issn_l:
-            issns_to_add.add(issn_l)
-
-        # Add all ISSNs from array
-        if issns_json:
-            try:
-                issns = json.loads(issns_json)
-                for issn in issns:
-                    if issn:
-                        issns_to_add.add(issn)
-            except json.JSONDecodeError:
-                pass
-
-        # Insert into lookup table
-        for issn in issns_to_add:
-            try:
-                conn.execute(
-                    "INSERT OR IGNORE INTO issn_lookup (issn, source_id) VALUES (?, ?)",
-                    (issn, source_id)
-                )
-                lookup_count += 1
-            except sqlite3.IntegrityError:
-                pass  # Duplicate ISSN, skip
-
+    with conn.cursor() as cursor:
+        cursor.execute("DELETE FROM issn_lookup")
+        cursor.execute(
+            """
+            INSERT INTO issn_lookup (issn, source_id)
+            SELECT DISTINCT ON (issn) issn, id
+            FROM (
+                SELECT id, issn_l AS issn FROM sources WHERE issn_l IS NOT NULL
+                UNION ALL
+                SELECT s.id, j.value AS issn
+                FROM sources s,
+                     LATERAL json_array_elements_text(s.issns::json) AS j(value)
+                WHERE s.issns IS NOT NULL
+            ) AS every_issn
+            WHERE issn IS NOT NULL AND issn <> ''
+            ORDER BY issn, id
+            ON CONFLICT (issn) DO NOTHING
+            """
+        )
+        cursor.execute("SELECT COUNT(*) FROM issn_lookup")
+        lookup_count = cursor.fetchone()[0]
     conn.commit()
+
     logger.info(f"ISSN lookup table built with {lookup_count} entries")
     return lookup_count
 
 
 def build_sources_table(
     snapshot_dir: Path,
-    db_path: Path,
+    dsn: str,
     batch_size: int = 5000,
     rebuild: bool = False,
 ) -> None:
     """Build sources table from OpenAlex snapshot."""
-    logger.info(f"Building sources table in: {db_path}")
+    logger.info(f"Building sources table in: {dsn}")
     logger.info(f"Sources snapshot directory: {snapshot_dir}")
 
     if not snapshot_dir.exists():
@@ -256,23 +223,19 @@ def build_sources_table(
         logger.error("Run: python scripts/database/01_download_snapshot.py --entity sources")
         sys.exit(1)
 
-    # Connect to database
-    conn = sqlite3.connect(db_path)
-    conn.row_factory = sqlite3.Row
-    conn.execute("PRAGMA journal_mode=WAL")
-    conn.execute("PRAGMA synchronous=NORMAL")
-    conn.execute("PRAGMA cache_size=-500000")  # 500MB cache
+    conn = connect(dsn)
 
-    # Drop existing tables if rebuild
     if rebuild:
         logger.info("Rebuilding: dropping existing sources tables...")
-        conn.execute("DROP TABLE IF EXISTS issn_lookup")
-        conn.execute("DROP TABLE IF EXISTS sources")
-        conn.execute("DROP TABLE IF EXISTS _sources_build_progress")
+        with conn.cursor() as cursor:
+            cursor.execute("DROP TABLE IF EXISTS issn_lookup")
+            cursor.execute("DROP TABLE IF EXISTS sources")
+            cursor.execute("DROP TABLE IF EXISTS _sources_build_progress")
         conn.commit()
 
-    # Create schema
-    conn.executescript(SOURCES_SCHEMA_SQL)
+    with conn.cursor() as cursor:
+        cursor.execute(SOURCES_DDL)
+        cursor.execute(PROGRESS_DDL)
     conn.commit()
 
     # Get files to process
@@ -294,21 +257,17 @@ def build_sources_table(
 
     # Process files
     total_records = 0
-    total_inserted = 0
     start_time = time.time()
 
-    # Prepare insert statement
-    columns = [
-        "openalex_id", "issn_l", "issns", "display_name", "display_name_lower",
-        "type", "host_organization", "country_code", "homepage_url",
-        "works_count", "oa_works_count", "cited_by_count",
-        "two_year_mean_citedness", "h_index", "i10_index",
-        "is_oa", "is_in_doaj", "is_core",
-        "first_publication_year", "last_publication_year", "apc_usd"
-    ]
-    placeholders = ", ".join(["?" for _ in columns])
-    column_names = ", ".join(columns)
-    insert_sql = f"INSERT OR REPLACE INTO sources ({column_names}) VALUES ({placeholders})"
+    column_names = ", ".join(COLUMNS)
+    placeholders = ", ".join(["%s"] * len(COLUMNS))
+    updates = ", ".join(
+        f"{col} = EXCLUDED.{col}" for col in COLUMNS if col != "openalex_id"
+    )
+    insert_sql = (
+        f"INSERT INTO sources ({column_names}) VALUES ({placeholders}) "
+        f"ON CONFLICT (openalex_id) DO UPDATE SET {updates}"
+    )
 
     for file_idx, gz_file in enumerate(files_to_process):
         file_start = time.time()
@@ -320,24 +279,26 @@ def build_sources_table(
         for data in iter_jsonl_gz(gz_file):
             try:
                 record = parse_source(data)
-                batch.append(tuple(record[col] for col in columns))
+                batch.append(tuple(record[col] for col in COLUMNS))
                 file_records += 1
                 total_records += 1
 
                 if len(batch) >= batch_size:
-                    cursor = conn.executemany(insert_sql, batch)
-                    total_inserted += cursor.rowcount
+                    with conn.cursor() as cursor:
+                        cursor.executemany(insert_sql, batch)
                     conn.commit()
                     batch = []
 
             except Exception as e:
                 logger.warning(f"Error processing source record: {e}")
+                conn.rollback()
+                batch = []
                 continue
 
         # Insert remaining batch
         if batch:
-            cursor = conn.executemany(insert_sql, batch)
-            total_inserted += cursor.rowcount
+            with conn.cursor() as cursor:
+                cursor.executemany(insert_sql, batch)
             conn.commit()
 
         # Mark file as processed
@@ -352,15 +313,15 @@ def build_sources_table(
     # Final stats
     elapsed = time.time() - start_time
 
-    # Count total sources
-    cursor = conn.execute("SELECT COUNT(*) FROM sources")
-    total_sources = cursor.fetchone()[0]
-
-    cursor = conn.execute("SELECT COUNT(*) FROM issn_lookup")
-    total_issns = cursor.fetchone()[0]
-
-    cursor = conn.execute("SELECT COUNT(*) FROM sources WHERE two_year_mean_citedness IS NOT NULL")
-    sources_with_if = cursor.fetchone()[0]
+    with conn.cursor() as cursor:
+        cursor.execute("SELECT COUNT(*) FROM sources")
+        total_sources = cursor.fetchone()[0]
+        cursor.execute("SELECT COUNT(*) FROM issn_lookup")
+        total_issns = cursor.fetchone()[0]
+        cursor.execute(
+            "SELECT COUNT(*) FROM sources WHERE two_year_mean_citedness IS NOT NULL"
+        )
+        sources_with_if = cursor.fetchone()[0]
 
     logger.info("=" * 60)
     logger.info("Sources table build completed!")
@@ -369,21 +330,16 @@ def build_sources_table(
     logger.info(f"Total ISSN lookups: {total_issns:,}")
     logger.info(f"Total time: {elapsed:.1f}s")
 
-    # Update metadata
-    conn.execute(
-        "INSERT OR REPLACE INTO _metadata (key, value) VALUES (?, ?)",
-        ("sources_build_completed", time.strftime("%Y-%m-%d %H:%M:%S")),
-    )
-    conn.execute(
-        "INSERT OR REPLACE INTO _metadata (key, value) VALUES (?, ?)",
-        ("total_sources", str(total_sources)),
-    )
-    conn.commit()
+    from openalex_local._core.state import set_metadata
+
+    set_metadata("sources_build_completed", time.strftime("%Y-%m-%d %H:%M:%S"))
+    set_metadata("total_sources", str(total_sources))
 
     # Analyze for query optimization
     logger.info("Running ANALYZE for query optimization...")
-    conn.execute("ANALYZE sources")
-    conn.execute("ANALYZE issn_lookup")
+    with conn.cursor() as cursor:
+        cursor.execute("ANALYZE sources")
+        cursor.execute("ANALYZE issn_lookup")
     conn.commit()
 
     conn.close()
@@ -401,16 +357,15 @@ def main():
         help=f"Path to sources snapshot directory (default: {DEFAULT_SNAPSHOT_DIR})",
     )
     parser.add_argument(
-        "--db-path",
-        type=Path,
-        default=DEFAULT_DB_PATH,
-        help=f"Path to database (default: {DEFAULT_DB_PATH})",
+        "--dsn",
+        default=None,
+        help="Corpus DSN (default: the store this host resolves to)",
     )
     parser.add_argument(
         "--batch-size",
         type=int,
         default=5000,
-        help="Batch size for database inserts (default: 5000)",
+        help="Batch size for inserts (default: 5000)",
     )
     parser.add_argument(
         "--rebuild",
@@ -422,7 +377,7 @@ def main():
 
     build_sources_table(
         snapshot_dir=args.snapshot_dir,
-        db_path=args.db_path,
+        dsn=resolve_dsn(args.dsn),
         batch_size=args.batch_size,
         rebuild=args.rebuild,
     )

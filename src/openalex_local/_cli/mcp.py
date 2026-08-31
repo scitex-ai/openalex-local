@@ -186,7 +186,7 @@ def mcp_installation(as_json: bool):
                     "openalex-local": {
                         "command": "openalex-local",
                         "args": ["mcp", "start"],
-                        "env": {"OPENALEX_LOCAL_DB": "/path/to/openalex.db"},
+                        "env": {"SCITEX_STORE_DSN": "postgresql://user@host:55432/scitex"},
                     }
                 }
             },
@@ -215,7 +215,7 @@ def mcp_installation(as_json: bool):
     click.echo('         "command": "openalex-local",')
     click.echo('         "args": ["mcp", "start"],')
     click.echo('         "env": {')
-    click.echo('           "OPENALEX_LOCAL_DB": "/path/to/openalex.db"')
+    click.echo('           "SCITEX_STORE_DSN": "postgresql://user@host:55432/scitex"')
     click.echo("         }")
     click.echo("       }")
     click.echo("     }")

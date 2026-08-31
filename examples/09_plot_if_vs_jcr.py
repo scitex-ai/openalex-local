@@ -13,7 +13,8 @@ Usage:
     python examples/09_plot_if_vs_jcr.py --sample 30        # Sample comparison
 """
 
-import sqlite3
+import csv
+import os
 from pathlib import Path
 
 import numpy as np
@@ -21,33 +22,53 @@ import scitex as stx
 from scitex.stats.tests.correlation import test_pearson
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
-OA_DB_PATH = PROJECT_ROOT / "data" / "openalex.db"
-JCR_DB_PATH = Path(
-    "/home/ywatanabe/proj/scitex-python/src/scitex/scholar/data/impact_factor/JCR_IF_2024.db"
+
+#: The JCR reference values. A CSV, and a CSV on purpose: the previous source
+#: was a database file belonging to another package, read directly off that
+#: package's disk layout. Reaching into a sibling project's storage makes this
+#: example break whenever that project reorganises, for a table of about
+#: 20,000 numbers that is perfectly well carried by a file.
+#:
+#: This is the same reference the IF build step validates against.
+JCR_REFERENCE_CSV = Path(
+    os.environ.get(
+        "OPENALEX_LOCAL_JCR_CSV",
+        "/home/ywatanabe/proj/crossref-local/examples/03_impact_factor/"
+        "01_compare_jcr_out/all_combined.csv",
+    )
 )
 
 
 def load_data():
     """Load both JCR and OpenAlex IF data."""
-    # JCR data
-    jcr_conn = sqlite3.connect(JCR_DB_PATH)
-    jcr_cursor = jcr_conn.execute(
-        "SELECT issn, factor, journal FROM factor WHERE issn IS NOT NULL AND factor IS NOT NULL"
-    )
-    jcr_data = {
-        row[0]: {"if": row[1], "journal": row[2]} for row in jcr_cursor.fetchall()
-    }
-    jcr_conn.close()
+    # JCR reference values
+    jcr_data = {}
+    with open(JCR_REFERENCE_CSV) as handle:
+        for row in csv.DictReader(handle):
+            issn = (row.get("issn") or "").strip()
+            raw = row.get("jcr_if")
+            if not issn or not raw:
+                continue
+            try:
+                jcr_data[issn] = {
+                    "if": float(raw),
+                    "journal": row.get("journal", ""),
+                }
+            except ValueError:
+                continue
 
-    # OpenAlex calculated IFs
-    oa_conn = sqlite3.connect(OA_DB_PATH)
-    oa_cursor = oa_conn.execute(
-        "SELECT issn, impact_factor, journal_name FROM journal_impact_factors WHERE impact_factor IS NOT NULL"
-    )
+    # OpenAlex calculated IFs, from the corpus this host resolves to.
+    from openalex_local._core.db import connection
+
+    with connection() as db:
+        rows = db.fetchall(
+            "SELECT issn, impact_factor, journal_name "
+            "FROM journal_impact_factors WHERE impact_factor IS NOT NULL"
+        )
     oa_data = {
-        row[0]: {"if": row[1], "journal": row[2]} for row in oa_cursor.fetchall()
+        row["issn"]: {"if": row["impact_factor"], "journal": row["journal_name"]}
+        for row in rows
     }
-    oa_conn.close()
 
     return jcr_data, oa_data
 

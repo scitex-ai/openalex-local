@@ -1,72 +1,92 @@
 #!/usr/bin/env python3
-# Timestamp: 2026-01-29
-"""Configuration for openalex_local."""
+# -*- coding: utf-8 -*-
+# File: src/openalex_local/_core/config.py
+"""Configuration for openalex_local.
+
+WHERE THE CORPUS LIVES IS NOT A SETTING THIS PACKAGE OWNS.
+:func:`scitex_dev.store.host_store` resolves it — ``SCITEX_STORE_DSN`` if the
+operator set one, otherwise this host's PostgreSQL — and that is the only
+resolution path. The package-local ``OPENALEX_LOCAL_DB`` variable and the
+four-entry ``DEFAULT_DB_PATHS`` search it drove are gone with it.
+
+They are gone rather than deprecated because a second resolver is not a
+convenience, it is a disagreement waiting to happen: the search list found
+whichever half-built file happened to exist in the current working directory,
+so the same command answered differently depending on where it was run, and
+nothing in the output said which database had answered.
+"""
 
 import os as _os
-from pathlib import Path as _Path
 from typing import Optional as _Optional
 
-# Default database locations (checked in order). Anchored on multiple
-# roots so the DB is found regardless of which directory the caller
-# (pytest, CLI, MCP server) is invoked from. Hardcoded user-specific
-# paths (e.g. `/mnt/nas_ug/...`) were removed in favour of generic
-# repo-anchored / CWD-relative / home-cache locations — set
-# `OPENALEX_LOCAL_DB` explicitly when the DB lives somewhere else.
-DEFAULT_DB_PATHS = [
-    # CWD-relative — works when the user runs commands from the repo root.
-    _Path.cwd() / "data" / "openalex.db",
-    # Repo-relative — works regardless of CWD (e.g. when scitex-dev
-    # invokes openalex-local from `~/proj/scitex-dev/`). Anchored on
-    # this source file: <repo>/src/openalex_local/_core/config.py.
-    _Path(__file__).resolve().parents[3] / "data" / "openalex.db",
-    # Canonical scitex runtime location.
-    _Path.home() / ".scitex" / "openalex-local" / "runtime" / "openalex.db",
-    # Legacy user-state cache directory (back-compat, will be removed).
-    _Path.home() / ".openalex_local" / "openalex.db",
-]
+from scitex_dev.store import StoreTarget as _StoreTarget
+from scitex_dev.store import host_store as _host_store
 
+#: The package short name the store primitive keys runtime state on.
+PKG = "openalex_local"
 
-def get_db_path() -> _Path:
-    """Get database path from environment or auto-detect."""
-    env_path = _os.environ.get("OPENALEX_LOCAL_DB")
-    if env_path:
-        path = _Path(env_path)
-        if path.exists():
-            return path
-        raise FileNotFoundError(f"OPENALEX_LOCAL_DB path not found: {env_path}")
-
-    for path in DEFAULT_DB_PATHS:
-        if path.exists():
-            return path
-
-    raise FileNotFoundError(
-        "OpenAlex database not found. Set OPENALEX_LOCAL_DB environment variable."
-    )
-
+#: The corpus store's name within this package. A package may hold several
+#: (see :mod:`._state` for the metadata one); naming them keeps two record
+#: kinds from colliding in one table namespace.
+CORPUS_STORE = "corpus"
 
 DEFAULT_PORT = 31292
 DEFAULT_HOST = "0.0.0.0"
+
+_POSTGRES_SCHEMES = ("postgresql://", "postgres://")
+
+
+def corpus_target() -> _StoreTarget:
+    """The resolved pointer to this host's corpus.
+
+    Returns a :class:`~scitex_dev.store.StoreTarget` rather than a string so
+    the answer can be logged and compared without re-deriving it — and so it
+    cannot be handed to a filesystem API by accident.
+    """
+    return _host_store(pkg=PKG, name=CORPUS_STORE)
+
+
+def get_dsn() -> str:
+    """The corpus connection string for this host."""
+    return corpus_target().dsn
 
 
 class Config:
     """Configuration container."""
 
-    _db_path: _Optional[_Path] = None
+    _dsn: _Optional[str] = None
     _api_url: _Optional[str] = None
     _mode: str = "auto"  # "auto", "db", or "http"
 
     @classmethod
-    def get_db_path(cls) -> _Path:
-        if cls._db_path is None:
-            cls._db_path = get_db_path()
-        return cls._db_path
+    def get_dsn(cls) -> str:
+        if cls._dsn is None:
+            cls._dsn = get_dsn()
+        return cls._dsn
 
     @classmethod
-    def set_db_path(cls, path: str) -> None:
-        p = _Path(path)
-        if not p.exists():
-            raise FileNotFoundError(f"Database not found: {path}")
-        cls._db_path = p
+    def set_dsn(cls, dsn: str) -> None:
+        """Point this process at an explicit corpus, and switch to db mode.
+
+        Refuses anything that is not a PostgreSQL DSN. A path used to be
+        accepted here and meant a file; accepting one now would silently
+        select a database that does not exist rather than saying so.
+        """
+        if not dsn or not str(dsn).strip():
+            raise ValueError(
+                "empty corpus DSN. Pass a PostgreSQL connection string "
+                "(postgresql://user@host:55432/scitex), or leave it unset "
+                "and let SCITEX_STORE_DSN / this host's store decide."
+            )
+        value = str(dsn).strip()
+        if not value.lower().startswith(_POSTGRES_SCHEMES):
+            raise ValueError(
+                f"{value!r} is not a PostgreSQL DSN. It must start with "
+                "'postgresql://' or 'postgres://'. The corpus lives in "
+                "PostgreSQL; a filesystem path names no database this "
+                "package can open."
+            )
+        cls._dsn = value
         cls._mode = "db"
 
     @classmethod
@@ -110,19 +130,16 @@ class Config:
             if cls._api_url or _os.environ.get("OPENALEX_LOCAL_API_URL"):
                 return "http"
 
-            # Check if local database exists
-            try:
-                get_db_path()
-                return "db"
-            except FileNotFoundError:
-                # No local DB, try http
-                return "http"
+            # Check whether the corpus is actually reachable and populated.
+            from .db import corpus_available
+
+            return "db" if corpus_available() else "http"
 
         return cls._mode
 
     @classmethod
     def reset(cls) -> None:
-        cls._db_path = None
+        cls._dsn = None
         cls._api_url = None
         cls._mode = "auto"
 

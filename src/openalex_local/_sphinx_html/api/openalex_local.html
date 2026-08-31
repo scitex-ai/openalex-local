@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>openalex_local API &mdash; OpenAlex Local v0.7.6</title>
+  <title>openalex_local API &mdash; OpenAlex Local v0.4.0</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
@@ -14,7 +14,7 @@
   
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=918ced64"></script>
+      <script src="../_static/documentation_options.js?v=6c02275b"></script>
       <script src="../_static/doctools.js?v=9a2dae69"></script>
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -99,7 +99,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../http_api.html#batch-lookup">Batch Lookup</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="../http_api.html#fts5-query-syntax">FTS5 Query Syntax</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../http_api.html#query-syntax">Query Syntax</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../http_api.html#python-client">Python Client</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../http_api.html#environment-variables">Environment Variables</a></li>
 </ul>
@@ -108,51 +108,62 @@
 <p class="caption" role="heading"><span class="caption-text">API Reference</span></p>
 <ul class="current">
 <li class="toctree-l1 current"><a class="current reference internal" href="#">openalex_local API</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#core-functions">Core Functions</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#search">search</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#openalex_local.search"><code class="docutils literal notranslate"><span class="pre">search()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#openalex_local.search"><code class="docutils literal notranslate"><span class="pre">search()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#openalex_local.count"><code class="docutils literal notranslate"><span class="pre">count()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#openalex_local.get"><code class="docutils literal notranslate"><span class="pre">get()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#openalex_local.get_many"><code class="docutils literal notranslate"><span class="pre">get_many()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#openalex_local.exists"><code class="docutils literal notranslate"><span class="pre">exists()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#openalex_local.info"><code class="docutils literal notranslate"><span class="pre">info()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#openalex_local.update"><code class="docutils literal notranslate"><span class="pre">update()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#openalex_local.enrich"><code class="docutils literal notranslate"><span class="pre">enrich()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#openalex_local.enrich_ids"><code class="docutils literal notranslate"><span class="pre">enrich_ids()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#openalex_local.configure"><code class="docutils literal notranslate"><span class="pre">configure()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#openalex_local.get_mode"><code class="docutils literal notranslate"><span class="pre">get_mode()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#openalex_local.Work"><code class="docutils literal notranslate"><span class="pre">Work</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#openalex_local.Work.openalex_id"><code class="docutils literal notranslate"><span class="pre">Work.openalex_id</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#openalex_local.Work.doi"><code class="docutils literal notranslate"><span class="pre">Work.doi</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#openalex_local.Work.title"><code class="docutils literal notranslate"><span class="pre">Work.title</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#openalex_local.Work.abstract"><code class="docutils literal notranslate"><span class="pre">Work.abstract</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#openalex_local.Work.authors"><code class="docutils literal notranslate"><span class="pre">Work.authors</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#openalex_local.Work.year"><code class="docutils literal notranslate"><span class="pre">Work.year</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#openalex_local.Work.source"><code class="docutils literal notranslate"><span class="pre">Work.source</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#openalex_local.Work.issn"><code class="docutils literal notranslate"><span class="pre">Work.issn</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#openalex_local.Work.volume"><code class="docutils literal notranslate"><span class="pre">Work.volume</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#openalex_local.Work.issue"><code class="docutils literal notranslate"><span class="pre">Work.issue</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#openalex_local.Work.pages"><code class="docutils literal notranslate"><span class="pre">Work.pages</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#openalex_local.Work.publisher"><code class="docutils literal notranslate"><span class="pre">Work.publisher</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#openalex_local.Work.type"><code class="docutils literal notranslate"><span class="pre">Work.type</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#openalex_local.Work.concepts"><code class="docutils literal notranslate"><span class="pre">Work.concepts</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#openalex_local.Work.topics"><code class="docutils literal notranslate"><span class="pre">Work.topics</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#openalex_local.Work.cited_by_count"><code class="docutils literal notranslate"><span class="pre">Work.cited_by_count</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#openalex_local.Work.referenced_works"><code class="docutils literal notranslate"><span class="pre">Work.referenced_works</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#openalex_local.Work.is_oa"><code class="docutils literal notranslate"><span class="pre">Work.is_oa</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#openalex_local.Work.oa_url"><code class="docutils literal notranslate"><span class="pre">Work.oa_url</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#openalex_local.Work.scitex_if"><code class="docutils literal notranslate"><span class="pre">Work.scitex_if</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#openalex_local.Work.source_h_index"><code class="docutils literal notranslate"><span class="pre">Work.source_h_index</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#openalex_local.Work.source_cited_by_count"><code class="docutils literal notranslate"><span class="pre">Work.source_cited_by_count</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#openalex_local.Work.from_openalex"><code class="docutils literal notranslate"><span class="pre">Work.from_openalex()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#openalex_local.Work.from_db_row"><code class="docutils literal notranslate"><span class="pre">Work.from_db_row()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#openalex_local.Work.to_dict"><code class="docutils literal notranslate"><span class="pre">Work.to_dict()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#openalex_local.Work.citation"><code class="docutils literal notranslate"><span class="pre">Work.citation()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#openalex_local.Work._citation_apa"><code class="docutils literal notranslate"><span class="pre">Work._citation_apa()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#openalex_local.Work._format_author_apa"><code class="docutils literal notranslate"><span class="pre">Work._format_author_apa()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#openalex_local.Work._citation_bibtex"><code class="docutils literal notranslate"><span class="pre">Work._citation_bibtex()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#openalex_local.Work.to_text"><code class="docutils literal notranslate"><span class="pre">Work.to_text()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#openalex_local.Work.save"><code class="docutils literal notranslate"><span class="pre">Work.save()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#openalex_local.Work.__init__"><code class="docutils literal notranslate"><span class="pre">Work.__init__()</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="#get">get</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#openalex_local.get"><code class="docutils literal notranslate"><span class="pre">get()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#openalex_local.SearchResult"><code class="docutils literal notranslate"><span class="pre">SearchResult</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#openalex_local.SearchResult.works"><code class="docutils literal notranslate"><span class="pre">SearchResult.works</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#openalex_local.SearchResult.total"><code class="docutils literal notranslate"><span class="pre">SearchResult.total</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#openalex_local.SearchResult.query"><code class="docutils literal notranslate"><span class="pre">SearchResult.query</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#openalex_local.SearchResult.elapsed_ms"><code class="docutils literal notranslate"><span class="pre">SearchResult.elapsed_ms</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#openalex_local.SearchResult.save"><code class="docutils literal notranslate"><span class="pre">SearchResult.save()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#openalex_local.SearchResult.__init__"><code class="docutils literal notranslate"><span class="pre">SearchResult.__init__()</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="#count">count</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#openalex_local.count"><code class="docutils literal notranslate"><span class="pre">count()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="#info">info</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#openalex_local.info"><code class="docutils literal notranslate"><span class="pre">info()</span></code></a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="#configuration">Configuration</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#configure">configure</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#openalex_local.configure"><code class="docutils literal notranslate"><span class="pre">configure()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="#get-mode">get_mode</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#openalex_local.get_mode"><code class="docutils literal notranslate"><span class="pre">get_mode()</span></code></a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="#data-classes">Data Classes</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#work">Work</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#openalex_local.Work"><code class="docutils literal notranslate"><span class="pre">Work</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="#searchresult">SearchResult</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#openalex_local.SearchResult"><code class="docutils literal notranslate"><span class="pre">SearchResult</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="#config">Config</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#openalex_local._core.config.Config"><code class="docutils literal notranslate"><span class="pre">Config</span></code></a></li>
-</ul>
-</li>
-</ul>
-</li>
+<li class="toctree-l2"><a class="reference internal" href="#openalex_local.save"><code class="docutils literal notranslate"><span class="pre">save()</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -183,24 +194,31 @@
              
   <section id="openalex-local-api">
 <h1>openalex_local API<a class="headerlink" href="#openalex-local-api" title="Link to this heading"></a></h1>
-<p>The <code class="docutils literal notranslate"><span class="pre">openalex_local</span></code> package exposes a small set of functions
-(<code class="docutils literal notranslate"><span class="pre">search</span></code>, <code class="docutils literal notranslate"><span class="pre">get</span></code>, <code class="docutils literal notranslate"><span class="pre">count</span></code>, <code class="docutils literal notranslate"><span class="pre">info</span></code>, <code class="docutils literal notranslate"><span class="pre">configure</span></code>,
-<code class="docutils literal notranslate"><span class="pre">get_mode</span></code>) and the <code class="docutils literal notranslate"><span class="pre">Work</span></code> / <code class="docutils literal notranslate"><span class="pre">SearchResult</span></code> dataclasses, plus
-the <code class="docutils literal notranslate"><span class="pre">Config</span></code> singleton from <code class="docutils literal notranslate"><span class="pre">openalex_local._core.config</span></code>. Each
-is documented below.</p>
-<section id="core-functions">
-<h2>Core Functions<a class="headerlink" href="#core-functions" title="Link to this heading"></a></h2>
-<section id="search">
-<h3>search<a class="headerlink" href="#search" title="Link to this heading"></a></h3>
+<p>The public API is generated automatically from the package’s <code class="docutils literal notranslate"><span class="pre">__all__</span></code>.
+Each object is documented exactly once here via <code class="docutils literal notranslate"><span class="pre">automodule</span></code> (autodoc +
+napoleon); do not add per-object <code class="docutils literal notranslate"><span class="pre">autoclass</span></code>/<code class="docutils literal notranslate"><span class="pre">autofunction</span></code> directives for
+the same names below, or Sphinx will raise <code class="docutils literal notranslate"><span class="pre">duplicate</span> <span class="pre">object</span> <span class="pre">description</span></code>
+warnings (which fail the docs build under <code class="docutils literal notranslate"><span class="pre">-W</span></code>).</p>
+<p id="module-openalex_local">OpenAlex Local - Local OpenAlex database with 284M+ works and semantic search.</p>
+<div class="admonition-example admonition">
+<p class="admonition-title">Example</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">openalex_local</span><span class="w"> </span><span class="kn">import</span> <span class="n">search</span><span class="p">,</span> <span class="n">get</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">results</span> <span class="o">=</span> <span class="n">search</span><span class="p">(</span><span class="s2">"machine learning neural networks"</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">work</span> <span class="o">=</span> <span class="n">get</span><span class="p">(</span><span class="s2">"W2741809807"</span><span class="p">)</span>  <span class="c1"># OpenAlex ID</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">work</span> <span class="o">=</span> <span class="n">get</span><span class="p">(</span><span class="s2">"10.1038/nature12373"</span><span class="p">)</span>  <span class="c1"># or DOI</span>
+</pre></div>
+</div>
+</div>
 <dl class="py function">
 <dt class="sig sig-object py" id="openalex_local.search">
 <span class="sig-prename descclassname"><span class="pre">openalex_local.</span></span><span class="sig-name descname"><span class="pre">search</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">query</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">limit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">20</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">offset</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/openalex_local/_core/api.html#search"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openalex_local.search" title="Link to this definition"></a></dt>
 <dd><p>Full-text search across works.</p>
-<p>Uses FTS5 index for fast searching across titles and abstracts.</p>
+<p>Uses the corpus full-text index over titles and abstracts.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>query</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a></span>) – Search query (supports FTS5 syntax)</p></li>
+<li><p><strong>query</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a></span>) – Search query (web-search syntax: bare words, “quoted
+phrases”, <code class="docutils literal notranslate"><span class="pre">or</span></code>, leading <code class="docutils literal notranslate"><span class="pre">-</span></code> to exclude)</p></li>
 <li><p><strong>limit</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a></span>) – Maximum results to return</p></li>
 <li><p><strong>offset</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a></span>) – Skip first N results (for pagination)</p></li>
 </ul>
@@ -215,16 +233,30 @@ is documented below.</p>
 <div class="admonition-example admonition">
 <p class="admonition-title">Example</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">openalex_local</span><span class="w"> </span><span class="kn">import</span> <span class="n">search</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">results</span> <span class="o">=</span> <span class="n">search</span><span class="p">(</span><span class="s2">&quot;machine learning&quot;</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Found </span><span class="si">{</span><span class="n">results</span><span class="o">.</span><span class="n">total</span><span class="si">}</span><span class="s2"> matches&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">results</span> <span class="o">=</span> <span class="n">search</span><span class="p">(</span><span class="s2">"machine learning"</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Found </span><span class="si">{</span><span class="n">results</span><span class="o">.</span><span class="n">total</span><span class="si">}</span><span class="s2"> matches"</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
 </dd></dl>
 
-</section>
-<section id="get">
-<h3>get<a class="headerlink" href="#get" title="Link to this heading"></a></h3>
+<dl class="py function">
+<dt class="sig sig-object py" id="openalex_local.count">
+<span class="sig-prename descclassname"><span class="pre">openalex_local.</span></span><span class="sig-name descname"><span class="pre">count</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">query</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/openalex_local/_core/api.html#count"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openalex_local.count" title="Link to this definition"></a></dt>
+<dd><p>Count matching works without fetching results.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>query</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a></span>) – Full-text search query</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a></span></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Number of matching works</p>
+</dd>
+</dl>
+</dd></dl>
+
 <dl class="py function">
 <dt class="sig sig-object py" id="openalex_local.get">
 <span class="sig-prename descclassname"><span class="pre">openalex_local.</span></span><span class="sig-name descname"><span class="pre">get</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">id_or_doi</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/openalex_local/_core/api.html#get"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openalex_local.get" title="Link to this definition"></a></dt>
@@ -243,37 +275,48 @@ is documented below.</p>
 <div class="admonition-example admonition">
 <p class="admonition-title">Example</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">openalex_local</span><span class="w"> </span><span class="kn">import</span> <span class="n">get</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">work</span> <span class="o">=</span> <span class="n">get</span><span class="p">(</span><span class="s2">&quot;W2741809807&quot;</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">work</span> <span class="o">=</span> <span class="n">get</span><span class="p">(</span><span class="s2">&quot;10.1038/nature12373&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">work</span> <span class="o">=</span> <span class="n">get</span><span class="p">(</span><span class="s2">"W2741809807"</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">work</span> <span class="o">=</span> <span class="n">get</span><span class="p">(</span><span class="s2">"10.1038/nature12373"</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">work</span><span class="o">.</span><span class="n">title</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
 </dd></dl>
 
-</section>
-<section id="count">
-<h3>count<a class="headerlink" href="#count" title="Link to this heading"></a></h3>
 <dl class="py function">
-<dt class="sig sig-object py" id="openalex_local.count">
-<span class="sig-prename descclassname"><span class="pre">openalex_local.</span></span><span class="sig-name descname"><span class="pre">count</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">query</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/openalex_local/_core/api.html#count"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openalex_local.count" title="Link to this definition"></a></dt>
-<dd><p>Count matching works without fetching results.</p>
+<dt class="sig sig-object py" id="openalex_local.get_many">
+<span class="sig-prename descclassname"><span class="pre">openalex_local.</span></span><span class="sig-name descname"><span class="pre">get_many</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ids</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/openalex_local/_core/api.html#get_many"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openalex_local.get_many" title="Link to this definition"></a></dt>
+<dd><p>Get multiple works by OpenAlex ID or DOI.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>query</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a></span>) – FTS5 search query</p>
+<dd class="field-odd"><p><strong>ids</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>]</span>) – List of OpenAlex IDs or DOIs</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a></span></p>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code></a>[<a class="reference internal" href="#openalex_local.Work" title="openalex_local._core.models.Work"><code class="xref py py-class docutils literal notranslate"><span class="pre">Work</span></code></a>]</span></p>
 </dd>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Number of matching works</p>
+<dd class="field-odd"><p>List of Work objects (missing IDs are skipped)</p>
 </dd>
 </dl>
 </dd></dl>
 
-</section>
-<section id="info">
-<h3>info<a class="headerlink" href="#info" title="Link to this heading"></a></h3>
+<dl class="py function">
+<dt class="sig sig-object py" id="openalex_local.exists">
+<span class="sig-prename descclassname"><span class="pre">openalex_local.</span></span><span class="sig-name descname"><span class="pre">exists</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">id_or_doi</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/openalex_local/_core/api.html#exists"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openalex_local.exists" title="Link to this definition"></a></dt>
+<dd><p>Check if a work exists in the database.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>id_or_doi</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a></span>) – OpenAlex ID or DOI</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a></span></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>True if work exists</p>
+</dd>
+</dl>
+</dd></dl>
+
 <dl class="py function">
 <dt class="sig sig-object py" id="openalex_local.info">
 <span class="sig-prename descclassname"><span class="pre">openalex_local.</span></span><span class="sig-name descname"><span class="pre">info</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/openalex_local/_core/api.html#info"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openalex_local.info" title="Link to this definition"></a></dt>
@@ -291,19 +334,110 @@ is documented below.</p>
 </dl>
 </dd></dl>
 
-</section>
-</section>
-<section id="configuration">
-<h2>Configuration<a class="headerlink" href="#configuration" title="Link to this heading"></a></h2>
-<section id="configure">
-<h3>configure<a class="headerlink" href="#configure" title="Link to this heading"></a></h3>
 <dl class="py function">
-<dt class="sig sig-object py" id="openalex_local.configure">
-<span class="sig-prename descclassname"><span class="pre">openalex_local.</span></span><span class="sig-name descname"><span class="pre">configure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">db_path</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/openalex_local/_core/api.html#configure"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openalex_local.configure" title="Link to this definition"></a></dt>
-<dd><p>Configure for local database access.</p>
+<dt class="sig sig-object py" id="openalex_local.update">
+<span class="sig-prename descclassname"><span class="pre">openalex_local.</span></span><span class="sig-name descname"><span class="pre">update</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dsn</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">since</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dry_run</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">snapshot_dir</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/openalex_local/_core/update.html#update"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openalex_local.update" title="Link to this definition"></a></dt>
+<dd><p>Incrementally update the local OpenAlex corpus.</p>
+<p>Downloads only the S3 snapshot directories newer than the recorded
+<code class="docutils literal notranslate"><span class="pre">last_sync_date</span></code> (or <code class="docutils literal notranslate"><span class="pre">since</span></code> when given) and upserts them into
+the corpus.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>db_path</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a></span>) – Path to OpenAlex SQLite database</p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>dsn</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>, </em><em>optional</em>) – PostgreSQL connection string override. Defaults to the corpus
+<code class="docutils literal notranslate"><span class="pre">scitex_dev.store.host_store</span></code> resolves for this host, which
+<code class="docutils literal notranslate"><span class="pre">SCITEX_STORE_DSN</span></code> moves.</p></li>
+<li><p><strong>since</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>, </em><em>optional</em>) – Override start date (<code class="docutils literal notranslate"><span class="pre">YYYY-MM-DD</span></code>). Defaults to the recorded
+<code class="docutils literal notranslate"><span class="pre">last_sync_date</span></code>.</p></li>
+<li><p><strong>dry_run</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a>) – Preview only — list what would be downloaded without writing.</p></li>
+<li><p><strong>snapshot_dir</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>, </em><em>optional</em>) – Snapshot works directory. Defaults to
+<code class="docutils literal notranslate"><span class="pre">&lt;repo&gt;/data/snapshot/works</span></code>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Statistics from <code class="docutils literal notranslate"><span class="pre">differential_update</span></code>: <code class="docutils literal notranslate"><span class="pre">dates_processed</span></code>,
+<code class="docutils literal notranslate"><span class="pre">records_upserted</span></code>, <code class="docutils literal notranslate"><span class="pre">elapsed_seconds</span></code> (and <code class="docutils literal notranslate"><span class="pre">dry_run</span></code> when
+applicable).</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)">dict</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="openalex_local.enrich">
+<span class="sig-prename descclassname"><span class="pre">openalex_local.</span></span><span class="sig-name descname"><span class="pre">enrich</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">results</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">include_abstract</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">include_concepts</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/openalex_local/_core/api.html#enrich"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openalex_local.enrich" title="Link to this definition"></a></dt>
+<dd><p>Enrich search results with full metadata.</p>
+<p>This function re-fetches works from the database to ensure all fields
+are populated, including abstract and concepts which may be truncated
+in search results.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>results</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="#openalex_local.SearchResult" title="openalex_local._core.models.SearchResult"><code class="xref py py-class docutils literal notranslate"><span class="pre">SearchResult</span></code></a></span>) – SearchResult from a search query</p></li>
+<li><p><strong>include_abstract</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a></span>) – Include full abstract text (default True)</p></li>
+<li><p><strong>include_concepts</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a></span>) – Include concept/topic data (default True)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="#openalex_local.SearchResult" title="openalex_local._core.models.SearchResult"><code class="xref py py-class docutils literal notranslate"><span class="pre">SearchResult</span></code></a></span></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>SearchResult with enriched Work objects</p>
+</dd>
+</dl>
+<div class="admonition-example admonition">
+<p class="admonition-title">Example</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">results</span> <span class="o">=</span> <span class="n">search</span><span class="p">(</span><span class="s2">"machine learning"</span><span class="p">,</span> <span class="n">limit</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">enriched</span> <span class="o">=</span> <span class="n">enrich</span><span class="p">(</span><span class="n">results</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">work</span> <span class="ow">in</span> <span class="n">enriched</span><span class="p">:</span>
+<span class="gp">... </span>    <span class="nb">print</span><span class="p">(</span><span class="n">work</span><span class="o">.</span><span class="n">abstract</span><span class="p">)</span>  <span class="c1"># Full abstract available</span>
+</pre></div>
+</div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="openalex_local.enrich_ids">
+<span class="sig-prename descclassname"><span class="pre">openalex_local.</span></span><span class="sig-name descname"><span class="pre">enrich_ids</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ids</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">include_abstract</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">include_concepts</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/openalex_local/_core/api.html#enrich_ids"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openalex_local.enrich_ids" title="Link to this definition"></a></dt>
+<dd><p>Enrich a list of OpenAlex IDs or DOIs with full metadata.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ids</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>]</span>) – List of OpenAlex IDs (e.g., W2741809807) or DOIs</p></li>
+<li><p><strong>include_abstract</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a></span>) – Include full abstract text (default True)</p></li>
+<li><p><strong>include_concepts</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a></span>) – Include concept/topic data (default True)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code></a>[<a class="reference internal" href="#openalex_local.Work" title="openalex_local._core.models.Work"><code class="xref py py-class docutils literal notranslate"><span class="pre">Work</span></code></a>]</span></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>List of Work objects with full metadata</p>
+</dd>
+</dl>
+<div class="admonition-example admonition">
+<p class="admonition-title">Example</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">ids</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"W2741809807"</span><span class="p">,</span> <span class="s2">"10.1038/nature12373"</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">works</span> <span class="o">=</span> <span class="n">enrich_ids</span><span class="p">(</span><span class="n">ids</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">work</span> <span class="ow">in</span> <span class="n">works</span><span class="p">:</span>
+<span class="gp">... </span>    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">work</span><span class="o">.</span><span class="n">title</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">work</span><span class="o">.</span><span class="n">cited_by_count</span><span class="si">}</span><span class="s2"> citations"</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="openalex_local.configure">
+<span class="sig-prename descclassname"><span class="pre">openalex_local.</span></span><span class="sig-name descname"><span class="pre">configure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dsn</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/openalex_local/_core/api.html#configure"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openalex_local.configure" title="Link to this definition"></a></dt>
+<dd><p>Configure for direct corpus access at an explicit address.</p>
+<p>Only needed to reach a corpus OTHER than the one this host resolves to.
+Leave it alone and <code class="docutils literal notranslate"><span class="pre">scitex_dev.store.host_store</span></code> decides, which is what
+<code class="docutils literal notranslate"><span class="pre">SCITEX_STORE_DSN</span></code> is for.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>dsn</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a></span>) – PostgreSQL connection string for the corpus</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></span></p>
@@ -312,15 +446,12 @@ is documented below.</p>
 <div class="admonition-example admonition">
 <p class="admonition-title">Example</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">openalex_local</span><span class="w"> </span><span class="kn">import</span> <span class="n">configure</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">configure</span><span class="p">(</span><span class="s2">&quot;/path/to/openalex.db&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">configure</span><span class="p">(</span><span class="s2">"postgresql://reader@scitex-primary:55432/scitex"</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
 </dd></dl>
 
-</section>
-<section id="get-mode">
-<h3>get_mode<a class="headerlink" href="#get-mode" title="Link to this heading"></a></h3>
 <dl class="py function">
 <dt class="sig sig-object py" id="openalex_local.get_mode">
 <span class="sig-prename descclassname"><span class="pre">openalex_local.</span></span><span class="sig-name descname"><span class="pre">get_mode</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/openalex_local/_core/api.html#get_mode"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openalex_local.get_mode" title="Link to this definition"></a></dt>
@@ -335,12 +466,6 @@ is documented below.</p>
 </dl>
 </dd></dl>
 
-</section>
-</section>
-<section id="data-classes">
-<h2>Data Classes<a class="headerlink" href="#data-classes" title="Link to this heading"></a></h2>
-<section id="work">
-<h3>Work<a class="headerlink" href="#work" title="Link to this heading"></a></h3>
 <dl class="py class">
 <dt class="sig sig-object py" id="openalex_local.Work">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">openalex_local.</span></span><span class="sig-name descname"><span class="pre">Work</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">openalex_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">doi=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">abstract=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">authors=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">year=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">source=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">issn=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">volume=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">issue=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pages=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">publisher=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">type=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">concepts=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">topics=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cited_by_count=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">referenced_works=&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_oa=False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">oa_url=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scitex_if=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">source_h_index=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">source_cited_by_count=None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/openalex_local/_core/models.html#Work"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openalex_local.Work" title="Link to this definition"></a></dt>
@@ -544,9 +669,9 @@ is documented below.</p>
 <div class="admonition-example admonition">
 <p class="admonition-title">Example</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">work</span><span class="o">.</span><span class="n">citation</span><span class="p">()</span>  <span class="c1"># APA format</span>
-<span class="go">&#39;Piwowar, H., &amp; Priem, J. (2018). The state of OA. PeerJ.&#39;</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">work</span><span class="o">.</span><span class="n">citation</span><span class="p">(</span><span class="s2">&quot;bibtex&quot;</span><span class="p">)</span>  <span class="c1"># BibTeX format</span>
-<span class="go">&#39;@article{W2741809807, title={The state of OA}, ...}&#39;</span>
+<span class="go">'Piwowar, H., &amp; Priem, J. (2018). The state of OA. PeerJ.'</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">work</span><span class="o">.</span><span class="n">citation</span><span class="p">(</span><span class="s2">"bibtex"</span><span class="p">)</span>  <span class="c1"># BibTeX format</span>
+<span class="go">'@article{W2741809807, title={The state of OA}, ...}'</span>
 </pre></div>
 </div>
 </div>
@@ -622,9 +747,9 @@ is documented below.</p>
 </dl>
 <div class="admonition-examples admonition">
 <p class="admonition-title">Examples</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">work</span> <span class="o">=</span> <span class="n">get</span><span class="p">(</span><span class="s2">&quot;W2741809807&quot;</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">work</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="s2">&quot;paper.json&quot;</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">work</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="s2">&quot;paper.bib&quot;</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s2">&quot;bibtex&quot;</span><span class="p">)</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">work</span> <span class="o">=</span> <span class="n">get</span><span class="p">(</span><span class="s2">"W2741809807"</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">work</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="s2">"paper.json"</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">work</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="s2">"paper.bib"</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s2">"bibtex"</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -637,9 +762,6 @@ is documented below.</p>
 
 </dd></dl>
 
-</section>
-<section id="searchresult">
-<h3>SearchResult<a class="headerlink" href="#searchresult" title="Link to this heading"></a></h3>
 <dl class="py class">
 <dt class="sig sig-object py" id="openalex_local.SearchResult">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">openalex_local.</span></span><span class="sig-name descname"><span class="pre">SearchResult</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">works</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">total</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">query</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">elapsed_ms</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/openalex_local/_core/models.html#SearchResult"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openalex_local.SearchResult" title="Link to this definition"></a></dt>
@@ -696,10 +818,10 @@ is documented below.</p>
 </dl>
 <div class="admonition-examples admonition">
 <p class="admonition-title">Examples</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">results</span> <span class="o">=</span> <span class="n">search</span><span class="p">(</span><span class="s2">&quot;machine learning&quot;</span><span class="p">,</span> <span class="n">limit</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">results</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="s2">&quot;results.json&quot;</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">results</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="s2">&quot;results.bib&quot;</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s2">&quot;bibtex&quot;</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">results</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="s2">&quot;results.txt&quot;</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s2">&quot;text&quot;</span><span class="p">)</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">results</span> <span class="o">=</span> <span class="n">search</span><span class="p">(</span><span class="s2">"machine learning"</span><span class="p">,</span> <span class="n">limit</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">results</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="s2">"results.json"</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">results</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="s2">"results.bib"</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s2">"bibtex"</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">results</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="s2">"results.txt"</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s2">"text"</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -712,94 +834,41 @@ is documented below.</p>
 
 </dd></dl>
 
-</section>
-<section id="config">
-<h3>Config<a class="headerlink" href="#config" title="Link to this heading"></a></h3>
-<dl class="py class">
-<dt class="sig sig-object py" id="openalex_local._core.config.Config">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">openalex_local._core.config.</span></span><span class="sig-name descname"><span class="pre">Config</span></span><a class="reference internal" href="../_modules/openalex_local/_core/config.html#Config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openalex_local._core.config.Config" title="Link to this definition"></a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
-<p>Configuration container.</p>
-<dl class="py method">
-<dt class="sig sig-object py" id="openalex_local._core.config.Config.get_db_path">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_db_path</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/openalex_local/_core/config.html#Config.get_db_path"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openalex_local._core.config.Config.get_db_path" title="Link to this definition"></a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code></a></span></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="openalex_local._core.config.Config.set_db_path">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">set_db_path</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/openalex_local/_core/config.html#Config.set_db_path"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openalex_local._core.config.Config.set_db_path" title="Link to this definition"></a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></span></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="openalex_local._core.config.Config.get_api_url">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_api_url</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/openalex_local/_core/config.html#Config.get_api_url"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openalex_local._core.config.Config.get_api_url" title="Link to this definition"></a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a></span></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="openalex_local._core.config.Config.set_api_url">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">set_api_url</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">url</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/openalex_local/_core/config.html#Config.set_api_url"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openalex_local._core.config.Config.set_api_url" title="Link to this definition"></a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></span></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="openalex_local._core.config.Config.set_mode">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">set_mode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mode</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/openalex_local/_core/config.html#Config.set_mode"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openalex_local._core.config.Config.set_mode" title="Link to this definition"></a></dt>
-<dd><p>Set mode explicitly: ‘db’, ‘http’, or ‘auto’.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="openalex_local.save">
+<span class="sig-prename descclassname"><span class="pre">openalex_local.</span></span><span class="sig-name descname"><span class="pre">save</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">format</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'json'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">include_abstract</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/openalex_local/_core/export.html#save"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openalex_local.save" title="Link to this definition"></a></dt>
+<dd><p>Save Work(s) or SearchResult to a file.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></span></p>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code>[<a class="reference internal" href="#openalex_local.Work" title="openalex_local._core.models.Work"><code class="xref py py-class docutils literal notranslate"><span class="pre">Work</span></code></a>, <a class="reference internal" href="#openalex_local.SearchResult" title="openalex_local._core.models.SearchResult"><code class="xref py py-class docutils literal notranslate"><span class="pre">SearchResult</span></code></a>, <a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.List" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">List</span></code></a>[<a class="reference internal" href="#openalex_local.Work" title="openalex_local._core.models.Work"><code class="xref py py-class docutils literal notranslate"><span class="pre">Work</span></code></a>]]</span>) – Work, SearchResult, or list of Works to save</p></li>
+<li><p><strong>path</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>, <a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code></a>]</span>) – Output file path</p></li>
+<li><p><strong>format</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a></span>) – Output format (“text”, “json”, “bibtex”)</p></li>
+<li><p><strong>include_abstract</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a></span>) – Include abstracts in text format</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a></span></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Path to saved file</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.14)"><strong>ValueError</strong></a> – If format is not supported</p>
 </dd>
 </dl>
+<div class="admonition-examples admonition">
+<p class="admonition-title">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">openalex_local</span><span class="w"> </span><span class="kn">import</span> <span class="n">search</span><span class="p">,</span> <span class="n">save</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">results</span> <span class="o">=</span> <span class="n">search</span><span class="p">(</span><span class="s2">"machine learning"</span><span class="p">,</span> <span class="n">limit</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">save</span><span class="p">(</span><span class="n">results</span><span class="p">,</span> <span class="s2">"results.json"</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">save</span><span class="p">(</span><span class="n">results</span><span class="p">,</span> <span class="s2">"results.bib"</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s2">"bibtex"</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">save</span><span class="p">(</span><span class="n">results</span><span class="p">,</span> <span class="s2">"results.txt"</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s2">"text"</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
 </dd></dl>
 
-<dl class="py method">
-<dt class="sig sig-object py" id="openalex_local._core.config.Config.get_mode">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_mode</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/openalex_local/_core/config.html#Config.get_mode"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openalex_local._core.config.Config.get_mode" title="Link to this definition"></a></dt>
-<dd><p>Get current mode.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a></span></p>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>“db” if using direct database access
-“http” if using HTTP API</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="openalex_local._core.config.Config.reset">
-<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">reset</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/openalex_local/_core/config.html#Config.reset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#openalex_local._core.config.Config.reset" title="Link to this definition"></a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></span></p>
-</dd>
-</dl>
-</dd></dl>
-
-</dd></dl>
-
-</section>
-</section>
 </section>
 
 

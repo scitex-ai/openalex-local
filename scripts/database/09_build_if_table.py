@@ -23,15 +23,18 @@ import argparse
 import csv
 import json
 import logging
-import sqlite3
 import sys
 import time
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, Optional, Tuple
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+
+from _build_helpers import connect, resolve_dsn  # noqa: E402
+from _schema import IF_DDL  # noqa: E402
 
 # Project paths
 PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
-DEFAULT_DB_PATH = PROJECT_ROOT / "data" / "openalex.db"
 JCR_REFERENCE_PATH = Path("/home/ywatanabe/proj/crossref-local/examples/03_impact_factor/01_compare_jcr_out/all_combined.csv")
 
 # Logging
@@ -42,27 +45,6 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-
-# Schema for precomputed IF table
-IF_TABLE_SCHEMA = """
--- Precomputed Impact Factors (JCR-style calculation)
-CREATE TABLE IF NOT EXISTS journal_impact_factors (
-    issn TEXT NOT NULL,
-    journal_name TEXT,
-    year INTEGER NOT NULL,
-    window INTEGER DEFAULT 2,      -- 2-year or 5-year window
-    impact_factor REAL,            -- Calculated IF (rounded to 1 decimal)
-    citations_count INTEGER,       -- Numerator: citations to articles in window
-    articles_count INTEGER,        -- Denominator: citable articles in window
-    calculated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    PRIMARY KEY (issn, year, window)
-);
-
--- Index for fast ISSN lookup
-CREATE INDEX IF NOT EXISTS idx_jif_issn ON journal_impact_factors(issn);
-CREATE INDEX IF NOT EXISTS idx_jif_year ON journal_impact_factors(year);
-CREATE INDEX IF NOT EXISTS idx_jif_if ON journal_impact_factors(impact_factor);
-"""
 
 
 def load_jcr_reference() -> Dict[str, dict]:
@@ -85,7 +67,7 @@ def load_jcr_reference() -> Dict[str, dict]:
 
 
 def calculate_if_for_journal(
-    conn: sqlite3.Connection,
+    conn,
     issn: str,
     year: int,
     window: int = 2,
@@ -110,48 +92,57 @@ def calculate_if_for_journal(
         Tuple of (impact_factor, citations_count, articles_count)
     """
     # Years in the window (e.g., for 2023 with window=2: 2021, 2022)
-    window_years = tuple(range(year - window, year))
-    placeholders = ','.join('?' * len(window_years))
+    window_years = list(range(year - window, year))
 
-    # JCR citable items filter: articles with >20 references
-    # This excludes news, editorials, letters, corrections
-    # Use json_array_length to count references from referenced_works_json
+    # JCR citable items filter: articles with >20 references. The count is
+    # read from the precomputed ref_count column (script 07) rather than
+    # measured from the JSON on every row, which is what made this query
+    # scan instead of using idx_works_issn_year_refcount.
     if citable_only:
-        citable_filter = f"AND json_array_length(referenced_works_json) > {min_references}"
+        citable_filter = "AND w.ref_count > %(min_refs)s"
     else:
         citable_filter = ""
 
+    params = {
+        "issn": issn,
+        "years": window_years,
+        "year": year,
+        "min_refs": min_references,
+    }
+
     # Denominator: Count citable articles published in window years
-    cursor = conn.execute(
-        f"""
-        SELECT COUNT(*)
-        FROM works
-        WHERE issn = ? AND year IN ({placeholders})
-          AND referenced_works_json IS NOT NULL
-        {citable_filter}
-        """,
-        (issn, *window_years)
-    )
-    articles_count = cursor.fetchone()[0]
+    with conn.cursor() as cursor:
+        cursor.execute(
+            f"""
+            SELECT COUNT(*)
+            FROM works w
+            WHERE w.issn = %(issn)s AND w.year = ANY(%(years)s)
+              AND w.referenced_works_json IS NOT NULL
+            {citable_filter}
+            """,
+            params,
+        )
+        articles_count = cursor.fetchone()[0]
 
     if articles_count == 0:
         return None, 0, 0
 
     # Numerator: Count citations in target year to citable articles in window
-    cursor = conn.execute(
-        f"""
-        SELECT COUNT(*)
-        FROM citations c
-        JOIN works w ON c.cited_id = w.openalex_id
-        WHERE w.issn = ?
-          AND w.year IN ({placeholders})
-          AND c.citing_year = ?
-          AND w.referenced_works_json IS NOT NULL
-          {citable_filter}
-        """,
-        (issn, *window_years, year)
-    )
-    citations_count = cursor.fetchone()[0]
+    with conn.cursor() as cursor:
+        cursor.execute(
+            f"""
+            SELECT COUNT(*)
+            FROM citations c
+            JOIN works w ON c.cited_id = w.openalex_id
+            WHERE w.issn = %(issn)s
+              AND w.year = ANY(%(years)s)
+              AND c.citing_year = %(year)s
+              AND w.referenced_works_json IS NOT NULL
+              {citable_filter}
+            """,
+            params,
+        )
+        citations_count = cursor.fetchone()[0]
 
     # Calculate IF
     impact_factor = round(citations_count / articles_count, 1)
@@ -159,33 +150,35 @@ def calculate_if_for_journal(
     return impact_factor, citations_count, articles_count
 
 
-def get_journal_name(conn: sqlite3.Connection, issn: str) -> Optional[str]:
+def get_journal_name(conn, issn: str) -> Optional[str]:
     """Get journal name from sources table."""
     # Try issn_lookup first
-    cursor = conn.execute(
-        """
-        SELECT s.display_name
-        FROM issn_lookup l
-        JOIN sources s ON l.source_id = s.id
-        WHERE l.issn = ?
-        LIMIT 1
-        """,
-        (issn,)
-    )
-    row = cursor.fetchone()
+    with conn.cursor() as cursor:
+        cursor.execute(
+            """
+            SELECT s.display_name
+            FROM issn_lookup l
+            JOIN sources s ON l.source_id = s.id
+            WHERE l.issn = %s
+            LIMIT 1
+            """,
+            (issn,),
+        )
+        row = cursor.fetchone()
     if row:
         return row[0]
 
     # Fallback to sources.issn_l
-    cursor = conn.execute(
-        "SELECT display_name FROM sources WHERE issn_l = ? LIMIT 1",
-        (issn,)
-    )
-    row = cursor.fetchone()
+    with conn.cursor() as cursor:
+        cursor.execute(
+            "SELECT display_name FROM sources WHERE issn_l = %s LIMIT 1",
+            (issn,),
+        )
+        row = cursor.fetchone()
     return row[0] if row else None
 
 
-def validate_with_jcr(db_path: Path, year: int = 2023, citable_only: bool = True) -> None:
+def validate_with_jcr(dsn: str, year: int = 2023, citable_only: bool = True) -> None:
     """Validate IF calculation against JCR reference data."""
     logger.info("=" * 60)
     logger.info("VALIDATION MODE: Comparing with JCR reference data")
@@ -200,15 +193,13 @@ def validate_with_jcr(db_path: Path, year: int = 2023, citable_only: bool = True
 
     logger.info(f"Loaded {len(jcr_data)} journals from JCR reference")
 
-    # Connect to database
-    conn = sqlite3.connect(db_path)
-    conn.execute("PRAGMA cache_size=-1000000")
+    conn = connect(dsn, autocommit=True)
 
     # Check if citations table exists
-    cursor = conn.execute(
-        "SELECT 1 FROM sqlite_master WHERE type='table' AND name='citations'"
-    )
-    if not cursor.fetchone():
+    with conn.cursor() as cursor:
+        cursor.execute("SELECT to_regclass('citations') IS NOT NULL")
+        has_citations = bool(cursor.fetchone()[0])
+    if not has_citations:
         logger.error("Citations table not found. Run 05_build_citations_table.py first.")
         conn.close()
         return
@@ -270,7 +261,7 @@ def validate_with_jcr(db_path: Path, year: int = 2023, citable_only: bool = True
 
 
 def build_full_if_table(
-    db_path: Path,
+    dsn: str,
     year: int = 2023,
     window: int = 2,
     limit: Optional[int] = None,
@@ -280,21 +271,20 @@ def build_full_if_table(
     logger.info("FULL MODE: Precomputing IF for all journals")
     logger.info("=" * 60)
 
-    conn = sqlite3.connect(db_path)
-    conn.execute("PRAGMA journal_mode=WAL")
-    conn.execute("PRAGMA synchronous=NORMAL")
-    conn.execute("PRAGMA cache_size=-2000000")
+    conn = connect(dsn)
 
     # Create table
-    conn.executescript(IF_TABLE_SCHEMA)
+    with conn.cursor() as cursor:
+        cursor.execute(IF_DDL)
     conn.commit()
 
     # Get all unique ISSNs from works table
     logger.info("Fetching unique ISSNs...")
-    cursor = conn.execute(
-        "SELECT DISTINCT issn FROM works WHERE issn IS NOT NULL AND issn != ''"
-    )
-    issns = [row[0] for row in cursor.fetchall()]
+    with conn.cursor() as cursor:
+        cursor.execute(
+            "SELECT DISTINCT issn FROM works WHERE issn IS NOT NULL AND issn != ''"
+        )
+        issns = [row[0] for row in cursor.fetchall()]
 
     if limit:
         issns = issns[:limit]
@@ -311,14 +301,22 @@ def build_full_if_table(
         if calc_if is not None:
             journal_name = get_journal_name(conn, issn)
 
-            conn.execute(
-                """
-                INSERT OR REPLACE INTO journal_impact_factors
-                (issn, journal_name, year, window, impact_factor, citations_count, articles_count)
-                VALUES (?, ?, ?, ?, ?, ?, ?)
-                """,
-                (issn, journal_name, year, window, calc_if, citations, articles)
-            )
+            with conn.cursor() as cursor:
+                cursor.execute(
+                    """
+                    INSERT INTO journal_impact_factors
+                    (issn, journal_name, year, window, impact_factor,
+                     citations_count, articles_count)
+                    VALUES (%s, %s, %s, %s, %s, %s, %s)
+                    ON CONFLICT (issn, year, window) DO UPDATE SET
+                        journal_name = EXCLUDED.journal_name,
+                        impact_factor = EXCLUDED.impact_factor,
+                        citations_count = EXCLUDED.citations_count,
+                        articles_count = EXCLUDED.articles_count,
+                        calculated_at = NOW()
+                    """,
+                    (issn, journal_name, year, window, calc_if, citations, articles),
+                )
             inserted += 1
 
         processed += 1
@@ -342,9 +340,9 @@ def build_full_if_table(
     conn.close()
 
 
-def calculate_single_journal(db_path: Path, issn: str, year: int = 2023) -> None:
+def calculate_single_journal(dsn: str, issn: str, year: int = 2023) -> None:
     """Calculate IF for a single journal (for debugging)."""
-    conn = sqlite3.connect(db_path)
+    conn = connect(dsn, autocommit=True)
 
     journal_name = get_journal_name(conn, issn)
     calc_if, citations, articles = calculate_if_for_journal(conn, issn, year)
@@ -364,10 +362,9 @@ def main():
         description="Build precomputed Impact Factor table (JCR definition)"
     )
     parser.add_argument(
-        "--db-path",
-        type=Path,
-        default=DEFAULT_DB_PATH,
-        help=f"Path to database (default: {DEFAULT_DB_PATH})",
+        "--dsn",
+        default=None,
+        help="Corpus DSN (default: the store this host resolves to)",
     )
     parser.add_argument(
         "--validate",
@@ -419,16 +416,14 @@ def main():
     # Handle citable_only flag
     citable_only = not args.all_articles
 
-    if not args.db_path.exists():
-        logger.error(f"Database not found: {args.db_path}")
-        sys.exit(1)
+    dsn = resolve_dsn(args.dsn)
 
     if args.issn:
-        calculate_single_journal(args.db_path, args.issn, args.year)
+        calculate_single_journal(dsn, args.issn, args.year)
     elif args.validate:
-        validate_with_jcr(args.db_path, args.year, citable_only=citable_only)
+        validate_with_jcr(dsn, args.year, citable_only=citable_only)
     elif args.full:
-        build_full_if_table(args.db_path, args.year, args.window, args.limit)
+        build_full_if_table(dsn, args.year, args.window, args.limit)
     else:
         parser.print_help()
         logger.info("\nExample usage:")

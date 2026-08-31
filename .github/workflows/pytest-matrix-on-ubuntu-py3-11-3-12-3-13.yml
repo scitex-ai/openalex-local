@@ -18,6 +18,28 @@ jobs:
     # of the shared runner home — keeps matrix legs from colliding.
     env:
       HOME: ${{ github.workspace }}
+      # The corpus is PostgreSQL now, so CI needs one. This is the single
+      # place a literal DSN is legitimate: it addresses the throwaway service
+      # container below, is CI configuration rather than package code, and
+      # points at nothing that outlives the job. The package itself never
+      # builds a connection string — it asks scitex_dev.store.host_store,
+      # which reads exactly this variable.
+      SCITEX_STORE_DSN: postgresql://postgres:postgres@localhost:5432/postgres
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        # Without the health check the steps start before the server accepts
+        # connections, and the first one fails with a connection refusal that
+        # reads like a configuration error rather than a race.
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
     strategy:
       fail-fast: false
       matrix:
@@ -35,7 +57,7 @@ jobs:
           # (server, mcp, docs) get exercised. Falls back to [dev] then
           # plain editable so a packaging hiccup doesn't strand CI.
           pip install -e ".[all,dev]" || pip install -e ".[dev]" || pip install -e .
-      - name: Create test database
+      - name: Create test corpus
         run: python scripts/create_test_db.py --rows 500
       - name: Run tests
         run: |

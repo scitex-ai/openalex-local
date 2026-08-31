@@ -25,7 +25,7 @@ assembled in `_server/__init__.py`.
 
 | Method | Path | Returns |
 |--------|------|---------|
-| GET | `/works?q=<query>` | `SearchResponse` — FTS5 search across titles/abstracts |
+| GET | `/works?q=<query>` | `SearchResponse` — full-text search across titles/abstracts |
 | GET | `/works/{id_or_doi:path}` | `WorkResponse` (or null) — fetch by OpenAlex ID or DOI |
 | POST | `/works/batch` | `BatchResponse` — bulk ID/DOI lookup |
 

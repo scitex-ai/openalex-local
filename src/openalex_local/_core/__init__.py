@@ -16,6 +16,7 @@ from .api import (
     search,
 )
 from .export import SUPPORTED_FORMATS, save
+from .update import update
 
 __all__ = [
     # Core functions
@@ -25,6 +26,8 @@ __all__ = [
     "get_many",
     "exists",
     "info",
+    # Maintenance
+    "update",
     # Enrich functions
     "enrich",
     "enrich_ids",

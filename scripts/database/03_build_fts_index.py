@@ -1,33 +1,29 @@
 #!/usr/bin/env python3
-# Timestamp: 2026-01-29
-"""Build FTS5 full-text search index for OpenAlex database.
+# Timestamp: 2026-08-30
+"""Build the corpus full-text index.
 
-This script creates an FTS5 virtual table for fast full-text search
-across titles and abstracts.
+Fills ``works.search_vector`` and creates the GIN index over it.
+
+THE INDEX IS A COLUMN NOW, NOT A SEPARATE TABLE. The previous design kept a
+shadow table keyed on the corpus's internal row number, plus three triggers to
+hold the two in sync. A column cannot fall out of sync with the row it belongs
+to, so both the shadow table and the triggers are gone rather than translated.
 
 Usage:
-    python 03_build_fts_index.py [--db-path PATH] [--batch-size N]
-
-Example:
-    python scripts/database/03_build_fts_index.py
-    python scripts/database/03_build_fts_index.py --batch-size 100000
-
-Note:
-    Run this AFTER 02_build_database.py has completed.
+    python 03_build_fts_index.py [--dsn DSN] [--batch-size N] [--rebuild]
 """
 
 import argparse
 import logging
-import sqlite3
 import sys
 import time
 from pathlib import Path
 
-# Project paths
-PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
-DEFAULT_DB_PATH = PROJECT_ROOT / "data" / "openalex.db"
+sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-# Logging
+from _build_helpers import connect, resolve_dsn  # noqa: E402
+from _schema import FTS_CONFIG, FTS_INDEX_DDL, search_vector_expression  # noqa: E402
+
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s [%(levelname)s] %(message)s",
@@ -36,220 +32,171 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
-# FTS5 schema
-FTS_SCHEMA_SQL = """
--- Drop existing FTS table if rebuilding
-DROP TABLE IF EXISTS works_fts;
-
--- Create FTS5 virtual table for full-text search
--- Using external content table to avoid data duplication
-CREATE VIRTUAL TABLE works_fts USING fts5(
-    openalex_id,
-    title,
-    abstract,
-    content='works',
-    content_rowid='id',
-    tokenize='porter unicode61'
-);
-
--- Create triggers to keep FTS in sync with works table
-DROP TRIGGER IF EXISTS works_ai;
-DROP TRIGGER IF EXISTS works_ad;
-DROP TRIGGER IF EXISTS works_au;
-
-CREATE TRIGGER works_ai AFTER INSERT ON works BEGIN
-    INSERT INTO works_fts(rowid, openalex_id, title, abstract)
-    VALUES (new.id, new.openalex_id, new.title, new.abstract);
-END;
-
-CREATE TRIGGER works_ad AFTER DELETE ON works BEGIN
-    INSERT INTO works_fts(works_fts, rowid, openalex_id, title, abstract)
-    VALUES ('delete', old.id, old.openalex_id, old.title, old.abstract);
-END;
-
-CREATE TRIGGER works_au AFTER UPDATE ON works BEGIN
-    INSERT INTO works_fts(works_fts, rowid, openalex_id, title, abstract)
-    VALUES ('delete', old.id, old.openalex_id, old.title, old.abstract);
-    INSERT INTO works_fts(rowid, openalex_id, title, abstract)
-    VALUES (new.id, new.openalex_id, new.title, new.abstract);
-END;
-"""
-
-
-def get_total_works(conn: sqlite3.Connection) -> int:
-    """Get total number of works in database."""
-    cursor = conn.execute("SELECT COUNT(*) FROM works")
-    return cursor.fetchone()[0]
-
-
-def get_fts_count(conn: sqlite3.Connection) -> int:
-    """Get count of records in FTS index."""
-    try:
-        cursor = conn.execute("SELECT COUNT(*) FROM works_fts")
+def get_total_works(conn) -> int:
+    """Get total number of works in the corpus."""
+    with conn.cursor() as cursor:
+        cursor.execute("SELECT COUNT(*) FROM works")
         return cursor.fetchone()[0]
-    except sqlite3.OperationalError:
-        return 0
+
+
+def get_indexed_count(conn) -> int:
+    """Get the number of works whose search vector is populated."""
+    with conn.cursor() as cursor:
+        cursor.execute("SELECT COUNT(*) FROM works WHERE search_vector IS NOT NULL")
+        return cursor.fetchone()[0]
+
+
+def _corpus_present(conn) -> bool:
+    """Whether the works table exists at all."""
+    with conn.cursor() as cursor:
+        cursor.execute("SELECT to_regclass('works') IS NOT NULL")
+        return bool(cursor.fetchone()[0])
 
 
 def build_fts_index(
-    db_path: Path,
+    dsn: str,
     batch_size: int = 50000,
     rebuild: bool = False,
 ) -> None:
-    """Build FTS5 full-text search index."""
-    logger.info(f"Building FTS index for: {db_path}")
+    """Build the full-text index."""
+    logger.info(f"Building full-text index for: {dsn}")
 
-    if not db_path.exists():
-        logger.error(f"Database not found: {db_path}")
-        logger.error("Run 02_build_database.py first!")
-        sys.exit(1)
+    conn = connect(dsn)
 
-    # Connect to database
-    conn = sqlite3.connect(db_path)
-    conn.execute("PRAGMA journal_mode=WAL")
-    conn.execute("PRAGMA synchronous=NORMAL")
-    conn.execute("PRAGMA cache_size=-2000000")  # 2GB cache
-    conn.execute("PRAGMA temp_store=MEMORY")
-
-    total_works = get_total_works(conn)
-    logger.info(f"Total works in database: {total_works:,}")
-
-    if total_works == 0:
-        logger.error("No works in database! Run 02_build_database.py first.")
+    if not _corpus_present(conn):
+        logger.error("No works table. Run 02_build_database.py first!")
         conn.close()
         sys.exit(1)
 
-    # Check if FTS already exists and is complete
-    fts_count = get_fts_count(conn)
-    if fts_count > 0 and not rebuild:
-        logger.info(f"FTS index already contains {fts_count:,} records")
-        if fts_count >= total_works * 0.99:  # Allow 1% tolerance
-            logger.info("FTS index appears complete. Use --rebuild to force rebuild.")
+    total_works = get_total_works(conn)
+    logger.info(f"Total works in corpus: {total_works:,}")
+
+    if total_works == 0:
+        logger.error("No works in the corpus! Run 02_build_database.py first.")
+        conn.close()
+        sys.exit(1)
+
+    indexed = get_indexed_count(conn)
+    if indexed > 0 and not rebuild:
+        logger.info(f"Full-text index already covers {indexed:,} works")
+        if indexed >= total_works * 0.99:  # Allow 1% tolerance
+            logger.info("Index appears complete. Use --rebuild to force a rebuild.")
             conn.close()
             return
-        else:
-            logger.info("FTS index incomplete. Rebuilding...")
-            rebuild = True
+        logger.info("Index incomplete. Continuing with the remaining rows...")
 
-    # Create FTS schema (drops existing if rebuilding)
-    logger.info("Creating FTS5 virtual table...")
-    conn.executescript(FTS_SCHEMA_SQL)
-    conn.commit()
+    if rebuild:
+        logger.info("Clearing existing search vectors...")
+        with conn.cursor() as cursor:
+            cursor.execute("UPDATE works SET search_vector = NULL")
+        conn.commit()
 
-    # Populate FTS index in batches
-    logger.info(f"Populating FTS index (batch size: {batch_size:,})...")
+    # Populate in id-ordered batches. The cursor is the last id VISITED, not a
+    # count: a plain OFFSET would re-scan the rows already done on every batch,
+    # which turns a linear job into a quadratic one at 284M rows.
+    logger.info(f"Populating search vectors (batch size: {batch_size:,})...")
     start_time = time.time()
 
-    # Use INSERT ... SELECT for bulk population
-    logger.info("Inserting records into FTS index...")
+    expression = search_vector_expression()
+    update_sql = f"""
+        UPDATE works
+        SET search_vector = {expression}
+        WHERE id IN (
+            SELECT id FROM works
+            WHERE id > %s AND search_vector IS NULL
+            ORDER BY id
+            LIMIT %s
+        )
+        RETURNING id
+    """
 
-    # For very large datasets, do it in batches to show progress
-    offset = 0
-    total_inserted = 0
+    last_id = 0
+    total_updated = 0
 
     while True:
         batch_start = time.time()
-
-        # Insert batch
-        cursor = conn.execute(
-            """
-            INSERT INTO works_fts(rowid, openalex_id, title, abstract)
-            SELECT id, openalex_id, title, abstract
-            FROM works
-            WHERE id > ?
-            ORDER BY id
-            LIMIT ?
-            """,
-            (offset, batch_size),
-        )
+        with conn.cursor() as cursor:
+            cursor.execute(update_sql, (last_id, batch_size))
+            ids = [row[0] for row in cursor.fetchall()]
         conn.commit()
 
-        rows_inserted = cursor.rowcount
-        if rows_inserted == 0:
+        if not ids:
             break
 
-        total_inserted += rows_inserted
-        offset += batch_size
-
-        # Get actual max ID processed
-        cursor = conn.execute(
-            "SELECT MAX(id) FROM works WHERE id <= ?", (offset,)
-        )
-        result = cursor.fetchone()
-        if result and result[0]:
-            offset = result[0]
+        total_updated += len(ids)
+        last_id = max(ids)
 
         batch_elapsed = time.time() - batch_start
         elapsed = time.time() - start_time
-        rate = total_inserted / elapsed if elapsed > 0 else 0
-        progress = (total_inserted / total_works) * 100
+        rate = total_updated / elapsed if elapsed > 0 else 0
+        progress = (total_updated / total_works) * 100
 
         logger.info(
-            f"  Progress: {total_inserted:,}/{total_works:,} ({progress:.1f}%) | "
+            f"  Progress: {total_updated:,}/{total_works:,} ({progress:.1f}%) | "
             f"Rate: {rate:.0f}/s | "
             f"Batch: {batch_elapsed:.1f}s"
         )
 
-    # Final stats
+    # The GIN index is created AFTER the column is filled: building it first
+    # would pay the maintenance cost on every one of those updates.
+    logger.info("Creating the GIN index over search_vector...")
+    with conn.cursor() as cursor:
+        cursor.execute(FTS_INDEX_DDL)
+    conn.commit()
+
     elapsed = time.time() - start_time
-    final_count = get_fts_count(conn)
+    final_count = get_indexed_count(conn)
 
     logger.info("=" * 60)
-    logger.info("FTS index build completed!")
+    logger.info("Full-text index build completed!")
     logger.info(f"Total indexed: {final_count:,}")
     logger.info(f"Total time: {elapsed / 60:.1f} minutes")
-    logger.info(f"Average rate: {final_count / elapsed:.0f} records/s")
+    if elapsed > 0:
+        logger.info(f"Average rate: {final_count / elapsed:.0f} records/s")
 
-    # Update metadata
-    conn.execute(
-        "INSERT OR REPLACE INTO _metadata (key, value) VALUES (?, ?)",
-        ("fts_build_completed", time.strftime("%Y-%m-%d %H:%M:%S")),
-    )
-    conn.execute(
-        "INSERT OR REPLACE INTO _metadata (key, value) VALUES (?, ?)",
-        ("fts_total_indexed", str(final_count)),
-    )
+    from openalex_local._core.state import set_metadata
+
+    set_metadata("fts_build_completed", time.strftime("%Y-%m-%d %H:%M:%S"))
+    set_metadata("fts_total_indexed", str(final_count))
+
+    logger.info("Running ANALYZE so the planner knows about the new index...")
+    with conn.cursor() as cursor:
+        cursor.execute("ANALYZE works")
     conn.commit()
 
-    # Optimize FTS index
-    logger.info("Optimizing FTS index...")
-    conn.execute("INSERT INTO works_fts(works_fts) VALUES('optimize')")
-    conn.commit()
-
+    with conn.cursor() as cursor:
+        cursor.execute("SELECT pg_size_pretty(pg_total_relation_size('works'))")
+        size = cursor.fetchone()[0]
     conn.close()
-    logger.info(f"Database size: {db_path.stat().st_size / (1024**3):.2f} GB")
-    logger.info("FTS index ready for use!")
+    logger.info(f"works table size: {size}")
+    logger.info("Full-text index ready for use!")
 
 
-def verify_fts(db_path: Path) -> None:
-    """Verify FTS index with a test search."""
-    logger.info("Verifying FTS index...")
+def verify_fts(dsn: str) -> None:
+    """Verify the full-text index with a test search."""
+    logger.info("Verifying the full-text index...")
 
-    conn = sqlite3.connect(db_path)
+    conn = connect(dsn, autocommit=True)
+    match = f"search_vector @@ websearch_to_tsquery('{FTS_CONFIG}', %s)"
 
-    # Test search
     test_query = "machine learning"
-    cursor = conn.execute(
-        """
-        SELECT COUNT(*) FROM works_fts WHERE works_fts MATCH ?
-        """,
-        (test_query,),
-    )
-    count = cursor.fetchone()[0]
+    with conn.cursor() as cursor:
+        cursor.execute(f"SELECT COUNT(*) FROM works WHERE {match}", (test_query,))
+        count = cursor.fetchone()[0]
     logger.info(f"Test search '{test_query}': {count:,} results")
 
-    # Get sample result
-    cursor = conn.execute(
-        """
-        SELECT w.openalex_id, w.title, w.year
-        FROM works_fts f
-        JOIN works w ON f.rowid = w.id
-        WHERE works_fts MATCH ?
-        LIMIT 3
-        """,
-        (test_query,),
-    )
-    results = cursor.fetchall()
+    with conn.cursor() as cursor:
+        cursor.execute(
+            f"""
+            SELECT openalex_id, title, year
+            FROM works
+            WHERE {match}
+            ORDER BY id
+            LIMIT 3
+            """,
+            (test_query,),
+        )
+        results = cursor.fetchall()
 
     if results:
         logger.info("Sample results:")
@@ -262,42 +209,42 @@ def verify_fts(db_path: Path) -> None:
 
 def main():
     parser = argparse.ArgumentParser(
-        description="Build FTS5 full-text search index for OpenAlex database"
+        description="Build the full-text search index for the OpenAlex corpus"
     )
     parser.add_argument(
-        "--db-path",
-        type=Path,
-        default=DEFAULT_DB_PATH,
-        help=f"Path to database (default: {DEFAULT_DB_PATH})",
+        "--dsn",
+        default=None,
+        help="Corpus DSN (default: the store this host resolves to)",
     )
     parser.add_argument(
         "--batch-size",
         type=int,
         default=50000,
-        help="Batch size for FTS population (default: 50000)",
+        help="Batch size for index population (default: 50000)",
     )
     parser.add_argument(
         "--rebuild",
         action="store_true",
-        help="Force rebuild even if FTS index exists",
+        help="Force a rebuild even if the index is already populated",
     )
     parser.add_argument(
         "--verify-only",
         action="store_true",
-        help="Only verify existing FTS index",
+        help="Only verify the existing index",
     )
 
     args = parser.parse_args()
+    dsn = resolve_dsn(args.dsn)
 
     if args.verify_only:
-        verify_fts(args.db_path)
+        verify_fts(dsn)
     else:
         build_fts_index(
-            db_path=args.db_path,
+            dsn=dsn,
             batch_size=args.batch_size,
             rebuild=args.rebuild,
         )
-        verify_fts(args.db_path)
+        verify_fts(dsn)
 
 
 if __name__ == "__main__":

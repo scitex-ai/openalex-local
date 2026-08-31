@@ -64,8 +64,8 @@ Configuration
 
    from openalex_local import configure, configure_http, get_mode
 
-   # Configure database path
-   configure("/path/to/openalex.db")
+   # Point at a corpus other than this host's
+   configure("postgresql://reader@host:55432/scitex")
 
    # Configure HTTP mode
    configure_http("http://localhost:31292")
@@ -107,7 +107,7 @@ For Claude Desktop or other MCP clients:
          "command": "openalex-local",
          "args": ["mcp", "start"],
          "env": {
-           "OPENALEX_LOCAL_DB": "/path/to/openalex.db"
+           "SCITEX_STORE_DSN": "postgresql://user@host:55432/scitex"
          }
        }
      }

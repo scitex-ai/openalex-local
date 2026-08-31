@@ -21,7 +21,7 @@ def status_cmd(as_json):
     import urllib.request
 
     from .. import info
-    from .._core.config import DEFAULT_DB_PATHS, DEFAULT_PORT
+    from .._core.config import DEFAULT_PORT, corpus_target
 
     if as_json:
         try:
@@ -42,7 +42,10 @@ def status_cmd(as_json):
     click.echo("Environment Variables:")
     click.echo()
     env_vars = [
-        ("OPENALEX_LOCAL_DB", "Path to SQLite database file"),
+        (
+            "SCITEX_STORE_DSN",
+            "Corpus DSN override (read by scitex_dev.store.host_store)",
+        ),
         (
             "OPENALEX_LOCAL_API_URL",
             f"HTTP API URL (e.g., http://localhost:{DEFAULT_PORT})",
@@ -54,25 +57,32 @@ def status_cmd(as_json):
     for var_name, description in env_vars:
         value = os.environ.get(var_name)
         if value:
-            stat = ""
-            if var_name == "OPENALEX_LOCAL_DB":
-                stat = " (OK)" if os.path.exists(value) else " (NOT FOUND)"
-            click.echo(f"  {var_name}={value}{stat}")
+            click.echo(f"  {var_name}={value}")
         else:
             click.echo(f"  {var_name} (not set)")
         click.echo(f"      | {description}")
         click.echo()
 
-    # Local database locations
-    click.echo("Local Database Locations:")
-    db_found = None
-    for path in DEFAULT_DB_PATHS:
-        if path.exists():
-            click.echo(f"  [OK] {path}")
-            if db_found is None:
-                db_found = path
+    # Where the corpus resolves to, and whether it answers. One line, not a
+    # list of candidate locations: there is exactly one resolver now, so a
+    # list of places that were searched would be reporting a search that no
+    # longer happens.
+    click.echo("Corpus:")
+    db_found = False
+    try:
+        target = corpus_target()
+        click.echo(f"  {target.describe()}")
+        from .._core.db import corpus_available
+
+        db_found = corpus_available()
+        if db_found:
+            click.secho("  [OK] reachable, works table present", fg="green")
         else:
-            click.echo(f"  [ ] {path}")
+            click.secho(
+                "  [ ] unreachable, or reachable with no works table", fg="yellow"
+            )
+    except Exception as exc:
+        click.secho(f"  [ ] cannot resolve: {exc}", fg="red")
     click.echo()
 
     # API health checks
@@ -140,8 +150,10 @@ def status_cmd(as_json):
         click.secho("No database or API server found!", fg="red")
         click.echo()
         click.echo("Options:")
-        click.echo("  1. Direct database access:")
-        click.echo("     export OPENALEX_LOCAL_DB=/path/to/openalex.db")
+        click.echo("  1. Direct corpus access:")
+        click.echo(
+            "     export SCITEX_STORE_DSN=postgresql://user@host:55432/scitex"
+        )
         click.echo()
         click.echo("  2. HTTP API (connect to relay server):")
         click.echo("     export OPENALEX_LOCAL_MODE=http")

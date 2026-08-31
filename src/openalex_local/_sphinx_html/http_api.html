@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>HTTP API Reference &mdash; OpenAlex Local v0.7.6</title>
+  <title>HTTP API Reference &mdash; OpenAlex Local v0.4.0</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
@@ -14,7 +14,7 @@
   
       <script src="_static/jquery.js?v=5d32c60e"></script>
       <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="_static/documentation_options.js?v=918ced64"></script>
+      <script src="_static/documentation_options.js?v=6c02275b"></script>
       <script src="_static/doctools.js?v=9a2dae69"></script>
       <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
       <script src="_static/clipboard.min.js?v=a7894cd8"></script>
@@ -100,7 +100,7 @@
 <li class="toctree-l3"><a class="reference internal" href="#batch-lookup">Batch Lookup</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="#fts5-query-syntax">FTS5 Query Syntax</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#query-syntax">Query Syntax</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#python-client">Python Client</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#environment-variables">Environment Variables</a></li>
 </ul>
@@ -109,51 +109,62 @@
 <p class="caption" role="heading"><span class="caption-text">API Reference</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="api/openalex_local.html">openalex_local API</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="api/openalex_local.html#core-functions">Core Functions</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="api/openalex_local.html#search">search</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="api/openalex_local.html#openalex_local.search"><code class="docutils literal notranslate"><span class="pre">search()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/openalex_local.html#openalex_local.search"><code class="docutils literal notranslate"><span class="pre">search()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/openalex_local.html#openalex_local.count"><code class="docutils literal notranslate"><span class="pre">count()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/openalex_local.html#openalex_local.get"><code class="docutils literal notranslate"><span class="pre">get()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/openalex_local.html#openalex_local.get_many"><code class="docutils literal notranslate"><span class="pre">get_many()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/openalex_local.html#openalex_local.exists"><code class="docutils literal notranslate"><span class="pre">exists()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/openalex_local.html#openalex_local.info"><code class="docutils literal notranslate"><span class="pre">info()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/openalex_local.html#openalex_local.update"><code class="docutils literal notranslate"><span class="pre">update()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/openalex_local.html#openalex_local.enrich"><code class="docutils literal notranslate"><span class="pre">enrich()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/openalex_local.html#openalex_local.enrich_ids"><code class="docutils literal notranslate"><span class="pre">enrich_ids()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/openalex_local.html#openalex_local.configure"><code class="docutils literal notranslate"><span class="pre">configure()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/openalex_local.html#openalex_local.get_mode"><code class="docutils literal notranslate"><span class="pre">get_mode()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/openalex_local.html#openalex_local.Work"><code class="docutils literal notranslate"><span class="pre">Work</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="api/openalex_local.html#openalex_local.Work.openalex_id"><code class="docutils literal notranslate"><span class="pre">Work.openalex_id</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/openalex_local.html#openalex_local.Work.doi"><code class="docutils literal notranslate"><span class="pre">Work.doi</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/openalex_local.html#openalex_local.Work.title"><code class="docutils literal notranslate"><span class="pre">Work.title</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/openalex_local.html#openalex_local.Work.abstract"><code class="docutils literal notranslate"><span class="pre">Work.abstract</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/openalex_local.html#openalex_local.Work.authors"><code class="docutils literal notranslate"><span class="pre">Work.authors</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/openalex_local.html#openalex_local.Work.year"><code class="docutils literal notranslate"><span class="pre">Work.year</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/openalex_local.html#openalex_local.Work.source"><code class="docutils literal notranslate"><span class="pre">Work.source</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/openalex_local.html#openalex_local.Work.issn"><code class="docutils literal notranslate"><span class="pre">Work.issn</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/openalex_local.html#openalex_local.Work.volume"><code class="docutils literal notranslate"><span class="pre">Work.volume</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/openalex_local.html#openalex_local.Work.issue"><code class="docutils literal notranslate"><span class="pre">Work.issue</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/openalex_local.html#openalex_local.Work.pages"><code class="docutils literal notranslate"><span class="pre">Work.pages</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/openalex_local.html#openalex_local.Work.publisher"><code class="docutils literal notranslate"><span class="pre">Work.publisher</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/openalex_local.html#openalex_local.Work.type"><code class="docutils literal notranslate"><span class="pre">Work.type</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/openalex_local.html#openalex_local.Work.concepts"><code class="docutils literal notranslate"><span class="pre">Work.concepts</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/openalex_local.html#openalex_local.Work.topics"><code class="docutils literal notranslate"><span class="pre">Work.topics</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/openalex_local.html#openalex_local.Work.cited_by_count"><code class="docutils literal notranslate"><span class="pre">Work.cited_by_count</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/openalex_local.html#openalex_local.Work.referenced_works"><code class="docutils literal notranslate"><span class="pre">Work.referenced_works</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/openalex_local.html#openalex_local.Work.is_oa"><code class="docutils literal notranslate"><span class="pre">Work.is_oa</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/openalex_local.html#openalex_local.Work.oa_url"><code class="docutils literal notranslate"><span class="pre">Work.oa_url</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/openalex_local.html#openalex_local.Work.scitex_if"><code class="docutils literal notranslate"><span class="pre">Work.scitex_if</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/openalex_local.html#openalex_local.Work.source_h_index"><code class="docutils literal notranslate"><span class="pre">Work.source_h_index</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/openalex_local.html#openalex_local.Work.source_cited_by_count"><code class="docutils literal notranslate"><span class="pre">Work.source_cited_by_count</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/openalex_local.html#openalex_local.Work.from_openalex"><code class="docutils literal notranslate"><span class="pre">Work.from_openalex()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/openalex_local.html#openalex_local.Work.from_db_row"><code class="docutils literal notranslate"><span class="pre">Work.from_db_row()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/openalex_local.html#openalex_local.Work.to_dict"><code class="docutils literal notranslate"><span class="pre">Work.to_dict()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/openalex_local.html#openalex_local.Work.citation"><code class="docutils literal notranslate"><span class="pre">Work.citation()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/openalex_local.html#openalex_local.Work._citation_apa"><code class="docutils literal notranslate"><span class="pre">Work._citation_apa()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/openalex_local.html#openalex_local.Work._format_author_apa"><code class="docutils literal notranslate"><span class="pre">Work._format_author_apa()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/openalex_local.html#openalex_local.Work._citation_bibtex"><code class="docutils literal notranslate"><span class="pre">Work._citation_bibtex()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/openalex_local.html#openalex_local.Work.to_text"><code class="docutils literal notranslate"><span class="pre">Work.to_text()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/openalex_local.html#openalex_local.Work.save"><code class="docutils literal notranslate"><span class="pre">Work.save()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/openalex_local.html#openalex_local.Work.__init__"><code class="docutils literal notranslate"><span class="pre">Work.__init__()</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="api/openalex_local.html#get">get</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="api/openalex_local.html#openalex_local.get"><code class="docutils literal notranslate"><span class="pre">get()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api/openalex_local.html#openalex_local.SearchResult"><code class="docutils literal notranslate"><span class="pre">SearchResult</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="api/openalex_local.html#openalex_local.SearchResult.works"><code class="docutils literal notranslate"><span class="pre">SearchResult.works</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/openalex_local.html#openalex_local.SearchResult.total"><code class="docutils literal notranslate"><span class="pre">SearchResult.total</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/openalex_local.html#openalex_local.SearchResult.query"><code class="docutils literal notranslate"><span class="pre">SearchResult.query</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/openalex_local.html#openalex_local.SearchResult.elapsed_ms"><code class="docutils literal notranslate"><span class="pre">SearchResult.elapsed_ms</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/openalex_local.html#openalex_local.SearchResult.save"><code class="docutils literal notranslate"><span class="pre">SearchResult.save()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/openalex_local.html#openalex_local.SearchResult.__init__"><code class="docutils literal notranslate"><span class="pre">SearchResult.__init__()</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="api/openalex_local.html#count">count</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="api/openalex_local.html#openalex_local.count"><code class="docutils literal notranslate"><span class="pre">count()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="api/openalex_local.html#info">info</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="api/openalex_local.html#openalex_local.info"><code class="docutils literal notranslate"><span class="pre">info()</span></code></a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="api/openalex_local.html#configuration">Configuration</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="api/openalex_local.html#configure">configure</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="api/openalex_local.html#openalex_local.configure"><code class="docutils literal notranslate"><span class="pre">configure()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="api/openalex_local.html#get-mode">get_mode</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="api/openalex_local.html#openalex_local.get_mode"><code class="docutils literal notranslate"><span class="pre">get_mode()</span></code></a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="api/openalex_local.html#data-classes">Data Classes</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="api/openalex_local.html#work">Work</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="api/openalex_local.html#openalex_local.Work"><code class="docutils literal notranslate"><span class="pre">Work</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="api/openalex_local.html#searchresult">SearchResult</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="api/openalex_local.html#openalex_local.SearchResult"><code class="docutils literal notranslate"><span class="pre">SearchResult</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="api/openalex_local.html#config">Config</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="api/openalex_local.html#openalex_local._core.config.Config"><code class="docutils literal notranslate"><span class="pre">Config</span></code></a></li>
-</ul>
-</li>
-</ul>
-</li>
+<li class="toctree-l2"><a class="reference internal" href="api/openalex_local.html#openalex_local.save"><code class="docutils literal notranslate"><span class="pre">save()</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -209,7 +220,7 @@
 <p>Returns server health status.</p>
 <p><strong>Response:</strong></p>
 <div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
-<span class="w">  </span><span class="nt">&quot;status&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;healthy&quot;</span>
+<span class="w">  </span><span class="nt">"status"</span><span class="p">:</span><span class="w"> </span><span class="s2">"healthy"</span>
 <span class="p">}</span>
 </pre></div>
 </div>
@@ -222,9 +233,9 @@
 <p>Returns database statistics.</p>
 <p><strong>Response:</strong></p>
 <div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
-<span class="w">  </span><span class="nt">&quot;total_works&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">284000000</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;fts_indexed&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">284000000</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;mode&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;db&quot;</span>
+<span class="w">  </span><span class="nt">"total_works"</span><span class="p">:</span><span class="w"> </span><span class="mi">284000000</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"fts_indexed"</span><span class="p">:</span><span class="w"> </span><span class="mi">284000000</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"mode"</span><span class="p">:</span><span class="w"> </span><span class="s2">"db"</span>
 <span class="p">}</span>
 </pre></div>
 </div>
@@ -237,29 +248,29 @@
 <p>Full-text search across titles, abstracts, and authors.</p>
 <p><strong>Parameters:</strong></p>
 <ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">q</span></code> (required): Search query (FTS5 syntax supported)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">q</span></code> (required): Search query (web-search syntax)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">limit</span></code> (optional): Maximum results (default: 10)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">offset</span></code> (optional): Skip first N results (default: 0)</p></li>
 </ul>
 <p><strong>Example:</strong></p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>curl<span class="w"> </span><span class="s2">&quot;http://localhost:31292/works?q=machine%20learning&amp;limit=5&quot;</span>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>curl<span class="w"> </span><span class="s2">"http://localhost:31292/works?q=machine%20learning&amp;limit=5"</span>
 </pre></div>
 </div>
 <p><strong>Response:</strong></p>
 <div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
-<span class="w">  </span><span class="nt">&quot;query&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;machine learning&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;total&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1523847</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;returned&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">5</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;elapsed_ms&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">12.3</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;works&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">  </span><span class="nt">"query"</span><span class="p">:</span><span class="w"> </span><span class="s2">"machine learning"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"total"</span><span class="p">:</span><span class="w"> </span><span class="mi">1523847</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"returned"</span><span class="p">:</span><span class="w"> </span><span class="mi">5</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"elapsed_ms"</span><span class="p">:</span><span class="w"> </span><span class="mf">12.3</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"works"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
 <span class="w">    </span><span class="p">{</span>
-<span class="w">      </span><span class="nt">&quot;openalex_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;W2741809807&quot;</span><span class="p">,</span>
-<span class="w">      </span><span class="nt">&quot;doi&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;10.1038/nature12373&quot;</span><span class="p">,</span>
-<span class="w">      </span><span class="nt">&quot;title&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;...&quot;</span><span class="p">,</span>
-<span class="w">      </span><span class="nt">&quot;abstract&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;...&quot;</span><span class="p">,</span>
-<span class="w">      </span><span class="nt">&quot;authors&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;...&quot;</span><span class="p">],</span>
-<span class="w">      </span><span class="nt">&quot;year&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">2013</span><span class="p">,</span>
-<span class="w">      </span><span class="nt">&quot;cited_by_count&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">5432</span>
+<span class="w">      </span><span class="nt">"openalex_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"W2741809807"</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">"doi"</span><span class="p">:</span><span class="w"> </span><span class="s2">"10.1038/nature12373"</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">"title"</span><span class="p">:</span><span class="w"> </span><span class="s2">"..."</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">"abstract"</span><span class="p">:</span><span class="w"> </span><span class="s2">"..."</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">"authors"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"..."</span><span class="p">],</span>
+<span class="w">      </span><span class="nt">"year"</span><span class="p">:</span><span class="w"> </span><span class="mi">2013</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">"cited_by_count"</span><span class="p">:</span><span class="w"> </span><span class="mi">5432</span>
 <span class="w">    </span><span class="p">}</span>
 <span class="w">  </span><span class="p">]</span>
 <span class="p">}</span>
@@ -274,10 +285,10 @@
 <p>Retrieve a specific work by OpenAlex ID or DOI.</p>
 <p><strong>Examples:</strong></p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># By OpenAlex ID</span>
-curl<span class="w"> </span><span class="s2">&quot;http://localhost:31292/works/W2741809807&quot;</span>
+curl<span class="w"> </span><span class="s2">"http://localhost:31292/works/W2741809807"</span>
 
 <span class="c1"># By DOI</span>
-curl<span class="w"> </span><span class="s2">&quot;http://localhost:31292/works/10.1038/nature12373&quot;</span>
+curl<span class="w"> </span><span class="s2">"http://localhost:31292/works/10.1038/nature12373"</span>
 </pre></div>
 </div>
 </section>
@@ -289,23 +300,31 @@ curl<span class="w"> </span><span class="s2">&quot;http://localhost:31292/works/
 <p>Retrieve multiple works by their IDs or DOIs.</p>
 <p><strong>Request Body:</strong></p>
 <div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
-<span class="w">  </span><span class="nt">&quot;ids&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;W2741809807&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;10.1038/nature12373&quot;</span><span class="p">]</span>
+<span class="w">  </span><span class="nt">"ids"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"W2741809807"</span><span class="p">,</span><span class="w"> </span><span class="s2">"10.1038/nature12373"</span><span class="p">]</span>
 <span class="p">}</span>
 </pre></div>
 </div>
 <p><strong>Response:</strong></p>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>{
-  &quot;works&quot;: [...],
-  &quot;found&quot;: 2,
-  &quot;not_found&quot;: []
+  "works": [
+    {
+      "openalex_id": "W2741809807",
+      "doi": "10.1038/nature12373",
+      "title": "..."
+    }
+  ],
+  "found": 2,
+  "not_found": []
 }
 </pre></div>
 </div>
 </section>
 </section>
-<section id="fts5-query-syntax">
-<h2>FTS5 Query Syntax<a class="headerlink" href="#fts5-query-syntax" title="Link to this heading"></a></h2>
-<p>The search endpoint supports SQLite FTS5 query syntax:</p>
+<section id="query-syntax">
+<h2>Query Syntax<a class="headerlink" href="#query-syntax" title="Link to this heading"></a></h2>
+<p>The search endpoint parses queries with PostgreSQL’s
+<code class="docutils literal notranslate"><span class="pre">websearch_to_tsquery</span></code>, so the syntax is the one web search
+engines use:</p>
 <table class="docutils align-default">
 <colgroup>
 <col style="width: 30.0%" />
@@ -323,17 +342,11 @@ curl<span class="w"> </span><span class="s2">&quot;http://localhost:31292/works/
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">&quot;machine</span> <span class="pre">learning&quot;</span></code></p></td>
 <td><p>Match exact phrase</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">machine</span> <span class="pre">OR</span> <span class="pre">deep</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">machine</span> <span class="pre">or</span> <span class="pre">deep</span></code></p></td>
 <td><p>Match either term</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">machine</span> <span class="pre">NOT</span> <span class="pre">supervised</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">machine</span> <span class="pre">-supervised</span></code></p></td>
 <td><p>Exclude term</p></td>
-</tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">neural*</span></code></p></td>
-<td><p>Prefix matching</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">NEAR(machine</span> <span class="pre">learning,</span> <span class="pre">5)</span></code></p></td>
-<td><p>Terms within 5 words</p></td>
 </tr>
 </tbody>
 </table>
@@ -343,11 +356,11 @@ curl<span class="w"> </span><span class="s2">&quot;http://localhost:31292/works/
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">openalex_local</span><span class="w"> </span><span class="kn">import</span> <span class="n">configure_http</span><span class="p">,</span> <span class="n">search</span><span class="p">,</span> <span class="n">get</span>
 
 <span class="c1"># Connect to remote server</span>
-<span class="n">configure_http</span><span class="p">(</span><span class="s2">&quot;http://localhost:31292&quot;</span><span class="p">)</span>
+<span class="n">configure_http</span><span class="p">(</span><span class="s2">"http://localhost:31292"</span><span class="p">)</span>
 
 <span class="c1"># Use the same API as local mode</span>
-<span class="n">results</span> <span class="o">=</span> <span class="n">search</span><span class="p">(</span><span class="s2">&quot;neural networks&quot;</span><span class="p">,</span> <span class="n">limit</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
-<span class="n">work</span> <span class="o">=</span> <span class="n">get</span><span class="p">(</span><span class="s2">&quot;10.1038/nature12373&quot;</span><span class="p">)</span>
+<span class="n">results</span> <span class="o">=</span> <span class="n">search</span><span class="p">(</span><span class="s2">"neural networks"</span><span class="p">,</span> <span class="n">limit</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+<span class="n">work</span> <span class="o">=</span> <span class="n">get</span><span class="p">(</span><span class="s2">"10.1038/nature12373"</span><span class="p">)</span>
 </pre></div>
 </div>
 </section>

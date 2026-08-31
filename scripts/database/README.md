@@ -15,8 +15,8 @@ make status
 |--------|----------|-------------|
 | `00_` | Download | Main snapshot download (works) |
 | `01_` | Download | Other entities + helpers |
-| `02_` | Build | JSON → SQLite database |
-| `03_` | Build | FTS5 full-text search index |
+| `02_` | Build | JSON → the corpus |
+| `03_` | Build | Full-text search index |
 | `04_` | Build | Sources/journals table (SciTeX IF proxy) |
 | `05_` | Build | Citations table (accurate SciTeX IF) |
 | `06_` | Build | SciTeX IF calculation indexes |
@@ -35,7 +35,7 @@ make status
 ┌─────────────────────────────────────────────────────────────────────┐
 │  PHASE 2: CORE DATABASE (12-48 hours)                               │
 │  make build                                                          │
-│    ├── 02_build_database.py (JSON → SQLite)                         │
+│    ├── 02_build_database.py (JSON → PostgreSQL)                     │
 │    └── 03_build_fts_index.py (full-text search)                     │
 └─────────────────────────────────────────────────────────────────────┘
                                 │
@@ -66,8 +66,8 @@ make status
 
 | Script | Description | Duration | Command |
 |--------|-------------|----------|---------|
-| `02_build_database.py` | Parse JSON → SQLite | 12-48h | `make build-db` |
-| `03_build_fts_index.py` | Build FTS5 search index | 1-4h | `make build-fts` |
+| `02_build_database.py` | Parse JSON → the corpus | 12-48h | `make build-db` |
+| `03_build_fts_index.py` | Build the full-text index | 1-4h | `make build-fts` |
 
 ### SciTeX IF Scripts (04_, 05_, 06_)
 
@@ -96,7 +96,7 @@ make download-stop       # Stop downloads (resumable)
 
 # Core Build
 make build               # Build database + FTS
-make build-db            # Build SQLite from snapshot
+make build-db            # Build the corpus from the snapshot
 make build-fts           # Build full-text search
 
 # SciTeX IF Build (Optional)
@@ -116,8 +116,9 @@ make db-stats            # Detailed statistics
 
 ```sql
 -- Works table: 284M+ scholarly works
+-- Authoritative copy: scripts/database/_schema.py
 CREATE TABLE works (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    id BIGSERIAL PRIMARY KEY,
     openalex_id TEXT UNIQUE NOT NULL,  -- W2741809807
     doi TEXT,
     title TEXT,
@@ -135,23 +136,24 @@ CREATE TABLE works (
     last_page TEXT,
     publisher TEXT,
     cited_by_count INTEGER DEFAULT 0,
-    is_oa INTEGER DEFAULT 0,
+    is_oa BOOLEAN DEFAULT FALSE,
     oa_status TEXT,
     oa_url TEXT,
     authors_json TEXT,
     concepts_json TEXT,
     topics_json TEXT,
     referenced_works_json TEXT,
+    ref_count INTEGER,
     raw_json TEXT,
-    created_at TIMESTAMP
+    search_vector TSVECTOR,   -- full-text index
+    created_at TIMESTAMPTZ
 );
 
--- FTS5 full-text search
-CREATE VIRTUAL TABLE works_fts USING fts5(
-    openalex_id, title, abstract,
-    content='works', content_rowid='id',
-    tokenize='porter unicode61'
-);
+-- Full-text search is a COLUMN on works, not a second table: an
+-- external index keyed on a row number the table does not declare
+-- points at the wrong row after any rebuild, and the join still
+-- succeeds.
+CREATE INDEX idx_works_search_vector ON works USING GIN (search_vector);
 ```
 
 ### SciTeX IF Tables (Optional)
@@ -159,7 +161,7 @@ CREATE VIRTUAL TABLE works_fts USING fts5(
 ```sql
 -- Sources: 255K journals with metrics
 CREATE TABLE sources (
-    id INTEGER PRIMARY KEY,
+    id BIGSERIAL PRIMARY KEY,
     openalex_id TEXT UNIQUE,
     issn_l TEXT,
     issns TEXT,              -- JSON array
@@ -167,17 +169,17 @@ CREATE TABLE sources (
     type TEXT,
     works_count INTEGER,
     cited_by_count INTEGER,
-    two_year_mean_citedness REAL,  -- SciTeX IF proxy
+    two_year_mean_citedness DOUBLE PRECISION,  -- SciTeX IF proxy
     h_index INTEGER,
     i10_index INTEGER,
-    is_oa INTEGER,
-    is_in_doaj INTEGER
+    is_oa BOOLEAN,
+    is_in_doaj BOOLEAN
 );
 
 -- ISSN lookup for fast journal identification
 CREATE TABLE issn_lookup (
     issn TEXT PRIMARY KEY,
-    source_id INTEGER REFERENCES sources(id)
+    source_id BIGINT REFERENCES sources(id)
 );
 
 -- Citations: 2.9B citation relationships
@@ -262,7 +264,7 @@ screen -ls
 screen -r openalex-build-db
 
 # Database growth
-watch -n 60 'du -h data/openalex.db'
+watch -n 60 'make db-info'
 ```
 
 ## Resumability
@@ -282,7 +284,7 @@ All scripts support resuming after interruption:
 ```bash
 screen -r openalex-build-db     # Attach to session
 tail -f logs/build_db.log       # Check log
-watch -n 60 'du -h data/openalex.db'  # Watch growth
+watch -n 60 'make db-info'  # Watch growth
 ```
 
 ### Out of disk space
@@ -291,10 +293,9 @@ df -h                           # Check space
 # Need ~2TB total for full build
 ```
 
-### Database locked during index creation
+### Checking which indexes exist
 ```bash
-# Wait for index to complete, or use a new connection
-sqlite3 data/openalex.db ".indices"  # Check existing indexes
+make db-info   # tables, row counts and build progress
 ```
 
 ## Related Files

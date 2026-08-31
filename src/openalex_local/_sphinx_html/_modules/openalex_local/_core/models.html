@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>openalex_local._core.models &mdash; OpenAlex Local v0.7.6</title>
+  <title>openalex_local._core.models &mdash; OpenAlex Local v0.4.0</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
@@ -13,7 +13,7 @@
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=918ced64"></script>
+      <script src="../../../_static/documentation_options.js?v=6c02275b"></script>
       <script src="../../../_static/doctools.js?v=9a2dae69"></script>
       <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -97,7 +97,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../../../http_api.html#batch-lookup">Batch Lookup</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="../../../http_api.html#fts5-query-syntax">FTS5 Query Syntax</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../http_api.html#query-syntax">Query Syntax</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../http_api.html#python-client">Python Client</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../http_api.html#environment-variables">Environment Variables</a></li>
 </ul>
@@ -106,51 +106,62 @@
 <p class="caption" role="heading"><span class="caption-text">API Reference</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../api/openalex_local.html">openalex_local API</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="../../../api/openalex_local.html#core-functions">Core Functions</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../../../api/openalex_local.html#search">search</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../../../api/openalex_local.html#openalex_local.search"><code class="docutils literal notranslate"><span class="pre">search()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api/openalex_local.html#openalex_local.search"><code class="docutils literal notranslate"><span class="pre">search()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api/openalex_local.html#openalex_local.count"><code class="docutils literal notranslate"><span class="pre">count()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api/openalex_local.html#openalex_local.get"><code class="docutils literal notranslate"><span class="pre">get()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api/openalex_local.html#openalex_local.get_many"><code class="docutils literal notranslate"><span class="pre">get_many()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api/openalex_local.html#openalex_local.exists"><code class="docutils literal notranslate"><span class="pre">exists()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api/openalex_local.html#openalex_local.info"><code class="docutils literal notranslate"><span class="pre">info()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api/openalex_local.html#openalex_local.update"><code class="docutils literal notranslate"><span class="pre">update()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api/openalex_local.html#openalex_local.enrich"><code class="docutils literal notranslate"><span class="pre">enrich()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api/openalex_local.html#openalex_local.enrich_ids"><code class="docutils literal notranslate"><span class="pre">enrich_ids()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api/openalex_local.html#openalex_local.configure"><code class="docutils literal notranslate"><span class="pre">configure()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api/openalex_local.html#openalex_local.get_mode"><code class="docutils literal notranslate"><span class="pre">get_mode()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api/openalex_local.html#openalex_local.Work"><code class="docutils literal notranslate"><span class="pre">Work</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/openalex_local.html#openalex_local.Work.openalex_id"><code class="docutils literal notranslate"><span class="pre">Work.openalex_id</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/openalex_local.html#openalex_local.Work.doi"><code class="docutils literal notranslate"><span class="pre">Work.doi</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/openalex_local.html#openalex_local.Work.title"><code class="docutils literal notranslate"><span class="pre">Work.title</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/openalex_local.html#openalex_local.Work.abstract"><code class="docutils literal notranslate"><span class="pre">Work.abstract</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/openalex_local.html#openalex_local.Work.authors"><code class="docutils literal notranslate"><span class="pre">Work.authors</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/openalex_local.html#openalex_local.Work.year"><code class="docutils literal notranslate"><span class="pre">Work.year</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/openalex_local.html#openalex_local.Work.source"><code class="docutils literal notranslate"><span class="pre">Work.source</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/openalex_local.html#openalex_local.Work.issn"><code class="docutils literal notranslate"><span class="pre">Work.issn</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/openalex_local.html#openalex_local.Work.volume"><code class="docutils literal notranslate"><span class="pre">Work.volume</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/openalex_local.html#openalex_local.Work.issue"><code class="docutils literal notranslate"><span class="pre">Work.issue</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/openalex_local.html#openalex_local.Work.pages"><code class="docutils literal notranslate"><span class="pre">Work.pages</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/openalex_local.html#openalex_local.Work.publisher"><code class="docutils literal notranslate"><span class="pre">Work.publisher</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/openalex_local.html#openalex_local.Work.type"><code class="docutils literal notranslate"><span class="pre">Work.type</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/openalex_local.html#openalex_local.Work.concepts"><code class="docutils literal notranslate"><span class="pre">Work.concepts</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/openalex_local.html#openalex_local.Work.topics"><code class="docutils literal notranslate"><span class="pre">Work.topics</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/openalex_local.html#openalex_local.Work.cited_by_count"><code class="docutils literal notranslate"><span class="pre">Work.cited_by_count</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/openalex_local.html#openalex_local.Work.referenced_works"><code class="docutils literal notranslate"><span class="pre">Work.referenced_works</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/openalex_local.html#openalex_local.Work.is_oa"><code class="docutils literal notranslate"><span class="pre">Work.is_oa</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/openalex_local.html#openalex_local.Work.oa_url"><code class="docutils literal notranslate"><span class="pre">Work.oa_url</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/openalex_local.html#openalex_local.Work.scitex_if"><code class="docutils literal notranslate"><span class="pre">Work.scitex_if</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/openalex_local.html#openalex_local.Work.source_h_index"><code class="docutils literal notranslate"><span class="pre">Work.source_h_index</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/openalex_local.html#openalex_local.Work.source_cited_by_count"><code class="docutils literal notranslate"><span class="pre">Work.source_cited_by_count</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/openalex_local.html#openalex_local.Work.from_openalex"><code class="docutils literal notranslate"><span class="pre">Work.from_openalex()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/openalex_local.html#openalex_local.Work.from_db_row"><code class="docutils literal notranslate"><span class="pre">Work.from_db_row()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/openalex_local.html#openalex_local.Work.to_dict"><code class="docutils literal notranslate"><span class="pre">Work.to_dict()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/openalex_local.html#openalex_local.Work.citation"><code class="docutils literal notranslate"><span class="pre">Work.citation()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/openalex_local.html#openalex_local.Work._citation_apa"><code class="docutils literal notranslate"><span class="pre">Work._citation_apa()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/openalex_local.html#openalex_local.Work._format_author_apa"><code class="docutils literal notranslate"><span class="pre">Work._format_author_apa()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/openalex_local.html#openalex_local.Work._citation_bibtex"><code class="docutils literal notranslate"><span class="pre">Work._citation_bibtex()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/openalex_local.html#openalex_local.Work.to_text"><code class="docutils literal notranslate"><span class="pre">Work.to_text()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/openalex_local.html#openalex_local.Work.save"><code class="docutils literal notranslate"><span class="pre">Work.save()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/openalex_local.html#openalex_local.Work.__init__"><code class="docutils literal notranslate"><span class="pre">Work.__init__()</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="../../../api/openalex_local.html#get">get</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../../../api/openalex_local.html#openalex_local.get"><code class="docutils literal notranslate"><span class="pre">get()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api/openalex_local.html#openalex_local.SearchResult"><code class="docutils literal notranslate"><span class="pre">SearchResult</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/openalex_local.html#openalex_local.SearchResult.works"><code class="docutils literal notranslate"><span class="pre">SearchResult.works</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/openalex_local.html#openalex_local.SearchResult.total"><code class="docutils literal notranslate"><span class="pre">SearchResult.total</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/openalex_local.html#openalex_local.SearchResult.query"><code class="docutils literal notranslate"><span class="pre">SearchResult.query</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/openalex_local.html#openalex_local.SearchResult.elapsed_ms"><code class="docutils literal notranslate"><span class="pre">SearchResult.elapsed_ms</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/openalex_local.html#openalex_local.SearchResult.save"><code class="docutils literal notranslate"><span class="pre">SearchResult.save()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/openalex_local.html#openalex_local.SearchResult.__init__"><code class="docutils literal notranslate"><span class="pre">SearchResult.__init__()</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="../../../api/openalex_local.html#count">count</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../../../api/openalex_local.html#openalex_local.count"><code class="docutils literal notranslate"><span class="pre">count()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="../../../api/openalex_local.html#info">info</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../../../api/openalex_local.html#openalex_local.info"><code class="docutils literal notranslate"><span class="pre">info()</span></code></a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="../../../api/openalex_local.html#configuration">Configuration</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../../../api/openalex_local.html#configure">configure</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../../../api/openalex_local.html#openalex_local.configure"><code class="docutils literal notranslate"><span class="pre">configure()</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="../../../api/openalex_local.html#get-mode">get_mode</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../../../api/openalex_local.html#openalex_local.get_mode"><code class="docutils literal notranslate"><span class="pre">get_mode()</span></code></a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="../../../api/openalex_local.html#data-classes">Data Classes</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../../../api/openalex_local.html#work">Work</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../../../api/openalex_local.html#openalex_local.Work"><code class="docutils literal notranslate"><span class="pre">Work</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="../../../api/openalex_local.html#searchresult">SearchResult</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../../../api/openalex_local.html#openalex_local.SearchResult"><code class="docutils literal notranslate"><span class="pre">SearchResult</span></code></a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="../../../api/openalex_local.html#config">Config</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../../../api/openalex_local.html#openalex_local._core.config.Config"><code class="docutils literal notranslate"><span class="pre">Config</span></code></a></li>
-</ul>
-</li>
-</ul>
-</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api/openalex_local.html#openalex_local.save"><code class="docutils literal notranslate"><span class="pre">save()</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -180,7 +191,7 @@
            <div itemprop="articleBody">
              
   <h1>Source code for openalex_local._core.models</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;Data models for openalex_local.&quot;&quot;&quot;</span>
+<span></span><span class="sd">"""Data models for openalex_local."""</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span><span class="p">,</span> <span class="n">field</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Any</span>
@@ -190,7 +201,7 @@
 <a class="viewcode-back" href="../../../api/openalex_local.html#openalex_local.Work">[docs]</a>
 <span class="nd">@dataclass</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">Work</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Represents a scholarly work from OpenAlex.</span>
 
 <span class="sd">    Attributes:</span>
@@ -213,7 +224,7 @@
 <span class="sd">        referenced_works: List of referenced OpenAlex IDs</span>
 <span class="sd">        is_oa: Is open access</span>
 <span class="sd">        oa_url: Open access URL</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="n">openalex_id</span><span class="p">:</span> <span class="nb">str</span>
     <span class="n">doi</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
@@ -242,8 +253,8 @@
 <div class="viewcode-block" id="Work.from_openalex">
 <a class="viewcode-back" href="../../../api/openalex_local.html#openalex_local.Work.from_openalex">[docs]</a>
     <span class="nd">@classmethod</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">from_openalex</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Work&quot;</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">from_openalex</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"Work"</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Create Work from OpenAlex API/snapshot JSON.</span>
 
 <span class="sd">        Args:</span>
@@ -251,28 +262,28 @@
 
 <span class="sd">        Returns:</span>
 <span class="sd">            Work instance</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="c1"># Extract OpenAlex ID</span>
-        <span class="n">openalex_id</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;id&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;https://openalex.org/&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+        <span class="n">openalex_id</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"id"</span><span class="p">,</span> <span class="s2">""</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">"https://openalex.org/"</span><span class="p">,</span> <span class="s2">""</span><span class="p">)</span>
 
         <span class="c1"># Extract DOI</span>
         <span class="n">doi</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;doi&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;https://doi.org/&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;doi&quot;</span><span class="p">)</span>
+            <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"doi"</span><span class="p">,</span> <span class="s2">""</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">"https://doi.org/"</span><span class="p">,</span> <span class="s2">""</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"doi"</span><span class="p">)</span>
             <span class="k">else</span> <span class="kc">None</span>
         <span class="p">)</span>
 
         <span class="c1"># Extract authors</span>
         <span class="n">authors</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="k">for</span> <span class="n">authorship</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;authorships&quot;</span><span class="p">,</span> <span class="p">[]):</span>
-            <span class="n">author</span> <span class="o">=</span> <span class="n">authorship</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;author&quot;</span><span class="p">,</span> <span class="p">{})</span>
-            <span class="n">name</span> <span class="o">=</span> <span class="n">author</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;display_name&quot;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">authorship</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"authorships"</span><span class="p">,</span> <span class="p">[]):</span>
+            <span class="n">author</span> <span class="o">=</span> <span class="n">authorship</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"author"</span><span class="p">,</span> <span class="p">{})</span>
+            <span class="n">name</span> <span class="o">=</span> <span class="n">author</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"display_name"</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">name</span><span class="p">:</span>
                 <span class="n">authors</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
 
         <span class="c1"># Reconstruct abstract from inverted index</span>
         <span class="n">abstract</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="n">inv_index</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;abstract_inverted_index&quot;</span><span class="p">)</span>
+        <span class="n">inv_index</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"abstract_inverted_index"</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">inv_index</span><span class="p">:</span>
             <span class="n">words</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span>
                 <span class="p">[</span>
@@ -281,67 +292,67 @@
                     <span class="k">for</span> <span class="n">pos</span> <span class="ow">in</span> <span class="n">positions</span>
                 <span class="p">]</span>
             <span class="p">)</span>
-            <span class="n">abstract</span> <span class="o">=</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">word</span> <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">word</span> <span class="ow">in</span> <span class="n">words</span><span class="p">)</span>
+            <span class="n">abstract</span> <span class="o">=</span> <span class="s2">" "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">word</span> <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">word</span> <span class="ow">in</span> <span class="n">words</span><span class="p">)</span>
 
         <span class="c1"># Extract source info</span>
-        <span class="n">primary_location</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;primary_location&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="p">{}</span>
-        <span class="n">source_info</span> <span class="o">=</span> <span class="n">primary_location</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;source&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="p">{}</span>
-        <span class="n">source</span> <span class="o">=</span> <span class="n">source_info</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;display_name&quot;</span><span class="p">)</span>
-        <span class="n">issns</span> <span class="o">=</span> <span class="n">source_info</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;issn&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="p">[]</span>
+        <span class="n">primary_location</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"primary_location"</span><span class="p">)</span> <span class="ow">or</span> <span class="p">{}</span>
+        <span class="n">source_info</span> <span class="o">=</span> <span class="n">primary_location</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"source"</span><span class="p">)</span> <span class="ow">or</span> <span class="p">{}</span>
+        <span class="n">source</span> <span class="o">=</span> <span class="n">source_info</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"display_name"</span><span class="p">)</span>
+        <span class="n">issns</span> <span class="o">=</span> <span class="n">source_info</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"issn"</span><span class="p">)</span> <span class="ow">or</span> <span class="p">[]</span>
         <span class="n">issn</span> <span class="o">=</span> <span class="n">issns</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="n">issns</span> <span class="k">else</span> <span class="kc">None</span>
 
         <span class="c1"># Extract biblio</span>
-        <span class="n">biblio</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;biblio&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="p">{}</span>
+        <span class="n">biblio</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"biblio"</span><span class="p">)</span> <span class="ow">or</span> <span class="p">{}</span>
 
         <span class="c1"># Extract concepts (top 5)</span>
         <span class="n">concepts</span> <span class="o">=</span> <span class="p">[</span>
-            <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="n">c</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;display_name&quot;</span><span class="p">),</span> <span class="s2">&quot;score&quot;</span><span class="p">:</span> <span class="n">c</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;score&quot;</span><span class="p">)}</span>
-            <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;concepts&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="p">[])[:</span><span class="mi">5</span><span class="p">]</span>
+            <span class="p">{</span><span class="s2">"name"</span><span class="p">:</span> <span class="n">c</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"display_name"</span><span class="p">),</span> <span class="s2">"score"</span><span class="p">:</span> <span class="n">c</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"score"</span><span class="p">)}</span>
+            <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"concepts"</span><span class="p">)</span> <span class="ow">or</span> <span class="p">[])[:</span><span class="mi">5</span><span class="p">]</span>
         <span class="p">]</span>
 
         <span class="c1"># Extract topics (top 3)</span>
         <span class="n">topics</span> <span class="o">=</span> <span class="p">[</span>
             <span class="p">{</span>
-                <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="n">t</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;display_name&quot;</span><span class="p">),</span>
-                <span class="s2">&quot;subfield&quot;</span><span class="p">:</span> <span class="n">t</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;subfield&quot;</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;display_name&quot;</span><span class="p">),</span>
+                <span class="s2">"name"</span><span class="p">:</span> <span class="n">t</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"display_name"</span><span class="p">),</span>
+                <span class="s2">"subfield"</span><span class="p">:</span> <span class="n">t</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"subfield"</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"display_name"</span><span class="p">),</span>
             <span class="p">}</span>
-            <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;topics&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="p">[])[:</span><span class="mi">3</span><span class="p">]</span>
+            <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"topics"</span><span class="p">)</span> <span class="ow">or</span> <span class="p">[])[:</span><span class="mi">3</span><span class="p">]</span>
         <span class="p">]</span>
 
         <span class="c1"># Extract OA info</span>
-        <span class="n">oa_info</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;open_access&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="p">{}</span>
+        <span class="n">oa_info</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"open_access"</span><span class="p">)</span> <span class="ow">or</span> <span class="p">{}</span>
 
         <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span>
             <span class="n">openalex_id</span><span class="o">=</span><span class="n">openalex_id</span><span class="p">,</span>
             <span class="n">doi</span><span class="o">=</span><span class="n">doi</span><span class="p">,</span>
-            <span class="n">title</span><span class="o">=</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;title&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;display_name&quot;</span><span class="p">),</span>
+            <span class="n">title</span><span class="o">=</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"title"</span><span class="p">)</span> <span class="ow">or</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"display_name"</span><span class="p">),</span>
             <span class="n">abstract</span><span class="o">=</span><span class="n">abstract</span><span class="p">,</span>
             <span class="n">authors</span><span class="o">=</span><span class="n">authors</span><span class="p">,</span>
-            <span class="n">year</span><span class="o">=</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;publication_year&quot;</span><span class="p">),</span>
+            <span class="n">year</span><span class="o">=</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"publication_year"</span><span class="p">),</span>
             <span class="n">source</span><span class="o">=</span><span class="n">source</span><span class="p">,</span>
             <span class="n">issn</span><span class="o">=</span><span class="n">issn</span><span class="p">,</span>
-            <span class="n">volume</span><span class="o">=</span><span class="n">biblio</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;volume&quot;</span><span class="p">),</span>
-            <span class="n">issue</span><span class="o">=</span><span class="n">biblio</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;issue&quot;</span><span class="p">),</span>
-            <span class="n">pages</span><span class="o">=</span><span class="n">biblio</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;first_page&quot;</span><span class="p">),</span>
-            <span class="n">publisher</span><span class="o">=</span><span class="n">source_info</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;host_organization_name&quot;</span><span class="p">),</span>
-            <span class="nb">type</span><span class="o">=</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;type&quot;</span><span class="p">),</span>
+            <span class="n">volume</span><span class="o">=</span><span class="n">biblio</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"volume"</span><span class="p">),</span>
+            <span class="n">issue</span><span class="o">=</span><span class="n">biblio</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"issue"</span><span class="p">),</span>
+            <span class="n">pages</span><span class="o">=</span><span class="n">biblio</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"first_page"</span><span class="p">),</span>
+            <span class="n">publisher</span><span class="o">=</span><span class="n">source_info</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"host_organization_name"</span><span class="p">),</span>
+            <span class="nb">type</span><span class="o">=</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"type"</span><span class="p">),</span>
             <span class="n">concepts</span><span class="o">=</span><span class="n">concepts</span><span class="p">,</span>
             <span class="n">topics</span><span class="o">=</span><span class="n">topics</span><span class="p">,</span>
-            <span class="n">cited_by_count</span><span class="o">=</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;cited_by_count&quot;</span><span class="p">),</span>
+            <span class="n">cited_by_count</span><span class="o">=</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"cited_by_count"</span><span class="p">),</span>
             <span class="n">referenced_works</span><span class="o">=</span><span class="p">[</span>
-                <span class="n">r</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;https://openalex.org/&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
-                <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;referenced_works&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="p">[])</span>
+                <span class="n">r</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">"https://openalex.org/"</span><span class="p">,</span> <span class="s2">""</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"referenced_works"</span><span class="p">)</span> <span class="ow">or</span> <span class="p">[])</span>
             <span class="p">],</span>
-            <span class="n">is_oa</span><span class="o">=</span><span class="n">oa_info</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;is_oa&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span>
-            <span class="n">oa_url</span><span class="o">=</span><span class="n">oa_info</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;oa_url&quot;</span><span class="p">),</span>
+            <span class="n">is_oa</span><span class="o">=</span><span class="n">oa_info</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"is_oa"</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span>
+            <span class="n">oa_url</span><span class="o">=</span><span class="n">oa_info</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"oa_url"</span><span class="p">),</span>
         <span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="Work.from_db_row">
 <a class="viewcode-back" href="../../../api/openalex_local.html#openalex_local.Work.from_db_row">[docs]</a>
     <span class="nd">@classmethod</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">from_db_row</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Work&quot;</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">from_db_row</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">"Work"</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Create Work from database row dictionary.</span>
 
 <span class="sd">        Args:</span>
@@ -349,84 +360,84 @@
 
 <span class="sd">        Returns:</span>
 <span class="sd">            Work instance</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span>
-            <span class="n">openalex_id</span><span class="o">=</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;openalex_id&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">),</span>
-            <span class="n">doi</span><span class="o">=</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;doi&quot;</span><span class="p">),</span>
-            <span class="n">title</span><span class="o">=</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;title&quot;</span><span class="p">),</span>
-            <span class="n">abstract</span><span class="o">=</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;abstract&quot;</span><span class="p">),</span>
-            <span class="n">authors</span><span class="o">=</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;authors&quot;</span><span class="p">,</span> <span class="p">[]),</span>
-            <span class="n">year</span><span class="o">=</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;year&quot;</span><span class="p">),</span>
-            <span class="n">source</span><span class="o">=</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;source&quot;</span><span class="p">),</span>
-            <span class="n">issn</span><span class="o">=</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;issn&quot;</span><span class="p">),</span>
-            <span class="n">volume</span><span class="o">=</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;volume&quot;</span><span class="p">),</span>
-            <span class="n">issue</span><span class="o">=</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;issue&quot;</span><span class="p">),</span>
-            <span class="n">pages</span><span class="o">=</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;pages&quot;</span><span class="p">),</span>
-            <span class="n">publisher</span><span class="o">=</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;publisher&quot;</span><span class="p">),</span>
-            <span class="nb">type</span><span class="o">=</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;type&quot;</span><span class="p">),</span>
-            <span class="n">concepts</span><span class="o">=</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;concepts&quot;</span><span class="p">,</span> <span class="p">[]),</span>
-            <span class="n">topics</span><span class="o">=</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;topics&quot;</span><span class="p">,</span> <span class="p">[]),</span>
-            <span class="n">cited_by_count</span><span class="o">=</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;cited_by_count&quot;</span><span class="p">),</span>
-            <span class="n">referenced_works</span><span class="o">=</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;referenced_works&quot;</span><span class="p">,</span> <span class="p">[]),</span>
-            <span class="n">is_oa</span><span class="o">=</span><span class="nb">bool</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;is_oa&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)),</span>
-            <span class="n">oa_url</span><span class="o">=</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;oa_url&quot;</span><span class="p">),</span>
-            <span class="n">scitex_if</span><span class="o">=</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;scitex_if&quot;</span><span class="p">),</span>
-            <span class="n">source_h_index</span><span class="o">=</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;source_h_index&quot;</span><span class="p">),</span>
-            <span class="n">source_cited_by_count</span><span class="o">=</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;source_cited_by_count&quot;</span><span class="p">),</span>
+            <span class="n">openalex_id</span><span class="o">=</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"openalex_id"</span><span class="p">,</span> <span class="s2">""</span><span class="p">),</span>
+            <span class="n">doi</span><span class="o">=</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"doi"</span><span class="p">),</span>
+            <span class="n">title</span><span class="o">=</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"title"</span><span class="p">),</span>
+            <span class="n">abstract</span><span class="o">=</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"abstract"</span><span class="p">),</span>
+            <span class="n">authors</span><span class="o">=</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"authors"</span><span class="p">,</span> <span class="p">[]),</span>
+            <span class="n">year</span><span class="o">=</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"year"</span><span class="p">),</span>
+            <span class="n">source</span><span class="o">=</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"source"</span><span class="p">),</span>
+            <span class="n">issn</span><span class="o">=</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"issn"</span><span class="p">),</span>
+            <span class="n">volume</span><span class="o">=</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"volume"</span><span class="p">),</span>
+            <span class="n">issue</span><span class="o">=</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"issue"</span><span class="p">),</span>
+            <span class="n">pages</span><span class="o">=</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"pages"</span><span class="p">),</span>
+            <span class="n">publisher</span><span class="o">=</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"publisher"</span><span class="p">),</span>
+            <span class="nb">type</span><span class="o">=</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"type"</span><span class="p">),</span>
+            <span class="n">concepts</span><span class="o">=</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"concepts"</span><span class="p">,</span> <span class="p">[]),</span>
+            <span class="n">topics</span><span class="o">=</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"topics"</span><span class="p">,</span> <span class="p">[]),</span>
+            <span class="n">cited_by_count</span><span class="o">=</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"cited_by_count"</span><span class="p">),</span>
+            <span class="n">referenced_works</span><span class="o">=</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"referenced_works"</span><span class="p">,</span> <span class="p">[]),</span>
+            <span class="n">is_oa</span><span class="o">=</span><span class="nb">bool</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"is_oa"</span><span class="p">,</span> <span class="kc">False</span><span class="p">)),</span>
+            <span class="n">oa_url</span><span class="o">=</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"oa_url"</span><span class="p">),</span>
+            <span class="n">scitex_if</span><span class="o">=</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"scitex_if"</span><span class="p">),</span>
+            <span class="n">source_h_index</span><span class="o">=</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"source_h_index"</span><span class="p">),</span>
+            <span class="n">source_cited_by_count</span><span class="o">=</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"source_cited_by_count"</span><span class="p">),</span>
         <span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="Work.to_dict">
 <a class="viewcode-back" href="../../../api/openalex_local.html#openalex_local.Work.to_dict">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">to_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Convert to dictionary.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Convert to dictionary."""</span>
         <span class="k">return</span> <span class="p">{</span>
-            <span class="s2">&quot;openalex_id&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">openalex_id</span><span class="p">,</span>
-            <span class="s2">&quot;doi&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">doi</span><span class="p">,</span>
-            <span class="s2">&quot;title&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">title</span><span class="p">,</span>
-            <span class="s2">&quot;abstract&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">abstract</span><span class="p">,</span>
-            <span class="s2">&quot;authors&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">authors</span><span class="p">,</span>
-            <span class="s2">&quot;year&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">year</span><span class="p">,</span>
-            <span class="s2">&quot;source&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">source</span><span class="p">,</span>
-            <span class="s2">&quot;issn&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">issn</span><span class="p">,</span>
-            <span class="s2">&quot;volume&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">volume</span><span class="p">,</span>
-            <span class="s2">&quot;issue&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">issue</span><span class="p">,</span>
-            <span class="s2">&quot;pages&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">pages</span><span class="p">,</span>
-            <span class="s2">&quot;publisher&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">publisher</span><span class="p">,</span>
-            <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">type</span><span class="p">,</span>
-            <span class="s2">&quot;concepts&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">concepts</span><span class="p">,</span>
-            <span class="s2">&quot;topics&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">topics</span><span class="p">,</span>
-            <span class="s2">&quot;cited_by_count&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">cited_by_count</span><span class="p">,</span>
-            <span class="s2">&quot;referenced_works&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">referenced_works</span><span class="p">,</span>
-            <span class="s2">&quot;is_oa&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_oa</span><span class="p">,</span>
-            <span class="s2">&quot;oa_url&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">oa_url</span><span class="p">,</span>
-            <span class="s2">&quot;scitex_if&quot;</span><span class="p">:</span> <span class="nb">round</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">scitex_if</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="s2">"openalex_id"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">openalex_id</span><span class="p">,</span>
+            <span class="s2">"doi"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">doi</span><span class="p">,</span>
+            <span class="s2">"title"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">title</span><span class="p">,</span>
+            <span class="s2">"abstract"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">abstract</span><span class="p">,</span>
+            <span class="s2">"authors"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">authors</span><span class="p">,</span>
+            <span class="s2">"year"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">year</span><span class="p">,</span>
+            <span class="s2">"source"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">source</span><span class="p">,</span>
+            <span class="s2">"issn"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">issn</span><span class="p">,</span>
+            <span class="s2">"volume"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">volume</span><span class="p">,</span>
+            <span class="s2">"issue"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">issue</span><span class="p">,</span>
+            <span class="s2">"pages"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">pages</span><span class="p">,</span>
+            <span class="s2">"publisher"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">publisher</span><span class="p">,</span>
+            <span class="s2">"type"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">type</span><span class="p">,</span>
+            <span class="s2">"concepts"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">concepts</span><span class="p">,</span>
+            <span class="s2">"topics"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">topics</span><span class="p">,</span>
+            <span class="s2">"cited_by_count"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">cited_by_count</span><span class="p">,</span>
+            <span class="s2">"referenced_works"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">referenced_works</span><span class="p">,</span>
+            <span class="s2">"is_oa"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_oa</span><span class="p">,</span>
+            <span class="s2">"oa_url"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">oa_url</span><span class="p">,</span>
+            <span class="s2">"scitex_if"</span><span class="p">:</span> <span class="nb">round</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">scitex_if</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">scitex_if</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
             <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
-            <span class="s2">&quot;source_h_index&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">source_h_index</span><span class="p">,</span>
-            <span class="s2">&quot;source_cited_by_count&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">source_cited_by_count</span><span class="p">,</span>
+            <span class="s2">"source_h_index"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">source_h_index</span><span class="p">,</span>
+            <span class="s2">"source_cited_by_count"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">source_cited_by_count</span><span class="p">,</span>
         <span class="p">}</span></div>
 
 
 <div class="viewcode-block" id="Work.citation">
 <a class="viewcode-back" href="../../../api/openalex_local.html#openalex_local.Work.citation">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">citation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">style</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;apa&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">citation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">style</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"apa"</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Format work as a citation string.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            style: Citation style - &quot;apa&quot; (default) or &quot;bibtex&quot;</span>
+<span class="sd">            style: Citation style - "apa" (default) or "bibtex"</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            Formatted citation string</span>
 
 <span class="sd">        Example:</span>
 <span class="sd">            &gt;&gt;&gt; work.citation()  # APA format</span>
-<span class="sd">            &#39;Piwowar, H., &amp; Priem, J. (2018). The state of OA. PeerJ.&#39;</span>
-<span class="sd">            &gt;&gt;&gt; work.citation(&quot;bibtex&quot;)  # BibTeX format</span>
-<span class="sd">            &#39;@article{W2741809807, title={The state of OA}, ...}&#39;</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="n">style</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;bibtex&quot;</span><span class="p">:</span>
+<span class="sd">            'Piwowar, H., &amp; Priem, J. (2018). The state of OA. PeerJ.'</span>
+<span class="sd">            &gt;&gt;&gt; work.citation("bibtex")  # BibTeX format</span>
+<span class="sd">            '@article{W2741809807, title={The state of OA}, ...}'</span>
+<span class="sd">        """</span>
+        <span class="k">if</span> <span class="n">style</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">"bibtex"</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_citation_bibtex</span><span class="p">()</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_citation_apa</span><span class="p">()</span></div>
 
@@ -434,7 +445,7 @@
 <div class="viewcode-block" id="Work._citation_apa">
 <a class="viewcode-back" href="../../../api/openalex_local.html#openalex_local.Work._citation_apa">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">_citation_apa</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Format as APA citation.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Format as APA citation."""</span>
         <span class="n">parts</span> <span class="o">=</span> <span class="p">[]</span>
 
         <span class="c1"># Authors</span>
@@ -443,137 +454,139 @@
                 <span class="n">parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_format_author_apa</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">authors</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
             <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">authors</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
                 <span class="n">parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_format_author_apa</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">authors</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="si">}</span><span class="s2"> &amp; &quot;</span>
-                    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_format_author_apa</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">authors</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span><span class="si">}</span><span class="s2">&quot;</span>
+                    <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_format_author_apa</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">authors</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="si">}</span><span class="s2"> &amp; "</span>
+                    <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_format_author_apa</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">authors</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span><span class="si">}</span><span class="s2">"</span>
                 <span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">formatted</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_format_author_apa</span><span class="p">(</span><span class="n">a</span><span class="p">)</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">authors</span><span class="p">[:</span><span class="mi">19</span><span class="p">]]</span>
                 <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">authors</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">20</span><span class="p">:</span>
                     <span class="n">formatted</span> <span class="o">=</span> <span class="p">(</span>
                         <span class="n">formatted</span><span class="p">[:</span><span class="mi">19</span><span class="p">]</span>
-                        <span class="o">+</span> <span class="p">[</span><span class="s2">&quot;...&quot;</span><span class="p">]</span>
+                        <span class="o">+</span> <span class="p">[</span><span class="s2">"..."</span><span class="p">]</span>
                         <span class="o">+</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_format_author_apa</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">authors</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])]</span>
                     <span class="p">)</span>
-                <span class="n">parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">formatted</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span> <span class="o">+</span> <span class="s2">&quot;, &amp; &quot;</span> <span class="o">+</span> <span class="n">formatted</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+                <span class="n">parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">", "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">formatted</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span> <span class="o">+</span> <span class="s2">", &amp; "</span> <span class="o">+</span> <span class="n">formatted</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
 
         <span class="c1"># Year</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">year</span><span class="p">:</span>
-            <span class="n">parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;(</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">year</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">)</span>
+            <span class="n">parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">"(</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">year</span><span class="si">}</span><span class="s2">)"</span><span class="p">)</span>
 
         <span class="c1"># Title</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">title</span><span class="p">:</span>
-            <span class="n">parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">title</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span>
+            <span class="n">parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">title</span><span class="si">}</span><span class="s2">."</span><span class="p">)</span>
 
         <span class="c1"># Source (journal)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">source</span><span class="p">:</span>
-            <span class="n">source_part</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;*</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">source</span><span class="si">}</span><span class="s2">*&quot;</span>
+            <span class="n">source_part</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"*</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">source</span><span class="si">}</span><span class="s2">*"</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">volume</span><span class="p">:</span>
-                <span class="n">source_part</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;, *</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">volume</span><span class="si">}</span><span class="s2">*&quot;</span>
+                <span class="n">source_part</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">", *</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">volume</span><span class="si">}</span><span class="s2">*"</span>
                 <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">issue</span><span class="p">:</span>
-                    <span class="n">source_part</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;(</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">issue</span><span class="si">}</span><span class="s2">)&quot;</span>
+                    <span class="n">source_part</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">"(</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">issue</span><span class="si">}</span><span class="s2">)"</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">pages</span><span class="p">:</span>
-                <span class="n">source_part</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;, </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">pages</span><span class="si">}</span><span class="s2">&quot;</span>
-            <span class="n">source_part</span> <span class="o">+=</span> <span class="s2">&quot;.&quot;</span>
+                <span class="n">source_part</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">", </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">pages</span><span class="si">}</span><span class="s2">"</span>
+            <span class="n">source_part</span> <span class="o">+=</span> <span class="s2">"."</span>
             <span class="n">parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">source_part</span><span class="p">)</span>
 
         <span class="c1"># SciTeX Impact Factor (OpenAlex)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">scitex_if</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[SciTeX IF: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">scitex_if</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">]&quot;</span><span class="p">)</span>
+            <span class="n">parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">"[SciTeX IF: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">scitex_if</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">]"</span><span class="p">)</span>
 
         <span class="c1"># DOI</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">doi</span><span class="p">:</span>
-            <span class="n">parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;https://doi.org/</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">doi</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">"https://doi.org/</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">doi</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 
-        <span class="k">return</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">parts</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="s2">" "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">parts</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="Work._format_author_apa">
 <a class="viewcode-back" href="../../../api/openalex_local.html#openalex_local.Work._format_author_apa">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">_format_author_apa</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Format author name for APA (Last, F. M.).&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Format author name for APA (Last, F. M.)."""</span>
         <span class="n">parts</span> <span class="o">=</span> <span class="n">name</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">parts</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s2">""</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">parts</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">parts</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
         <span class="n">last</span> <span class="o">=</span> <span class="n">parts</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
-        <span class="n">initials</span> <span class="o">=</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">p</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2">.&quot;</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">parts</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="k">if</span> <span class="n">p</span><span class="p">)</span>
-        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">last</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">initials</span><span class="si">}</span><span class="s2">&quot;</span></div>
+        <span class="n">initials</span> <span class="o">=</span> <span class="s2">" "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">p</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2">."</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">parts</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="k">if</span> <span class="n">p</span><span class="p">)</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">last</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">initials</span><span class="si">}</span><span class="s2">"</span></div>
 
 
 <div class="viewcode-block" id="Work._citation_bibtex">
 <a class="viewcode-back" href="../../../api/openalex_local.html#openalex_local.Work._citation_bibtex">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">_citation_bibtex</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Format as BibTeX entry.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Format as BibTeX entry."""</span>
         <span class="c1"># Determine entry type</span>
-        <span class="n">entry_type</span> <span class="o">=</span> <span class="s2">&quot;article&quot;</span>
+        <span class="n">entry_type</span> <span class="o">=</span> <span class="s2">"article"</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">type</span><span class="p">:</span>
             <span class="n">type_map</span> <span class="o">=</span> <span class="p">{</span>
-                <span class="s2">&quot;book&quot;</span><span class="p">:</span> <span class="s2">&quot;book&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;book-chapter&quot;</span><span class="p">:</span> <span class="s2">&quot;incollection&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;proceedings&quot;</span><span class="p">:</span> <span class="s2">&quot;inproceedings&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;proceedings-article&quot;</span><span class="p">:</span> <span class="s2">&quot;inproceedings&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;dissertation&quot;</span><span class="p">:</span> <span class="s2">&quot;phdthesis&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;report&quot;</span><span class="p">:</span> <span class="s2">&quot;techreport&quot;</span><span class="p">,</span>
+                <span class="s2">"book"</span><span class="p">:</span> <span class="s2">"book"</span><span class="p">,</span>
+                <span class="s2">"book-chapter"</span><span class="p">:</span> <span class="s2">"incollection"</span><span class="p">,</span>
+                <span class="s2">"proceedings"</span><span class="p">:</span> <span class="s2">"inproceedings"</span><span class="p">,</span>
+                <span class="s2">"proceedings-article"</span><span class="p">:</span> <span class="s2">"inproceedings"</span><span class="p">,</span>
+                <span class="s2">"dissertation"</span><span class="p">:</span> <span class="s2">"phdthesis"</span><span class="p">,</span>
+                <span class="s2">"report"</span><span class="p">:</span> <span class="s2">"techreport"</span><span class="p">,</span>
             <span class="p">}</span>
-            <span class="n">entry_type</span> <span class="o">=</span> <span class="n">type_map</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">type</span><span class="p">,</span> <span class="s2">&quot;article&quot;</span><span class="p">)</span>
+            <span class="n">entry_type</span> <span class="o">=</span> <span class="n">type_map</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">type</span><span class="p">,</span> <span class="s2">"article"</span><span class="p">)</span>
 
         <span class="c1"># Use OpenAlex ID as citation key</span>
-        <span class="n">key</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">openalex_id</span> <span class="ow">or</span> <span class="s2">&quot;unknown&quot;</span>
+        <span class="n">key</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">openalex_id</span> <span class="ow">or</span> <span class="s2">"unknown"</span>
 
-        <span class="n">lines</span> <span class="o">=</span> <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;@</span><span class="si">{</span><span class="n">entry_type</span><span class="si">}</span><span class="se">{{</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">,&quot;</span><span class="p">]</span>
+        <span class="n">lines</span> <span class="o">=</span> <span class="p">[</span><span class="sa">f</span><span class="s2">"@</span><span class="si">{</span><span class="n">entry_type</span><span class="si">}</span><span class="se">{{</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">,"</span><span class="p">]</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">title</span><span class="p">:</span>
-            <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  title = </span><span class="se">{{</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">title</span><span class="si">}</span><span class="se">}}</span><span class="s2">,&quot;</span><span class="p">)</span>
+            <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">"  title = </span><span class="se">{{</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">title</span><span class="si">}</span><span class="se">}}</span><span class="s2">,"</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">authors</span><span class="p">:</span>
-            <span class="n">author_str</span> <span class="o">=</span> <span class="s2">&quot; and &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">authors</span><span class="p">)</span>
-            <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  author = </span><span class="se">{{</span><span class="si">{</span><span class="n">author_str</span><span class="si">}</span><span class="se">}}</span><span class="s2">,&quot;</span><span class="p">)</span>
+            <span class="n">author_str</span> <span class="o">=</span> <span class="s2">" and "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">authors</span><span class="p">)</span>
+            <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">"  author = </span><span class="se">{{</span><span class="si">{</span><span class="n">author_str</span><span class="si">}</span><span class="se">}}</span><span class="s2">,"</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">year</span><span class="p">:</span>
-            <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  year = </span><span class="se">{{</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">year</span><span class="si">}</span><span class="se">}}</span><span class="s2">,&quot;</span><span class="p">)</span>
+            <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">"  year = </span><span class="se">{{</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">year</span><span class="si">}</span><span class="se">}}</span><span class="s2">,"</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">source</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">entry_type</span> <span class="o">==</span> <span class="s2">&quot;article&quot;</span><span class="p">:</span>
-                <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  journal = </span><span class="se">{{</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">source</span><span class="si">}</span><span class="se">}}</span><span class="s2">,&quot;</span><span class="p">)</span>
-            <span class="k">elif</span> <span class="n">entry_type</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;incollection&quot;</span><span class="p">,</span> <span class="s2">&quot;inproceedings&quot;</span><span class="p">):</span>
-                <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  booktitle = </span><span class="se">{{</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">source</span><span class="si">}</span><span class="se">}}</span><span class="s2">,&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">entry_type</span> <span class="o">==</span> <span class="s2">"article"</span><span class="p">:</span>
+                <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">"  journal = </span><span class="se">{{</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">source</span><span class="si">}</span><span class="se">}}</span><span class="s2">,"</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">entry_type</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"incollection"</span><span class="p">,</span> <span class="s2">"inproceedings"</span><span class="p">):</span>
+                <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">"  booktitle = </span><span class="se">{{</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">source</span><span class="si">}</span><span class="se">}}</span><span class="s2">,"</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">volume</span><span class="p">:</span>
-            <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  volume = </span><span class="se">{{</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">volume</span><span class="si">}</span><span class="se">}}</span><span class="s2">,&quot;</span><span class="p">)</span>
+            <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">"  volume = </span><span class="se">{{</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">volume</span><span class="si">}</span><span class="se">}}</span><span class="s2">,"</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">issue</span><span class="p">:</span>
-            <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  number = </span><span class="se">{{</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">issue</span><span class="si">}</span><span class="se">}}</span><span class="s2">,&quot;</span><span class="p">)</span>
+            <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">"  number = </span><span class="se">{{</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">issue</span><span class="si">}</span><span class="se">}}</span><span class="s2">,"</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">pages</span><span class="p">:</span>
-            <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  pages = </span><span class="se">{{</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">pages</span><span class="si">}</span><span class="se">}}</span><span class="s2">,&quot;</span><span class="p">)</span>
+            <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">"  pages = </span><span class="se">{{</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">pages</span><span class="si">}</span><span class="se">}}</span><span class="s2">,"</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">publisher</span><span class="p">:</span>
-            <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  publisher = </span><span class="se">{{</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">publisher</span><span class="si">}</span><span class="se">}}</span><span class="s2">,&quot;</span><span class="p">)</span>
+            <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">"  publisher = </span><span class="se">{{</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">publisher</span><span class="si">}</span><span class="se">}}</span><span class="s2">,"</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">doi</span><span class="p">:</span>
-            <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  doi = </span><span class="se">{{</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">doi</span><span class="si">}</span><span class="se">}}</span><span class="s2">,&quot;</span><span class="p">)</span>
+            <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">"  doi = </span><span class="se">{{</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">doi</span><span class="si">}</span><span class="se">}}</span><span class="s2">,"</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">oa_url</span><span class="p">:</span>
-            <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  url = </span><span class="se">{{</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">oa_url</span><span class="si">}</span><span class="se">}}</span><span class="s2">,&quot;</span><span class="p">)</span>
+            <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">"  url = </span><span class="se">{{</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">oa_url</span><span class="si">}</span><span class="se">}}</span><span class="s2">,"</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">scitex_if</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  note = </span><span class="se">{{</span><span class="s2">SciTeX IF: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">scitex_if</span><span class="si">:</span><span class="s2">.1f</span><span class="se">}}</span><span class="si">}</span><span class="s2">,&quot;</span><span class="p">)</span>
+            <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">"  note = </span><span class="se">{{</span><span class="s2">SciTeX IF: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">scitex_if</span><span class="si">:</span><span class="s2">.1f</span><span class="se">}}</span><span class="si">}</span><span class="s2">,"</span><span class="p">)</span>
 
-        <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;}&quot;</span><span class="p">)</span>
+        <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">"}"</span><span class="p">)</span>
 
-        <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">lines</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="s2">"</span><span class="se">\n</span><span class="s2">"</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">lines</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="Work.to_text">
 <a class="viewcode-back" href="../../../api/openalex_local.html#openalex_local.Work.to_text">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">to_text</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">include_abstract</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Format as human-readable text.</span>
+<span class="w">        </span><span class="sd">"""Format as human-readable text.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            include_abstract: Include abstract in output</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            Formatted text string</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="kn">from</span><span class="w"> </span><span class="nn">.export</span><span class="w"> </span><span class="kn">import</span> <span class="n">work_to_text</span>
 
         <span class="k">return</span> <span class="n">work_to_text</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">include_abstract</span><span class="o">=</span><span class="n">include_abstract</span><span class="p">)</span></div>
@@ -581,21 +594,21 @@
 
 <div class="viewcode-block" id="Work.save">
 <a class="viewcode-back" href="../../../api/openalex_local.html#openalex_local.Work.save">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">save</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">format</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;json&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Save work to file.</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">save</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">format</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"json"</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Save work to file.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            path: Output file path</span>
-<span class="sd">            format: Output format (&quot;text&quot;, &quot;json&quot;, &quot;bibtex&quot;)</span>
+<span class="sd">            format: Output format ("text", "json", "bibtex")</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            Path to saved file</span>
 
 <span class="sd">        Examples:</span>
-<span class="sd">            &gt;&gt;&gt; work = get(&quot;W2741809807&quot;)</span>
-<span class="sd">            &gt;&gt;&gt; work.save(&quot;paper.json&quot;)</span>
-<span class="sd">            &gt;&gt;&gt; work.save(&quot;paper.bib&quot;, format=&quot;bibtex&quot;)</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">            &gt;&gt;&gt; work = get("W2741809807")</span>
+<span class="sd">            &gt;&gt;&gt; work.save("paper.json")</span>
+<span class="sd">            &gt;&gt;&gt; work.save("paper.bib", format="bibtex")</span>
+<span class="sd">        """</span>
         <span class="kn">from</span><span class="w"> </span><span class="nn">.export</span><span class="w"> </span><span class="kn">import</span> <span class="n">save</span>
 
         <span class="k">return</span> <span class="n">save</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="nb">format</span><span class="p">)</span></div>
@@ -607,7 +620,7 @@
 <a class="viewcode-back" href="../../../api/openalex_local.html#openalex_local.SearchResult">[docs]</a>
 <span class="nd">@dataclass</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">SearchResult</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Container for search results with metadata.</span>
 
 <span class="sd">    Attributes:</span>
@@ -615,7 +628,7 @@
 <span class="sd">        total: Total number of matches</span>
 <span class="sd">        query: Original search query</span>
 <span class="sd">        elapsed_ms: Search time in milliseconds</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="n">works</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Work</span><span class="p">]</span>
     <span class="n">total</span><span class="p">:</span> <span class="nb">int</span>
@@ -634,24 +647,24 @@
 <div class="viewcode-block" id="SearchResult.save">
 <a class="viewcode-back" href="../../../api/openalex_local.html#openalex_local.SearchResult.save">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">save</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">format</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;json&quot;</span><span class="p">,</span> <span class="n">include_abstract</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">format</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"json"</span><span class="p">,</span> <span class="n">include_abstract</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Save search results to file.</span>
+<span class="w">        </span><span class="sd">"""Save search results to file.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            path: Output file path</span>
-<span class="sd">            format: Output format (&quot;text&quot;, &quot;json&quot;, &quot;bibtex&quot;)</span>
+<span class="sd">            format: Output format ("text", "json", "bibtex")</span>
 <span class="sd">            include_abstract: Include abstracts in text format</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            Path to saved file</span>
 
 <span class="sd">        Examples:</span>
-<span class="sd">            &gt;&gt;&gt; results = search(&quot;machine learning&quot;, limit=10)</span>
-<span class="sd">            &gt;&gt;&gt; results.save(&quot;results.json&quot;)</span>
-<span class="sd">            &gt;&gt;&gt; results.save(&quot;results.bib&quot;, format=&quot;bibtex&quot;)</span>
-<span class="sd">            &gt;&gt;&gt; results.save(&quot;results.txt&quot;, format=&quot;text&quot;)</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">            &gt;&gt;&gt; results = search("machine learning", limit=10)</span>
+<span class="sd">            &gt;&gt;&gt; results.save("results.json")</span>
+<span class="sd">            &gt;&gt;&gt; results.save("results.bib", format="bibtex")</span>
+<span class="sd">            &gt;&gt;&gt; results.save("results.txt", format="text")</span>
+<span class="sd">        """</span>
         <span class="kn">from</span><span class="w"> </span><span class="nn">.export</span><span class="w"> </span><span class="kn">import</span> <span class="n">save</span>
 
         <span class="k">return</span> <span class="n">save</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="nb">format</span><span class="p">,</span> <span class="n">include_abstract</span><span class="o">=</span><span class="n">include_abstract</span><span class="p">)</span></div>
