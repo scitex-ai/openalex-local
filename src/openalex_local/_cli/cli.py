@@ -385,13 +385,12 @@ except ImportError:
     pass
 
 
-# Wire canonical install-shell-completion + print-shell-completion (§1a)
-try:
-    from scitex_dev._cli._completion import attach_shell_completion
+# Completion drop-in (contract v1): sac-owned file under
+# $SCITEX_DIR/openalex-local/runtime/completion/openalex-local.
+# Never touches shell rc files.
+from .completion import register_completion_commands as _register_completion
 
-    attach_shell_completion(cli, prog_name="openalex-local")
-except ImportError:
-    pass
+_register_completion(cli)
 
 
 @cli.command("list-python-apis")
