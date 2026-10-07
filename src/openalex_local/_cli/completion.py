@@ -13,6 +13,7 @@ shell rc is left to the user (or to sac-managed shell setup).
 
 from __future__ import annotations
 
+import json
 import os
 import tempfile
 from pathlib import Path
@@ -135,14 +136,19 @@ def install_cmd(ctx: click.Context, shell: str, yes: bool, dry_run: bool) -> Non
 
 
 @completion.command("status")
-def status_cmd() -> None:
+@click.option("--json", "as_json", is_flag=True, help="Output as JSON")
+def status_cmd(as_json: bool) -> None:
     """Report whether the completion drop-in file exists.
 
     \b
     Examples:
       $ openalex-local completion status
+      $ openalex-local completion status --json
     """
     cache = _cache_path(PROG_NAME)
+    if as_json:
+        click.echo(json.dumps({"installed": cache.is_file(), "path": str(cache)}))
+        return
     if cache.is_file():
         click.echo(f"Completion installed: {cache}")
     else:

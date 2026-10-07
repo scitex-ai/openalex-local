@@ -385,9 +385,21 @@ except ImportError:
     pass
 
 
+# Wire canonical install-shell-completion + print-shell-completion (§1a)
+try:
+    from scitex_dev._cli._completion import attach_shell_completion
+
+    attach_shell_completion(cli, prog_name="openalex-local")
+except ImportError:
+    pass
+
+
 # Completion drop-in (contract v1): sac-owned file under
 # $SCITEX_DIR/openalex-local/runtime/completion/openalex-local.
-# Never touches shell rc files.
+# Never touches shell rc files. Registered AFTER attach_shell_completion
+# so this visible `completion` group takes precedence over attach's hidden
+# deprecated `completion` alias, while install-shell-completion and
+# print-shell-completion from attach remain available (§1a).
 from .completion import register_completion_commands as _register_completion
 
 _register_completion(cli)
