@@ -394,6 +394,17 @@ except ImportError:
     pass
 
 
+# Completion drop-in (contract v1): sac-owned file under
+# $SCITEX_DIR/openalex-local/runtime/completion/openalex-local.
+# Never touches shell rc files. Registered AFTER attach_shell_completion
+# so this visible `completion` group takes precedence over attach's hidden
+# deprecated `completion` alias, while install-shell-completion and
+# print-shell-completion from attach remain available (§1a).
+from .completion import register_completion_commands as _register_completion
+
+_register_completion(cli)
+
+
 @cli.command("list-python-apis")
 @click.option(
     "-v", "--verbose", count=True, help="Verbosity: -v sig, -vv +doc, -vvv full"
