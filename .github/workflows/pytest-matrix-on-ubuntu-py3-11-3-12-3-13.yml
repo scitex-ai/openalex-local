@@ -1,5 +1,11 @@
 name: tests
 
+# Org-level reusable-workflow caller (scitex-ai/.github, 2026-07-10).
+# Triggers preserved verbatim from the prior local file. The leaf's
+# "Create test database" step survives as `pre_test_command` (runs after
+# install, before pytest); the CLI smoke lines are covered by the
+# import-smoke caller instead of a bespoke step here.
+
 on:
   push:
     branches: [main, develop]
@@ -10,44 +16,12 @@ on:
   workflow_dispatch:
 
 jobs:
-  test:
-    name: pytest-matrix-on-ubuntu-py${{ matrix.python-version }}
-    runs-on: ubuntu-latest
-    # Per-job HOME so scitex runtime state (~/.scitex/openalex-local/...)
-    # and the codecov uploader write into the isolated workspace instead
-    # of the shared runner home — keeps matrix legs from colliding.
-    env:
-      HOME: ${{ github.workspace }}
-    strategy:
-      fail-fast: false
-      matrix:
-        python-version: ["3.11", "3.12", "3.13"]
-    steps:
-      - uses: actions/checkout@v4
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v5
-        with:
-          python-version: ${{ matrix.python-version }}
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          # Fallback chain: prefer [all,dev] so optional-dep code paths
-          # (server, mcp, docs) get exercised. Falls back to [dev] then
-          # plain editable so a packaging hiccup doesn't strand CI.
-          pip install -e ".[all,dev]" || pip install -e ".[dev]" || pip install -e .
-      - name: Create test database
-        run: python scripts/create_test_db.py --rows 500
-      - name: Run tests
-        run: |
-          pytest tests/ --cov=src/openalex_local --cov-report=xml --cov-report=term
-      - name: Test CLI
-        run: |
-          openalex-local --help
-          openalex-local status || true
-      - name: Upload coverage to Codecov
-        if: always() && matrix.python-version == '3.12'
-        uses: codecov/codecov-action@v5
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
-          files: ./coverage.xml
-          fail_ci_if_error: false
+  pytest-matrix:
+    uses: scitex-ai/.github/.github/workflows/pytest-matrix.yml@main
+    with:
+      # The leaf ran on ubuntu-latest; keep that destination explicit so
+      # the runner choice stays locally visible (it moved upstream).
+      runs_on: '["ubuntu-latest"]'
+      pre_test_command: "python scripts/create_test_db.py --rows 500"
+    secrets:
+      CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}

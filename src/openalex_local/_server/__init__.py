@@ -12,32 +12,54 @@ Usage:
 
 import os
 
-from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
+try:
+    from fastapi import FastAPI
+    from fastapi.middleware.cors import CORSMiddleware
+except ImportError:  # fastapi absent — the [server]-gated HTTP capability only
+    FastAPI = None  # type: ignore[assignment]
+    CORSMiddleware = None  # type: ignore[assignment]
+
+SERVER_AVAILABLE = FastAPI is not None
+SERVER_EXTRA_HINT = "pip install 'openalex-local[server]'"
 
 from .. import __version__
-from .routes import router
 
-# Create FastAPI app
-app = FastAPI(
-    title="OpenAlex Local API",
-    description="Fast full-text search across 284M+ scholarly works",
-    version=__version__,
-)
+if SERVER_AVAILABLE:
+    from .routes import router
 
-# CORS middleware
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+    # Create FastAPI app
+    app = FastAPI(
+        title="OpenAlex Local API",
+        description="Fast full-text search across 284M+ scholarly works",
+        version=__version__,
+    )
 
-# Include routes
-app.include_router(router)
+    # CORS middleware
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=["*"],
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
+
+    # Include routes
+    app.include_router(router)
+else:
+    app = None
 
 
-@app.get("/")
+def _register_routes() -> None:
+    """Register plain route functions against the FastAPI app.
+
+    A no-op without fastapi: there is no app to register against.
+    """
+    if app is None:
+        return
+    app.get("/")(root)
+    app.get("/health")(health)
+    app.get("/info")(info)
+
+
 def root():
     """API root with endpoint information."""
     return {
@@ -54,7 +76,6 @@ def root():
     }
 
 
-@app.get("/health")
 def health():
     """Health check endpoint."""
     from .._core.db import get_db
@@ -73,7 +94,6 @@ def health():
         }
 
 
-@app.get("/info")
 def info():
     """Get database statistics."""
     from .._core.db import get_db
@@ -121,6 +141,9 @@ DEFAULT_PORT = int(os.environ.get("OPENALEX_LOCAL_PORT", "31292"))
 DEFAULT_HOST = os.environ.get("OPENALEX_LOCAL_HOST", "0.0.0.0")
 
 
+_register_routes()
+
+
 def run_server(host: str = None, port: int = None, force: bool = False):
     """Run the FastAPI server.
 
@@ -129,7 +152,19 @@ def run_server(host: str = None, port: int = None, force: bool = False):
         port: Port to listen on (default: 31292)
         force: If True, kill any existing process using the port
     """
-    import uvicorn
+    try:
+        import uvicorn
+    except ImportError as e:
+        raise RuntimeError(
+            "uvicorn is not installed, so the openalex-local HTTP server is "
+            f"unavailable. Install it with: {SERVER_EXTRA_HINT}"
+        ) from e
+
+    if app is None:
+        raise RuntimeError(
+            "fastapi is not installed, so the openalex-local HTTP server is "
+            f"unavailable. Install it with: {SERVER_EXTRA_HINT}"
+        )
 
     host = host or DEFAULT_HOST
     port = port or DEFAULT_PORT
