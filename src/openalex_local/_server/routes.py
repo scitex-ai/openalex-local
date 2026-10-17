@@ -3,8 +3,16 @@
 import time
 from typing import Optional, List
 
-from fastapi import APIRouter, Query, HTTPException
-from pydantic import BaseModel
+try:
+    from fastapi import APIRouter, HTTPException, Query
+    from pydantic import BaseModel
+except ImportError:  # fastapi/pydantic absent — this module is imported only
+    # under SERVER_AVAILABLE (the [server]-gated HTTP capability), so these
+    # names are only None on paths that never execute.
+    APIRouter = None  # type: ignore[assignment]
+    HTTPException = None  # type: ignore[assignment]
+    Query = None  # type: ignore[assignment]
+    BaseModel = object  # type: ignore[assignment]
 
 from .._core import fts
 from .._core.db import get_db

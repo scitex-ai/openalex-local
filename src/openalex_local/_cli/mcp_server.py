@@ -11,7 +11,13 @@ Usage:
 
 import json
 
-from fastmcp import FastMCP
+try:
+    from fastmcp import FastMCP
+except ImportError:  # fastmcp absent — the [mcp]-gated MCP capability only
+    FastMCP = None  # type: ignore[assignment]
+
+MCP_AVAILABLE = FastMCP is not None
+MCP_EXTRA_HINT = "pip install 'openalex-local[mcp]'"
 
 from .. import (
     get as _get,
@@ -20,16 +26,20 @@ from .. import (
     search as _search,
 )
 
-# Initialize MCP server
-mcp = FastMCP(
-    name="openalex-local",
-    instructions="Local OpenAlex database with 284M+ works and full-text search. "
-    "Use search to find papers by title/abstract, search_by_id for OpenAlex ID or DOI lookup, "
-    "and status for database stats.",
+# Initialize MCP server (None without fastmcp; tools register as plain
+# functions and run_server refuses with the install hint).
+mcp = (
+    FastMCP(
+        name="openalex-local",
+        instructions="Local OpenAlex database with 284M+ works and full-text search. "
+        "Use search to find papers by title/abstract, search_by_id for OpenAlex ID or DOI lookup, "
+        "and status for database stats.",
+    )
+    if MCP_AVAILABLE
+    else None
 )
 
 
-@mcp.tool()
 def search(
     query: str,
     limit: int = 10,
@@ -103,7 +113,6 @@ def search(
     return json.dumps(result, indent=2)
 
 
-@mcp.tool()
 def search_by_id(
     identifier: str,
     as_citation: bool = False,
@@ -155,7 +164,6 @@ def search_by_id(
     return json.dumps(result, indent=2)
 
 
-@mcp.tool()
 def status() -> str:
     """Report local OpenAlex database status — path, work count (should be ~284M), FTS5 index size, and access mode (local / remote). Use when the user asks "is the OpenAlex db ready?", "how many papers do I have?", "check openalex-local status", "is the FTS index built?", or before running a search to verify the db is usable.
 
@@ -166,7 +174,6 @@ def status() -> str:
     return json.dumps(db_info, indent=2)
 
 
-@mcp.tool()
 def enrich_ids(identifiers: list[str]) -> str:
     """Enrich OpenAlex IDs or DOIs with full metadata.
 
@@ -204,6 +211,22 @@ def enrich_ids(identifiers: list[str]) -> str:
     )
 
 
+def _register_tools() -> None:
+    """Register every tool function against the FastMCP server.
+
+    A no-op without fastmcp: there is no server to register against.
+    Tool names derive from the function names, as the prior
+    ``@mcp.tool()`` decorators did.
+    """
+    if mcp is None:
+        return
+    for _fn in (search, search_by_id, status, enrich_ids):
+        mcp.tool()(_fn)
+
+
+_register_tools()
+
+
 def run_server(
     transport: str = "stdio",
     host: str = "localhost",
@@ -218,6 +241,11 @@ def run_server(
         port: Port for HTTP/SSE transport
         force: Kill existing process using the port if any (http/sse only)
     """
+    if mcp is None:
+        raise RuntimeError(
+            "fastmcp is not installed, so the openalex-local MCP server is "
+            f"unavailable. Install it with: {MCP_EXTRA_HINT}"
+        )
     # Handle force flag for http/sse transports
     if force and transport in ("http", "sse"):
         from .utils import kill_process_on_port

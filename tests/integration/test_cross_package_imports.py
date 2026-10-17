@@ -16,7 +16,7 @@ CROSS_PACKAGE_IMPORTS = [
 def test_cross_package_module_is_importable(module_path: str) -> None:
     """Test each declared cross-package module imports at runtime."""
     # Arrange
-    pytest.importorskip(module_path)
+    pytest.importorskip(module_path.split(".")[0])
     # Act
     module = importlib.import_module(module_path)
     # Assert
