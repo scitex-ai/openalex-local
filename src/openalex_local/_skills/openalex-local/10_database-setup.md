@@ -47,6 +47,22 @@ python scripts/database/05_build_citations_table.py
 python scripts/database/06_build_if_indexes.py
 ```
 
+## Incremental Updates
+
+The updater uses the AWS CLI to download newer public OpenAlex works partitions.
+Point the snapshot directory at a volume with room for the compressed files.
+
+```bash
+openalex-local db update --snapshot-dir /data/openalex/works --dry-run
+openalex-local db update --snapshot-dir /data/openalex/works --yes
+```
+
+If the corpus has no recorded sync date, supply `--since YYYY-MM-DD` with the
+last date already included in its snapshot. Configure the corpus and its
+checkpoint together through `SCITEX_STORE_DSN` for unattended runs.
+A failed listing, download, or ingest leaves the sync date at its prior value.
+Retrying can safely upsert records from partitions already partly processed.
+
 ## Access Modes
 
 ### Direct corpus access (db mode)

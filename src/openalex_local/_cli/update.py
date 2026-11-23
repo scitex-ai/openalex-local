@@ -25,6 +25,11 @@ import click
     help="Override start date (YYYY-MM-DD). Default: last recorded sync.",
 )
 @click.option(
+    "--snapshot-dir",
+    type=click.Path(file_okay=False),
+    help="Directory for downloaded OpenAlex snapshot partitions.",
+)
+@click.option(
     "--dry-run",
     is_flag=True,
     help="Preview only — no downloads or database writes.",
@@ -40,7 +45,7 @@ import click
     is_flag=True,
     help="Minimal stdout (for cron).",
 )
-def update_cmd(dsn, since, dry_run, yes, quiet):
+def update_cmd(dsn, since, snapshot_dir, dry_run, yes, quiet):
     """Incrementally update the local corpus from OpenAlex snapshots.
 
     Delta-syncs the S3 snapshot directories newer than the recorded
@@ -62,7 +67,7 @@ def update_cmd(dsn, since, dry_run, yes, quiet):
         # reads EOF and takes the default. Refusing makes the missing flag
         # visible in the exit status instead of silently deciding for the
         # operator. Exit 2 is the conventional usage-error code.
-        target = dsn or "this host's corpus"
+        target = "the specified corpus" if dsn else "this host's corpus"
         click.secho(
             f"Refusing to update {target} without --yes/-y.\n"
             "This rewrites the database in place. Re-run with --yes to "
@@ -73,7 +78,9 @@ def update_cmd(dsn, since, dry_run, yes, quiet):
         sys.exit(2)
 
     try:
-        stats = _update(dsn=dsn, since=since, dry_run=dry_run)
+        stats = _update(
+            dsn=dsn, since=since, dry_run=dry_run, snapshot_dir=snapshot_dir
+        )
     except Exception as e:
         click.secho(f"Error: {e}", fg="red", err=True)
         sys.exit(1)
