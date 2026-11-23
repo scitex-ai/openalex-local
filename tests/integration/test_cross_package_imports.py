@@ -14,6 +14,7 @@ CROSS_PACKAGE_IMPORTS = [
     # not optional in any install: `scitex-dev>=0.57.0` is a hard dependency.
     "scitex_dev.store",
     "scitex_dev.system_deps",
+    "scitex_logging",
 ]
 
 
