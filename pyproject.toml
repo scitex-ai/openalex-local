@@ -31,6 +31,7 @@ dependencies = [
     # one. >=0.57.0 is the release that removed the second storage engine and
     # added scitex_dev.store.testing.
     "scitex-dev>=0.57.0",
+    "scitex-logging",
     # Imported directly by _core/db.py. scitex-dev already requires it, but a
     # package that imports a module declares it -- an indirect dependency is
     # someone else's promise to keep.

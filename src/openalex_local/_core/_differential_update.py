@@ -19,19 +19,18 @@ Steps:
     5. Record the new last_sync_date
 """
 
-import argparse
 import gzip
 import json
-import logging
 import os
 import subprocess
-import sys
 import time
 from contextlib import closing
 from pathlib import Path
 from typing import List, Optional
 
-from ._build_helpers import connect, parse_work, resolve_dsn
+import scitex_logging
+
+from ._build_helpers import connect, parse_work
 from ._schema import (
     FTS_INDEX_DDL,
     WORKS_COLUMNS,
@@ -47,7 +46,7 @@ OPENALEX_S3_BASE = os.environ.get(
     "OPENALEX_S3_BASE", "s3://openalex/data/jsonl/works/"
 )
 
-logger = logging.getLogger(__name__)
+logger = scitex_logging.getLogger(__name__)
 
 
 def get_last_sync_date() -> Optional[str]:
@@ -332,64 +331,6 @@ def differential_update(
         "elapsed_seconds": elapsed,
         "last_sync_date": new_dates[-1] if new_dates else since,
     }
-
-
-def main(snapshot_dir: Path):
-    logging.basicConfig(
-        level=logging.INFO,
-        format="%(asctime)s [%(levelname)s] %(message)s",
-        handlers=[logging.StreamHandler(sys.stdout)],
-    )
-    parser = argparse.ArgumentParser(
-        description="Differential update for the OpenAlex corpus"
-    )
-    parser.add_argument(
-        "--dsn", default=None,
-        help="Corpus DSN (default: the store this host resolves to)",
-    )
-    parser.add_argument(
-        "--snapshot-dir", type=Path, default=snapshot_dir,
-        help=f"Snapshot directory (default: {snapshot_dir})",
-    )
-    parser.add_argument(
-        "--since", type=str, default=None,
-        help="Override start date (YYYY-MM-DD). Default: the recorded sync date.",
-    )
-    parser.add_argument(
-        "--batch-size", type=int, default=10000,
-        help="Batch size for inserts (default: 10000)",
-    )
-    parser.add_argument(
-        "--store-raw", action="store_true",
-        help="Store raw JSON in the corpus",
-    )
-    parser.add_argument(
-        "--dry-run", action="store_true",
-        help="List updates without downloading or processing",
-    )
-    parser.add_argument(
-        "--skip-download", action="store_true",
-        help="Skip download, process existing snapshot files only",
-    )
-    parser.add_argument(
-        "--no-fts-rebuild", action="store_true",
-        help="Skip the full-text index check after the update",
-    )
-
-    args = parser.parse_args()
-
-    stats = differential_update(
-        dsn=resolve_dsn(args.dsn),
-        snapshot_dir=args.snapshot_dir,
-        since=args.since,
-        batch_size=args.batch_size,
-        store_raw=args.store_raw,
-        dry_run=args.dry_run,
-        skip_download=args.skip_download,
-        rebuild_fts=not args.no_fts_rebuild,
-    )
-
-    print(json.dumps(stats, indent=2))
 
 
 # EOF
